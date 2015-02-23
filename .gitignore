@@ -45,6 +45,10 @@ build/
 *.pidb
 *.log
 *.scc
+*.elf
+*.3dsx
+*.3ds
+*.cia
 
 # Visual C++ cache files
 ipch/
