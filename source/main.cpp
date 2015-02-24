@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
 #include "functions.c"
 #include "dwarf_bin.h"
 #include "field_bin.h"
@@ -71,10 +72,10 @@ int main()
 	// Main loop
 	while (aptMainLoop()){
 		//PREPARATIUS
-		
+
 		// Wait for next frame
 		gspWaitForVBlank();
-		
+
 		//INPUTS
 		// Read which buttons are currently pressed or not
 		hidScanInput();
@@ -87,40 +88,47 @@ int main()
 			break;
 		}
 		if (kHeld & KEY_DOWN){
-			if (list[map[player.posX][player.posY-1]]->tangible == 0){
-			map[player.posX][player.posY] = 0;
-			player.posY--;
+			if (list[map[player.posX][player.posY - 1]]->tangible == 0){
+				map[player.posX][player.posY] = 0;
+				player.posY--;
 			}
 		}
 		if (kHeld & KEY_LEFT){
 			if (list[map[player.posX - 1][player.posY]]->tangible == 0){
-			map[player.posX][player.posY] = 0; 
-			player.posX--;
+				map[player.posX][player.posY] = 0;
+				player.posX--;
 			}
 		}
 		if (kHeld & KEY_RIGHT){
 			if (list[map[player.posX + 1][player.posY]]->tangible == 0){
-			map[player.posX][player.posY] = 0; 
-			player.posX++;
+				map[player.posX][player.posY] = 0;
+				player.posX++;
 			}
 		}
 		if (kHeld & KEY_UP){
-			if (list[map[player.posX][player.posY+1]]->tangible == 0){
-			map[player.posX][player.posY] = 0; 
-			player.posY++;
+			if (list[map[player.posX][player.posY + 1]]->tangible == 0){
+				map[player.posX][player.posY] = 0;
+				player.posY++;
 			}
-		}		
+		}
 		map[player.posX][player.posY] = 1;
 		//CODI
 
+		std::cout << "PosX=" << player.posX << std::endl << "PosY=" << player.posY << std::endl << "CameraX=" << cameraX << std::endl << "CameraY=" << cameraY << std::endl;
 
-		
 		//OUTPUT
-		
+		if(player.posX<199-12){if (player.posX + cameraX > 13){ cameraX--; }}
+		if(player.posX>12){if (player.posX + cameraX < 13){ cameraX++; }}
+		if (player.posY < 199 - 7){ if (player.posY + cameraY > 8){ cameraY--; } }
+		if (player.posY>7)	{ if (player.posY + cameraY < 8){ cameraY++; } }
+
+
 		for (int i = 0; i != 15; i++){
 
 			for (int j = 0; j != 25; j++){
-				gfxDrawSprite(GFX_TOP, GFX_LEFT,list[map[j][i]]->spriteData, 16, 16, 16 * i, 16 * j);
+				if (map[j][i] != 0){
+					gfxDrawSprite(GFX_TOP, GFX_LEFT, list[map[j][i]]->spriteData, 16, 16, (cameraY + i) * 16, (cameraX + j) * 16);
+				}
 			}
 		}
 		gfxFlushBuffers();
