@@ -117,10 +117,10 @@ int main()
 		std::cout << "PosX=" << player.posX << std::endl << "PosY=" << player.posY << std::endl << "CameraX=" << cameraX << std::endl << "CameraY=" << cameraY << std::endl;
 
 		//OUTPUT
-		if (player.posX < 188){ if (cameraX + 12 < player.posX){ cameraX++; } }
-		if(player.posX>11){if (cameraX+12>player.posX){ cameraX--; }}
-		if (player.posY < 193){ if (cameraY + 7 < player.posY){ cameraY++; } }
-		if (player.posY>6){ if (cameraY + 7>player.posY){ cameraY--; } }
+		if (player.posX < 190){ if (cameraX + 14 < player.posX){ cameraX++; } }
+		if(player.posX>9){if (cameraX+10>player.posX){ cameraX--; }}
+		if (player.posY < 194){ if (cameraY + 8 < player.posY){ cameraY++; } }
+		if (player.posY>5){ if (cameraY + 6>player.posY){ cameraY--; } }
 
 		for (int i = 0; i != 15; i++){
 
