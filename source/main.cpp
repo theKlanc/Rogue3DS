@@ -117,18 +117,17 @@ int main()
 		std::cout << "PosX=" << player.posX << std::endl << "PosY=" << player.posY << std::endl << "CameraX=" << cameraX << std::endl << "CameraY=" << cameraY << std::endl;
 
 		//OUTPUT
-		if(player.posX<199-12){if (player.posX + cameraX > 13){ cameraX--; }}
-		if(player.posX>12){if (player.posX + cameraX < 13){ cameraX++; }}
-		if (player.posY < 199 - 7){ if (player.posY + cameraY > 8){ cameraY--; } }
-		if (player.posY>7)	{ if (player.posY + cameraY < 8){ cameraY++; } }
-
+		if (player.posX < 189){ if (cameraX + 13 < player.posX){ cameraX++; } }
+		if(player.posX>12){if (cameraX+13>player.posX){ cameraX--; }}
+		if (player.posY < 194){ if (cameraY + 8 < player.posY){ cameraY++; } }
+		if (player.posY>7){ if (cameraY + 8>player.posY){ cameraY--; } }
 
 		for (int i = 0; i != 15; i++){
 
 			for (int j = 0; j != 25; j++){
-				if (map[j][i] != 0){
-					gfxDrawSprite(GFX_TOP, GFX_LEFT, list[map[j][i]]->spriteData, 16, 16, (cameraY + i) * 16, (cameraX + j) * 16);
-				}
+				//if (map[j][i] != 0){
+					gfxDrawSprite(GFX_TOP, GFX_LEFT, list[map[j+cameraX][i+cameraY]]->spriteData, 16, 16, i * 16, j * 16);
+				//}
 			}
 		}
 		gfxFlushBuffers();
