@@ -31,6 +31,7 @@ int main()
 	u32 kUp;          // keys up
 	int cameraY = 0;
 	int cameraX = 0;
+	int temp = 0;
 	static short map[200][200];
 	static entity* list[64];
 	
@@ -84,38 +85,42 @@ int main()
 		kUp = hidKeysUp();
 
 		// If START button is pressed, break loop and quit
-		if (kDown & KEY_START){
-			break;
-		}
-		if (kHeld & KEY_DOWN){
-			if (list[map[player.posX][player.posY - 1]]->tangible == 0){
-				map[player.posX][player.posY] = 0;
-				player.posY--;
+		
+		if (temp == 0){
+			if (kHeld & KEY_DOWN){
+				if (list[map[player.posX][player.posY - 1]]->tangible == 0){
+					map[player.posX][player.posY] = 0;
+					player.posY--;
+					temp = 2;
+				}
 			}
-		}
-		if (kHeld & KEY_LEFT){
-			if (list[map[player.posX - 1][player.posY]]->tangible == 0){
-				map[player.posX][player.posY] = 0;
-				player.posX--;
+			if (kHeld & KEY_LEFT){
+				if (list[map[player.posX - 1][player.posY]]->tangible == 0){
+					map[player.posX][player.posY] = 0;
+					player.posX--;
+					temp = 2;
+				}
 			}
-		}
-		if (kHeld & KEY_RIGHT){
-			if (list[map[player.posX + 1][player.posY]]->tangible == 0){
-				map[player.posX][player.posY] = 0;
-				player.posX++;
+			if (kHeld & KEY_RIGHT){
+				if (list[map[player.posX + 1][player.posY]]->tangible == 0){
+					map[player.posX][player.posY] = 0;
+					player.posX++;
+					temp = 2;
+				}
 			}
-		}
-		if (kHeld & KEY_UP){
-			if (list[map[player.posX][player.posY + 1]]->tangible == 0){
-				map[player.posX][player.posY] = 0;
-				player.posY++;
+			if (kHeld & KEY_UP){
+				if (list[map[player.posX][player.posY + 1]]->tangible == 0){
+					map[player.posX][player.posY] = 0;
+					player.posY++;
+					temp = 2;
+				}
 			}
 		}
 		map[player.posX][player.posY] = 1;
 		//CODI
 
 		std::cout << "PosX=" << player.posX << std::endl << "PosY=" << player.posY << std::endl << "CameraX=" << cameraX << std::endl << "CameraY=" << cameraY << std::endl;
-
+		if (temp > 0){ temp--; }
 		//OUTPUT
 		if (player.posX < 190){ if (cameraX + 14 < player.posX){ cameraX++; } }
 		if(player.posX>9){if (cameraX+10>player.posX){ cameraX--; }}
