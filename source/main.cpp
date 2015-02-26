@@ -117,7 +117,7 @@ int main()
 			}
 		}
 		map[player.posX][player.posY] = 1;
-		//CODI
+	/	//CODI
 
 		std::cout << "PosX=" << player.posX << std::endl << "PosY=" << player.posY << std::endl << "CameraX=" << cameraX << std::endl << "CameraY=" << cameraY << std::endl;
 		if (temp > 0){ temp--; }
