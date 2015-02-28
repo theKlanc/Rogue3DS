@@ -18,6 +18,13 @@ struct entity{
 	bool tangible;
 };
 
+void cameraOperation(entity player,int &cameraX,int &cameraY){
+	if (player.posX < 190){ if (cameraX + 14 < player.posX){ cameraX++; } }
+	if (player.posX>9){ if (cameraX + 10>player.posX){ cameraX--; } }
+	if (player.posY < 194){ if (cameraY + 8 < player.posY){ cameraY++; } }
+	if (player.posY>5){ if (cameraY + 6>player.posY){ cameraY--; } }
+}
+
 int main()
 {
 	// Initializations
@@ -117,15 +124,11 @@ int main()
 			}
 		}
 		map[player.posX][player.posY] = 1;
-	/	//CODI
+		//CODI
 
-		std::cout << "PosX=" << player.posX << std::endl << "PosY=" << player.posY << std::endl << "CameraX=" << cameraX << std::endl << "CameraY=" << cameraY << std::endl;
 		if (temp > 0){ temp--; }
 		//OUTPUT
-		if (player.posX < 190){ if (cameraX + 14 < player.posX){ cameraX++; } }
-		if(player.posX>9){if (cameraX+10>player.posX){ cameraX--; }}
-		if (player.posY < 194){ if (cameraY + 8 < player.posY){ cameraY++; } }
-		if (player.posY>5){ if (cameraY + 6>player.posY){ cameraY--; } }
+		cameraOperation(player,cameraX,cameraY);
 
 		for (int i = 0; i != 15; i++){
 
