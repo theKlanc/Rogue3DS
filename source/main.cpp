@@ -97,7 +97,9 @@ int main()
 		kUp = hidKeysUp();
 
 		// If START button is pressed, break loop and quit
-
+		if (kHeld & KEY_START){
+			break;
+		}
 		if (temp == 0){
 			if (kHeld & KEY_DOWN){
 				if (map[player.posX][player.posY - 1]->tangible == 0){
