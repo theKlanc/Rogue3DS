@@ -18,10 +18,10 @@ struct entity{
 	bool tangible;
 };
 
-void cameraOperation(entity player, int &cameraX, int &cameraY){
-	if (player.posX < 190){ if (cameraX + 14 < player.posX){ cameraX++; } }
+void cameraOperation(entity player, int &cameraX, int &cameraY,const int mapHeight,const int mapWidth){
+	if (player.posX < mapWidth-10){ if (cameraX + 14 < player.posX){ cameraX++; } }
 	if (player.posX > 9){ if (cameraX + 10>player.posX){ cameraX--; } }
-	if (player.posY < 194){ if (cameraY + 8 < player.posY){ cameraY++; } }
+	if (player.posY < mapHeight-6){ if (cameraY + 8 < player.posY){ cameraY++; } }
 	if (player.posY > 5){ if (cameraY + 6>player.posY){ cameraY--; } }
 }
 
@@ -40,7 +40,9 @@ int main()
 	int cameraX = 0;
 	int temp = 0;
 	int npcN = 0;
-	static entity* map[200][200];
+	const int mapHeight=1000;
+	const int mapWidth=1000;
+	static entity* map[mapWidth][mapHeight];
 
 	entity player;
 	player.spriteData = (u8*)dwarf_bin;
@@ -68,13 +70,13 @@ int main()
 	wall.spriteWidth = 16;
 	wall.tangible = 1;
 
-	for (int i = 0; i != 200; i++){
-		for (int j = 0; j != 200; j++){
+	for (int i = 0; i != mapHeight; i++){
+		for (int j = 0; j != mapWidth; j++){
 			map[j][i] = &wall;
 		}
 	}
-	for (int i = 1; i != 199; i++){
-		for (int j = 1; j != 199; j++){
+	for (int i = 1; i != mapHeight-1; i++){
+		for (int j = 1; j != mapWidth-1; j++){
 			map[j][i] = &field;
 		}
 	}
@@ -159,11 +161,12 @@ int main()
 		}
 		else { npcN++; }
 		std::cout << "NPC1.posX==" << NPC1.posX << std::endl << "NPC1.posY==" << NPC1.posY << std::endl;
+		std::cout << "player.posX==" << player.posX << std::endl << "player.posY==" << player.posY << std::endl;
 		if (temp > 0){ temp--; }
 		//OUTPUT
 		map[player.posX][player.posY] = &player;
 		map[NPC1.posX][NPC1.posY] = &NPC1;
-		cameraOperation(player, cameraX, cameraY);
+		cameraOperation(player, cameraX, cameraY,mapHeight,mapWidth);
 
 		for (int i = 0; i != 15; i++){
 			for (int j = 0; j != 25; j++){
