@@ -40,8 +40,7 @@ int main()
 	int cameraX = 0;
 	int temp = 0;
 	int npcN = 0;
-	static short map[200][200];
-	static entity* list[64];
+	static entity* map[200][200];
 
 	entity player;
 	player.spriteData = (u8*)dwarf_bin;
@@ -69,19 +68,14 @@ int main()
 	wall.spriteWidth = 16;
 	wall.tangible = 1;
 
-	list[0] = &field;
-	list[1] = &player;
-	list[2] = &wall;
-	list[3] = &NPC1;
-
 	for (int i = 0; i != 200; i++){
 		for (int j = 0; j != 200; j++){
-			map[j][i] = 2;
+			map[j][i] = &wall;
 		}
 	}
 	for (int i = 1; i != 199; i++){
 		for (int j = 1; j != 199; j++){
-			map[j][i] = 0;
+			map[j][i] = &field;
 		}
 	}
 
@@ -104,29 +98,29 @@ int main()
 
 		if (temp == 0){
 			if (kHeld & KEY_DOWN){
-				if (list[map[player.posX][player.posY - 1]]->tangible == 0){
-					map[player.posX][player.posY] = 0;
+				if (map[player.posX][player.posY - 1]->tangible == 0){
+					map[player.posX][player.posY] = &field;
 					player.posY--;
 					temp = 2;
 				}
 			}
 			if (kHeld & KEY_LEFT){
-				if (list[map[player.posX - 1][player.posY]]->tangible == 0){
-					map[player.posX][player.posY] = 0;
+				if (map[player.posX - 1][player.posY]->tangible == 0){
+					map[player.posX][player.posY] = &field;
 					player.posX--;
 					temp = 2;
 				}
 			}
 			if (kHeld & KEY_RIGHT){
-				if (list[map[player.posX + 1][player.posY]]->tangible == 0){
-					map[player.posX][player.posY] = 0;
+				if (map[player.posX + 1][player.posY]->tangible == 0){
+					map[player.posX][player.posY] = &field;
 					player.posX++;
 					temp = 2;
 				}
 			}
 			if (kHeld & KEY_UP){
-				if (list[map[player.posX][player.posY + 1]]->tangible == 0){
-					map[player.posX][player.posY] = 0;
+				if (map[player.posX][player.posY + 1]->tangible == 0){
+					map[player.posX][player.posY] = &field;
 					player.posY++;
 					temp = 2;
 				}
@@ -135,27 +129,27 @@ int main()
 		
 		//CODI
 		if (npcN == 2){
-			if (list[map[NPC1.posX][NPC1.posY - 1]]->tangible == 0){
-				map[NPC1.posX][NPC1.posY] = 0;
+			if (map[NPC1.posX][NPC1.posY - 1]->tangible == 0){
+				map[NPC1.posX][NPC1.posY] = &field;
 				NPC1.posY--;			
 			}
 		}
 		else if (npcN == 1){
-			if (list[map[NPC1.posX - 1][NPC1.posY]]->tangible == 0){
-				map[NPC1.posX][NPC1.posY] = 0;
+			if (map[NPC1.posX - 1][NPC1.posY]->tangible == 0){
+				map[NPC1.posX][NPC1.posY] = &field;
 				NPC1.posX--;				
 			}
 		}
 		else if (npcN == 3){
-			if (list[map[NPC1.posX + 1][NPC1.posY]]->tangible == 0){
-				map[NPC1.posX][NPC1.posY] = 0;
+			if (map[NPC1.posX + 1][NPC1.posY]->tangible == 0){
+				map[NPC1.posX][NPC1.posY] = &field;
 				NPC1.posX++;
 				
 			}
 		}
 		else if (npcN==0){
-			if (list[map[NPC1.posX][NPC1.posY + 1]]->tangible == 0){
-				map[NPC1.posX][NPC1.posY] = 0;
+			if (map[NPC1.posX][NPC1.posY + 1]->tangible == 0){
+				map[NPC1.posX][NPC1.posY] = &field;
 				NPC1.posY++;
 			}
 		}
@@ -167,13 +161,13 @@ int main()
 		std::cout << "NPC1.posX==" << NPC1.posX << std::endl << "NPC1.posY==" << NPC1.posY << std::endl;
 		if (temp > 0){ temp--; }
 		//OUTPUT
-		map[player.posX][player.posY] = 1;
-		map[NPC1.posX][NPC1.posY] = 3;
+		map[player.posX][player.posY] = &player;
+		map[NPC1.posX][NPC1.posY] = &NPC1;
 		cameraOperation(player, cameraX, cameraY);
 
 		for (int i = 0; i != 15; i++){
 			for (int j = 0; j != 25; j++){
-				gfxDrawSprite(GFX_TOP, GFX_LEFT, list[map[j + cameraX][i + cameraY]]->spriteData, 16, 16, i * 16, j * 16);
+				gfxDrawSprite(GFX_TOP, GFX_LEFT, map[j + cameraX][i + cameraY]->spriteData, 16, 16, i * 16, j * 16);
 			}
 		}
 		gfxFlushBuffers();
