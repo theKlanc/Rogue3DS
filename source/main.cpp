@@ -61,15 +61,15 @@ int main()
 	consoleInit(GFX_BOTTOM, NULL);
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 
-	sf2d_texture *tex1 = sf2d_create_texture(dwarf_img.width, dwarf_img.height, GPU_RGBA8, SF2D_PLACE_RAM);
+	sf2d_texture *tex1 = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	sf2d_fill_texture_from_RGBA8(tex1, dwarf_img.pixel_data, dwarf_img.width, dwarf_img.height);
 	sf2d_texture_tile32(tex1);
 
-	sf2d_texture *tex2 = sf2d_create_texture(wall_img.width, wall_img.height, GPU_RGBA8, SF2D_PLACE_RAM);
+	sf2d_texture *tex2 = sf2d_create_texture(wall_img.width, wall_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	sf2d_fill_texture_from_RGBA8(tex2, wall_img.pixel_data, wall_img.width, wall_img.height);
 	sf2d_texture_tile32(tex2);
 
-	sf2d_texture *tex3 = sf2d_create_texture(field_img.width, field_img.height, GPU_RGBA8, SF2D_PLACE_RAM);
+	sf2d_texture *tex3 = sf2d_create_texture(field_img.width, field_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	sf2d_fill_texture_from_RGBA8(tex3, field_img.pixel_data, field_img.width, field_img.height);
 	sf2d_texture_tile32(tex3);
 
@@ -144,7 +144,32 @@ int main()
 		kUp = hidKeysUp();
 
 		if (kDown & KEY_START){
-			break;
+			int option = 0;
+			bool loop = 1;
+			bool changed = 0;
+			printf(">>BACK",'\n',"EXIT");
+			while (loop==1){
+				if (kDown & KEY_UP){
+					option--;
+					changed = 1;
+				}
+					
+				if (kDown & KEY_DOWN){
+					option++;
+					changed = 1;
+				}
+				if (changed == 1){
+					changed = 0;
+					consoleClear();
+					if (option == 0){ printf(">>BACK",'\n',"EXIT"); }
+					if (option == 1){ printf("BACK",'\n',">>EXIT"); }
+
+				}
+				if (kDown & KEY_A){
+					if (option == 0){ loop = 0; }
+					if (option == 1){ break; }
+				}
+			}
 		}
 		if (temp == 0){
 			if (kHeld & KEY_UP){

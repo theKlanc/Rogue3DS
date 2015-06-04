@@ -51,8 +51,10 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="source\functions.c" />
+    <ClCompile Include="source\dwarf_img.c" />
+    <ClCompile Include="source\field_img.c" />
     <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\wall_img.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\banner.bin" />
