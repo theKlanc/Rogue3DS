@@ -147,7 +147,9 @@ int main()
 			int option = 0;
 			bool loop = 1;
 			bool changed = 0;
-			printf(">>BACK",'\n',"EXIT");
+			printf(">>BACK");
+			printf("\n");
+			printf("EXIT");
 			while (loop==1){
 				if (kDown & KEY_UP){
 					option--;
@@ -161,8 +163,16 @@ int main()
 				if (changed == 1){
 					changed = 0;
 					consoleClear();
-					if (option == 0){ printf(">>BACK",'\n',"EXIT"); }
-					if (option == 1){ printf("BACK",'\n',">>EXIT"); }
+					if (option == 0){
+						printf(">>BACK");
+						printf("\n");
+						printf("EXIT");
+					}
+					if (option == 1){
+						printf("BACK");
+						printf("\n");
+						printf(">>EXIT");
+					}
 
 				}
 				if (kDown & KEY_A){
