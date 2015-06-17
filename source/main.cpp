@@ -80,6 +80,7 @@ int main()
 	int cameraX = 0;
 	int temp = 0;
 	int npcN = 0;
+	bool stop = 0;
 	const int mapHeight = 1000;
 	const int mapWidth = 1000;
 	static entity* map[mapWidth][mapHeight];
@@ -148,36 +149,46 @@ int main()
 			bool loop = 1;
 			bool changed = 0;
 			printf(">>BACK");
-			//printf("\n");
+			printf("\n");
 			printf("EXIT");
-			while (loop==1){
+			while (loop == 1){
+				gfxFlushBuffers();
+				gfxSwapBuffers();
+				hidScanInput();
+				kDown = hidKeysDown();
+				kHeld = hidKeysHeld();
+				kUp = hidKeysUp();
 				if (kDown & KEY_UP){
-					option--;
-					changed = 1;
+					if (option > 0){
+						option--;
+						changed = 1;
+					}
 				}
-					
+
 				if (kDown & KEY_DOWN){
-					option++;
-					changed = 1;
+					if (option < 1){
+						option++;
+						changed = 1;
+					}
 				}
 				if (changed == 1){
 					changed = 0;
 					consoleClear();
 					if (option == 0){
 						printf(">>BACK");
-						//printf("\n");
+						printf("\n");
 						printf("EXIT");
 					}
 					if (option == 1){
 						printf("BACK");
-						//printf("\n");
+						printf("\n");
 						printf(">>EXIT");
 					}
 
 				}
 				if (kDown & KEY_A){
-					if (option == 0){ loop = 0; }
-					if (option == 1){ break; }
+					if (option == 0){ consoleClear(); break; }
+					if (option == 1){ stop = 1; consoleClear(); break; }
 				}
 			}
 		}
@@ -262,7 +273,7 @@ int main()
 			}
 		}
 		sf2d_end_frame();
-
+		if (stop == 1){ break; }
 	}
 
 	// Exit
