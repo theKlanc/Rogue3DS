@@ -7,6 +7,8 @@
 #include <math.h>
 #include <sf2d.h>
 #include <time.h>
+//test
+using namespace std;
 
 extern "C" {
 	extern const struct {
@@ -37,7 +39,6 @@ struct entity{
 	int posX;
 	int posY;
 	bool tangible;
-	bool divertit;
 };
 
 void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth){
@@ -90,7 +91,6 @@ int main()
 	player.spriteHeight = 16;
 	player.spriteWidth = 16;
 	player.tangible = 1;
-	player.divertit = 0;
 
 	entity NPC1;
 	NPC1.spriteData = tex1;
@@ -104,14 +104,12 @@ int main()
 	field.spriteHeight = 16;
 	field.spriteWidth = 16;
 	field.tangible = 0;
-	field.divertit = 1;
 
 	entity wall;
 	wall.spriteData = tex2;
 	wall.spriteHeight = 16;
 	wall.spriteWidth = 16;
 	wall.tangible = 1;
-	wall.divertit = 0;
 
 	for (int i = 0; i != mapHeight; i++){
 		for (int j = 0; j != mapWidth; j++){
@@ -151,13 +149,9 @@ int main()
 			printf(">>BACK");
 			printf("\n");
 			printf("EXIT");
-			while (loop == 1){
-				gfxFlushBuffers();
-				gfxSwapBuffers();
+			while (loop){
 				hidScanInput();
 				kDown = hidKeysDown();
-				kHeld = hidKeysHeld();
-				kUp = hidKeysUp();
 				if (kDown & KEY_UP){
 					if (option > 0){
 						option--;
@@ -171,7 +165,7 @@ int main()
 						changed = 1;
 					}
 				}
-				if (changed == 1){
+				if (changed){
 					changed = 0;
 					consoleClear();
 					if (option == 0){
@@ -179,7 +173,7 @@ int main()
 						printf("\n");
 						printf("EXIT");
 					}
-					if (option == 1){
+					if (option){
 						printf("BACK");
 						printf("\n");
 						printf(">>EXIT");
@@ -187,35 +181,38 @@ int main()
 
 				}
 				if (kDown & KEY_A){
-					if (option == 0){ consoleClear(); break; }
-					if (option == 1){ stop = 1; consoleClear(); break; }
+					if (!option){ consoleClear(); break; }
+					if (option){ stop = 1; consoleClear(); break; }
 				}
+				gfxSwapBuffers();
+				gfxFlushBuffers();
+				
 			}
 		}
-		if (temp == 0){
+		if (!temp){
 			if (kHeld & KEY_UP){
-				if (map[player.posX][player.posY - 1]->tangible == 0){
+				if (!map[player.posX][player.posY - 1]->tangible){
 					map[player.posX][player.posY] = &field;
 					player.posY--;
 					map[player.posX][player.posY] = &player;
 				}
 			}
 			if (kHeld & KEY_LEFT){
-				if (map[player.posX - 1][player.posY]->tangible == 0){
+				if (!map[player.posX - 1][player.posY]->tangible){
 					map[player.posX][player.posY] = &field;
 					player.posX--;
 					map[player.posX][player.posY] = &player;
 				}
 			}
 			if (kHeld & KEY_RIGHT){
-				if (map[player.posX + 1][player.posY]->tangible == 0){
+				if (!map[player.posX + 1][player.posY]->tangible){
 					map[player.posX][player.posY] = &field;
 					player.posX++;
 					map[player.posX][player.posY] = &player;
 				}
 			}
 			if (kHeld & KEY_DOWN){
-				if (map[player.posX][player.posY + 1]->tangible == 0){
+				if (!map[player.posX][player.posY + 1]->tangible){
 					map[player.posX][player.posY] = &field;
 					player.posY++;
 					map[player.posX][player.posY] = &player;
@@ -228,7 +225,7 @@ int main()
 		if (temp == 0 & rand() % 3 == 0){ //si el tick es 0, una de cada 3 vegades(probabilisticament)
 			switch (rng1){
 			case 2:
-				if (map[NPC1.posX][NPC1.posY - 1]->tangible == 0){
+				if (!map[NPC1.posX][NPC1.posY - 1]->tangible){
 					map[NPC1.posX][NPC1.posY] = &field;
 					NPC1.posY--;
 					map[NPC1.posX][NPC1.posY] = &NPC1;
@@ -236,7 +233,7 @@ int main()
 				break;
 
 			case 1:
-				if (map[NPC1.posX - 1][NPC1.posY]->tangible == 0){
+				if (!map[NPC1.posX - 1][NPC1.posY]->tangible){
 					map[NPC1.posX][NPC1.posY] = &field;
 					NPC1.posX--;
 					map[NPC1.posX][NPC1.posY] = &NPC1;
@@ -244,7 +241,7 @@ int main()
 				break;
 
 			case 3:
-				if (map[NPC1.posX + 1][NPC1.posY]->tangible == 0){
+				if (!map[NPC1.posX + 1][NPC1.posY]->tangible){
 					map[NPC1.posX][NPC1.posY] = &field;
 					NPC1.posX++;
 					map[NPC1.posX][NPC1.posY] = &NPC1;
@@ -252,7 +249,7 @@ int main()
 				break;
 
 			case 0:
-				if (map[NPC1.posX][NPC1.posY + 1]->tangible == 0){
+				if (!map[NPC1.posX][NPC1.posY + 1]->tangible){
 					map[NPC1.posX][NPC1.posY] = &field;
 					NPC1.posY++;
 					map[NPC1.posX][NPC1.posY] = &NPC1;
@@ -273,7 +270,7 @@ int main()
 			}
 		}
 		sf2d_end_frame();
-		if (stop == 1){ break; }
+		if (stop){ break; }
 	}
 
 	// Exit
