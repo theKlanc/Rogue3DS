@@ -230,6 +230,39 @@ int main()
 
 				}
 			}
+			if (kHeld & KEY_A){
+				if (map[player.posX+1][player.posY]== &wall){
+					map[player.posX+1][player.posY] = &field;
+				}
+				else{
+					map[player.posX+1][player.posY] = &wall;
+				}
+			}
+			if (kHeld & KEY_B){
+				if (map[player.posX][player.posY+1] == &wall){
+					map[player.posX][player.posY+1] = &field;
+				}
+				else{
+					map[player.posX][player.posY+1] = &wall;
+				}
+			}
+			if (kHeld & KEY_Y){
+				if (map[player.posX - 1][player.posY] == &wall){
+					map[player.posX -1][player.posY] = &field;
+				}
+				else{
+					map[player.posX - 1][player.posY] = &wall;
+				}
+			}
+			if (kHeld & KEY_X){
+				if (map[player.posX][player.posY-1] == &wall){
+					map[player.posX][player.posY-1] = &field;
+				}
+				else{
+					map[player.posX][player.posY-1] = &wall;
+				}
+			}
+
 		}
 
 		int rng1 = rand() % 4;
