@@ -3,14 +3,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include <string>
+#include <string.h>
 #include <math.h>
 #include <sf2d.h>
 #include <time.h>
 //test
 using namespace std;
 
-extern "C" {
+extern "C"{
 	extern const struct {
 		unsigned int 	 width;
 		unsigned int 	 height;
@@ -43,10 +43,18 @@ struct entity{
 
 void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth){
 	if (player.posX < mapWidth - 10){ if (cameraX + 14 < player.posX){ cameraX++; } }
-	if (player.posX > 9){ if (cameraX + 10>player.posX){ cameraX--; } }
+	if (player.posX > 9){ if (cameraX + 10 > player.posX){ cameraX--; } }
 	if (player.posY < mapHeight - 6){ if (cameraY + 8 < player.posY){ cameraY++; } }
-	if (player.posY > 5){ if (cameraY + 6>player.posY){ cameraY--; } }
+	if (player.posY > 5){ if (cameraY + 6 > player.posY){ cameraY--; } }
 }
+
+//Audio Stuff WIP
+u8* buffer;
+u32 size;
+
+static void audio_load(const char *audio);
+static void audio_stop(void);
+
 
 int main()
 {
@@ -131,6 +139,9 @@ int main()
 	player.posY = 5;
 	map[5][5] = &player;
 
+	csndInit();//start Audio Lib
+	audio_load("audio/original_raw.bin");
+
 	while (aptMainLoop()){
 		//PREPARATIUS
 
@@ -186,7 +197,7 @@ int main()
 				}
 				gfxSwapBuffers();
 				gfxFlushBuffers();
-				
+
 			}
 		}
 		if (!temp){
@@ -273,6 +284,9 @@ int main()
 		if (stop){ break; }
 	}
 
+	audio_stop();
+	audio_stop();
+	csndExit();
 	// Exit
 	sf2d_free_texture(tex1);
 	sf2d_free_texture(tex2);
@@ -286,4 +300,39 @@ int main()
 
 	// Return to hbmenu
 	return 0;
+}
+
+
+void audio_load(const char *audio){
+
+	FILE *file = fopen(audio, "rb");
+
+	// seek to end of file
+	fseek(file, 0, SEEK_END);
+
+	// file pointer tells us the size
+	off_t size = ftell(file);
+
+	// seek back to start
+	fseek(file, 0, SEEK_SET);
+
+	//allocate a buffer
+	buffer = linearAlloc(size);
+
+	//read contents !
+	off_t bytesRead = fread(buffer, 1, size, file);
+	//u8 test = &buffer;
+
+	//close the file because we like being nice and tidy
+	fclose(file);
+
+	csndPlaySound(8, SOUND_FORMAT_16BIT | SOUND_REPEAT, 48000, 1, 0, buffer, buffer, size);
+	linearFree(buffer);
+}
+void audio_stop(void){
+	csndExecCmds(true);
+	CSND_SetPlayState(0x8, 0);
+	memset(buffer, 0, size);
+	GSPGPU_FlushDataCache(NULL, buffer, size);
+	linearFree(buffer);
 }
