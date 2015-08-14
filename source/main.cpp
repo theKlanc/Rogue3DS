@@ -111,10 +111,10 @@ int main()
 	int cameraX = 0;
 	char temp = 0;
 	bool stop = 0;
-	const short mapHeight = 100;
-	const short mapWidth = 100;
-	short map[mapWidth][mapHeight]; //necessita memalloc
-	entity* list[10];
+	const short mapHeight = 2000;
+	const short mapWidth = 2000;
+	static short map[mapWidth][mapHeight]; //necessita memalloc
+	static entity* list[10];
 
 	entity air;
 	air.solid = 1;
