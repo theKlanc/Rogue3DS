@@ -1,3 +1,24 @@
+/*
+TO-DO
+1-crear llista d entities
+2-^-crear custom entities(instancies?)-^(no se si es podra)
+4-afegir menu principal
+3-separar la creacio de mapa i guardar mapa (guardat dinamic)      /  / RELACIONAT
+5-afegir suport per transicio de mapes seamless                   /  /  RELACIONAT
+6-gestio de memoria                    /  / JUNT
+7-modularitat en càrrega de textures  /  /  JUNT
+8-afegir events
+9-afegir combat
+10-millorar el so i afegir sfx
+
+99-MP
+
+
+
+*/
+
+
+
 #include <3ds.h>
 #include <string.h>
 #include <stdlib.h>
@@ -38,7 +59,8 @@ struct entity{
 	int spriteWidth;
 	int posX;
 	int posY;
-	bool tangible;
+	bool posZ;
+	bool solid;
 };
 
 void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth){
@@ -70,7 +92,7 @@ int main()
 	consoleInit(GFX_BOTTOM, NULL);
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 
-	sf2d_texture *tex1 = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	sf2d_texture *tex1 = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);   //s ha de fer bbbbbbb
 	sf2d_fill_texture_from_RGBA8(tex1, dwarf_img.pixel_data, dwarf_img.width, dwarf_img.height);
 	sf2d_texture_tile32(tex1);
 
@@ -87,57 +109,57 @@ int main()
 	u32 kUp;
 	int cameraY = 0;
 	int cameraX = 0;
-	int temp = 0;
-	int npcN = 0;
+	char temp = 0;
 	bool stop = 0;
-	const int mapHeight = 1000;
-	const int mapWidth = 1000;
-	static entity* map[mapWidth][mapHeight];
+	const short mapHeight = 100;
+	const short mapWidth = 100;
+	short map[mapWidth][mapHeight]; //necessita memalloc
+	entity* list[10];
+
+	entity air;
+	air.solid = 1;
+	list[0] = &air;
 
 	entity player;
 	player.spriteData = tex1;
 	player.spriteHeight = 16;
 	player.spriteWidth = 16;
-	player.tangible = 1;
-
-	entity NPC1;
-	NPC1.spriteData = tex1;
-	NPC1.spriteHeight = 16;
-	NPC1.spriteWidth = 16;
-	NPC1.tangible = 1;
-	NPC1.posX = 3;
-	NPC1.posY = 3;
+	player.solid = 1;
+	list[9] = &player;
+	
 	entity field;
 	field.spriteData = tex3;
 	field.spriteHeight = 16;
 	field.spriteWidth = 16;
-	field.tangible = 0;
+	field.solid = 0;
+	list[1] = &field;
 
 	entity wall;
 	wall.spriteData = tex2;
 	wall.spriteHeight = 16;
 	wall.spriteWidth = 16;
-	wall.tangible = 1;
+	wall.solid = 1;
+	list[2] = &wall;
 
 	for (int i = 0; i != mapHeight; i++){
 		for (int j = 0; j != mapWidth; j++){
-			map[j][i] = &wall;
+			map[j][i] = 2;
 		}
 	}
 	for (int i = 1; i != mapHeight - 1; i++){
 		for (int j = 1; j != mapWidth - 1; j++){
-			map[j][i] = &field;
+			map[j][i] = 1;
 		}
 	}
 	for (int i = 1; i != mapHeight - 1; i++){
 		for (int j = 1; j != mapWidth - 1; j++){
-			if (rand() % 20 == 0){ map[j][i] = &wall; }
+			if (rand() % 20 == 0){ map[j][i] = 2; }
 		}
 	}
 
 	player.posX = 5;
 	player.posY = 5;
-	map[5][5] = &player;
+	map[5][5] = 9;
 
 	csndInit();//start Audio Lib
 	audio_load("audio/original_raw.bin");
@@ -202,105 +224,70 @@ int main()
 		}
 		if (!temp){
 			if (kHeld & KEY_UP){
-				if (!map[player.posX][player.posY - 1]->tangible){
-					map[player.posX][player.posY] = &field;
+				if (!list[map[player.posX][player.posY - 1]]->solid){
+					map[player.posX][player.posY] = 1;
 					player.posY--;
-					map[player.posX][player.posY] = &player;
+					map[player.posX][player.posY] = 9;
 				}
 			}
 			if (kHeld & KEY_LEFT){
-				if (!map[player.posX - 1][player.posY]->tangible){
-					map[player.posX][player.posY] = &field;
+				if (!list[map[player.posX - 1][player.posY]]->solid){
+					map[player.posX][player.posY] = 1;
 					player.posX--;
-					map[player.posX][player.posY] = &player;
+					map[player.posX][player.posY] = 9;
 				}
 			}
 			if (kHeld & KEY_RIGHT){
-				if (!map[player.posX + 1][player.posY]->tangible){
-					map[player.posX][player.posY] = &field;
+				if (!list[map[player.posX + 1][player.posY]]->solid){
+					map[player.posX][player.posY] = 1;
 					player.posX++;
-					map[player.posX][player.posY] = &player;
+					map[player.posX][player.posY] = 9;
 				}
 			}
 			if (kHeld & KEY_DOWN){
-				if (!map[player.posX][player.posY + 1]->tangible){
-					map[player.posX][player.posY] = &field;
+				if (!list[map[player.posX][player.posY + 1]]->solid){
+					map[player.posX][player.posY] = 1;
 					player.posY++;
-					map[player.posX][player.posY] = &player;
+					map[player.posX][player.posY] = 9;
 
 				}
 			}
 			if (kHeld & KEY_A){
-				if (map[player.posX+1][player.posY]== &wall){
-					map[player.posX+1][player.posY] = &field;
+				if (map[player.posX + 1][player.posY] == 2){
+					map[player.posX + 1][player.posY] = 1;
 				}
 				else{
-					map[player.posX+1][player.posY] = &wall;
+					map[player.posX + 1][player.posY] = 2;
 				}
 			}
 			if (kHeld & KEY_B){
-				if (map[player.posX][player.posY+1] == &wall){
-					map[player.posX][player.posY+1] = &field;
+				if (map[player.posX][player.posY + 1] == 2){
+					map[player.posX][player.posY + 1] = 1;
 				}
 				else{
-					map[player.posX][player.posY+1] = &wall;
+					map[player.posX][player.posY + 1] = 2;
 				}
 			}
 			if (kHeld & KEY_Y){
-				if (map[player.posX - 1][player.posY] == &wall){
-					map[player.posX -1][player.posY] = &field;
+				if (map[player.posX - 1][player.posY] == 2){
+					map[player.posX - 1][player.posY] = 1;
 				}
 				else{
-					map[player.posX - 1][player.posY] = &wall;
+					map[player.posX - 1][player.posY] = 2;
 				}
 			}
 			if (kHeld & KEY_X){
-				if (map[player.posX][player.posY-1] == &wall){
-					map[player.posX][player.posY-1] = &field;
+				if (map[player.posX][player.posY - 1] == 2){
+					map[player.posX][player.posY - 1] = 1;
 				}
 				else{
-					map[player.posX][player.posY-1] = &wall;
+					map[player.posX][player.posY - 1] = 2;
 				}
 			}
 
 		}
 
 		int rng1 = rand() % 4;
-		if (temp == 0 & rand() % 3 == 0){ //si el tick es 0, una de cada 3 vegades(probabilisticament)
-			switch (rng1){
-			case 2:
-				if (!map[NPC1.posX][NPC1.posY - 1]->tangible){
-					map[NPC1.posX][NPC1.posY] = &field;
-					NPC1.posY--;
-					map[NPC1.posX][NPC1.posY] = &NPC1;
-				}
-				break;
-
-			case 1:
-				if (!map[NPC1.posX - 1][NPC1.posY]->tangible){
-					map[NPC1.posX][NPC1.posY] = &field;
-					NPC1.posX--;
-					map[NPC1.posX][NPC1.posY] = &NPC1;
-				}
-				break;
-
-			case 3:
-				if (!map[NPC1.posX + 1][NPC1.posY]->tangible){
-					map[NPC1.posX][NPC1.posY] = &field;
-					NPC1.posX++;
-					map[NPC1.posX][NPC1.posY] = &NPC1;
-				}
-				break;
-
-			case 0:
-				if (!map[NPC1.posX][NPC1.posY + 1]->tangible){
-					map[NPC1.posX][NPC1.posY] = &field;
-					NPC1.posY++;
-					map[NPC1.posX][NPC1.posY] = &NPC1;
-				}
-				break;
-			}
-		}
 
 		if (temp > 0){ temp--; }
 		else { temp = 4; }
@@ -310,7 +297,7 @@ int main()
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 		for (int i = 0; i != 15; i++){
 			for (int j = 0; j != 25; j++){
-				sf2d_draw_texture(map[j + cameraX][i + cameraY]->spriteData, j * 16, i * 16);
+				sf2d_draw_texture(list[map[j + cameraX][i + cameraY]]->spriteData, j * 16, i * 16);
 			}
 		}
 		sf2d_end_frame();

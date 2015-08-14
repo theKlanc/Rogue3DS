@@ -4,15 +4,15 @@
 resources/
 .gitignore
 .gitattributes
-Rogue3DS.3ds
-Rogue3DS.smdh
-Rogue3DS.cia
-Rogue3DS.elf
-Rogue3DS.3dsx
-Rogue3DS.vcxproj
-build.bat
-clean.bat
-icon.png
+/Rogue3DS.3ds
+/Rogue3DS.smdh
+/Rogue3DS.cia
+/Rogue3DS.elf
+/Rogue3DS.3dsx
+/Rogue3DS.vcxproj
+/build.bat
+/clean.bat
+/icon.png
 
 # User-specific files
 *.suo
@@ -75,8 +75,8 @@ ipch/
 *.psess
 *.vsp
 *.vspx
-*.sln
-*.vcxproj
+/*.sln
+/*.vcxproj
 
 # Guidance Automation Toolkit
 *.gpState

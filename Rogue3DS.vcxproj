@@ -40,7 +40,7 @@
     <NMakeCleanCommandLine>$(SolutionDir)\clean.bat</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>$(SolutionDir)\build.bat</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <IncludePath>D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeBuildCommandLine>$(SolutionDir)\build.bat</NMakeBuildCommandLine>
@@ -57,6 +57,7 @@
     <ClCompile Include="source\wall_img.c" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="audio\original_raw.bin" />
     <None Include="resources\banner.bin" />
     <None Include="resources\icon.bin" />
   </ItemGroup>
