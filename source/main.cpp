@@ -9,7 +9,7 @@ TO-DO
 7-modularitat en càrrega de textures  /  /  JUNT
 8-afegir events
 9-afegir combat
-10-millorar el so i afegir sfx
+10-millorar el so i afegir sfx 
 
 99-MP
 
@@ -55,13 +55,65 @@ extern "C"{
 }
 struct entity{
 	sf2d_texture *spriteData;
-	int spriteHeight;
-	int spriteWidth;
 	int posX;
 	int posY;
-	bool posZ;
+	int posZ;
 	bool solid;
 };
+
+struct terrain {
+	sf2d_texture *spriteData;
+	bool solid;
+};
+struct point3D{
+	int x;
+	int y;
+	int z;
+};
+
+
+class map {
+private:
+	static char terrainMap[3][3][3][100][100][100];
+	entity entityList[1000]; //tractat a part del terreny un a un
+	terrain terrainList[1000]; //terrain és derivat de entity
+	point3D mapIndex[27]; //indica quin bloc de terreny hi ha a cada posició
+	int blocX = 0, blocY = 0, blocZ = 0;
+public:
+	void emplenarLlistaWIP() {
+		terrainList[0].solid = 0;
+		terrainList[1].solid = 1;
+		//[0].spriteData = tex0;
+		//terrainList[1].spriteData = tex1;
+
+
+	}
+	void emplenarWIP() {
+		for (int x = 0; x != 3; x++) {
+			for (int y = 0; y != 3; y++) {
+				for (int z = 0; z != 3; z++) {
+					for (int i = 0; i <= 99; i++) {
+						for (int j = 0; i <= 99; j++) {
+							for (int k = 0; k <= 1; k++) {
+								terrainMap[x][y][z][i][j][49 + k] = 1;
+							}
+						}
+					}
+					for (int i = 1; i != 99; i++) {
+						for (int j = 1; i != 99; j++) {
+							terrainMap[x][y][z][i][j][50] = 0;
+						}
+					}
+				}
+			}
+		}
+
+	}
+	//void loadChunk(int chunkX,int chunkY,int chunkZ, int fillX, int fillY, int fillZ)
+	/*bool collision(int x, int y, int z) {
+		//ultra-wip falta abstracció pel mapa
+	}*/
+}map;
 
 void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth){
 	if (player.posX < mapWidth - 10){ if (cameraX + 14 < player.posX){ cameraX++; } }
@@ -70,12 +122,12 @@ void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHei
 	if (player.posY > 5){ if (cameraY + 6 > player.posY){ cameraY--; } }
 }
 
-//Audio Stuff WIP
-u8* buffer;
-u32 size;
 
-static void audio_load(const char *audio);
-static void audio_stop(void);
+static u8* buffer;
+static u32 size;
+
+void audio_load(const char *audio);
+void audio_stop(void);
 
 
 int main()
@@ -104,6 +156,8 @@ int main()
 	sf2d_fill_texture_from_RGBA8(tex3, field_img.pixel_data, field_img.width, field_img.height);
 	sf2d_texture_tile32(tex3);
 
+
+
 	u32 kDown;
 	u32 kHeld;
 	u32 kUp;
@@ -122,22 +176,16 @@ int main()
 
 	entity player;
 	player.spriteData = tex1;
-	player.spriteHeight = 16;
-	player.spriteWidth = 16;
 	player.solid = 1;
 	list[9] = &player;
-	
+
 	entity field;
 	field.spriteData = tex3;
-	field.spriteHeight = 16;
-	field.spriteWidth = 16;
 	field.solid = 0;
 	list[1] = &field;
 
 	entity wall;
 	wall.spriteData = tex2;
-	wall.spriteHeight = 16;
-	wall.spriteWidth = 16;
 	wall.solid = 1;
 	list[2] = &wall;
 
@@ -175,53 +223,7 @@ int main()
 		kHeld = hidKeysHeld();
 		kUp = hidKeysUp();
 
-		if (kDown & KEY_START){
-			int option = 0;
-			bool loop = 1;
-			bool changed = 0;
-			printf(">>BACK");
-			printf("\n");
-			printf("EXIT");
-			while (loop){
-				hidScanInput();
-				kDown = hidKeysDown();
-				if (kDown & KEY_UP){
-					if (option > 0){
-						option--;
-						changed = 1;
-					}
-				}
-
-				if (kDown & KEY_DOWN){
-					if (option < 1){
-						option++;
-						changed = 1;
-					}
-				}
-				if (changed){
-					changed = 0;
-					consoleClear();
-					if (option == 0){
-						printf(">>BACK");
-						printf("\n");
-						printf("EXIT");
-					}
-					if (option){
-						printf("BACK");
-						printf("\n");
-						printf(">>EXIT");
-					}
-
-				}
-				if (kDown & KEY_A){
-					if (!option){ consoleClear(); break; }
-					if (option){ stop = 1; consoleClear(); break; }
-				}
-				gfxSwapBuffers();
-				gfxFlushBuffers();
-
-			}
-		}
+		
 		if (!temp){
 			if (kHeld & KEY_UP){
 				if (!list[map[player.posX][player.posY - 1]]->solid){
@@ -252,38 +254,7 @@ int main()
 
 				}
 			}
-			if (kHeld & KEY_A){
-				if (map[player.posX + 1][player.posY] == 2){
-					map[player.posX + 1][player.posY] = 1;
-				}
-				else{
-					map[player.posX + 1][player.posY] = 2;
-				}
-			}
-			if (kHeld & KEY_B){
-				if (map[player.posX][player.posY + 1] == 2){
-					map[player.posX][player.posY + 1] = 1;
-				}
-				else{
-					map[player.posX][player.posY + 1] = 2;
-				}
-			}
-			if (kHeld & KEY_Y){
-				if (map[player.posX - 1][player.posY] == 2){
-					map[player.posX - 1][player.posY] = 1;
-				}
-				else{
-					map[player.posX - 1][player.posY] = 2;
-				}
-			}
-			if (kHeld & KEY_X){
-				if (map[player.posX][player.posY - 1] == 2){
-					map[player.posX][player.posY - 1] = 1;
-				}
-				else{
-					map[player.posX][player.posY - 1] = 2;
-				}
-			}
+			
 
 		}
 
