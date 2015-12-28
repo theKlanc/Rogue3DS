@@ -6,7 +6,7 @@ TO-DO
 3-separar la creacio de mapa i guardar mapa (guardat dinamic)      /  / RELACIONAT
 5-afegir suport per transicio de mapes seamless                   /  /  RELACIONAT
 6-gestio de memoria                    /  / JUNT
-7-modularitat en c‡rrega de textures  /  /  JUNT
+7-modularitat en c√†rrega de textures  /  /  JUNT
 8-afegir events
 9-afegir combat
 10-millorar el so i afegir sfx 
@@ -37,21 +37,7 @@ extern "C"{
 		unsigned int 	 height;
 		unsigned int 	 bytes_per_pixel;
 		unsigned char	 pixel_data[];
-	} dwarf_img;
-
-	extern const struct {
-		unsigned int 	 width;
-		unsigned int 	 height;
-		unsigned int 	 bytes_per_pixel;
-		unsigned char	 pixel_data[];
-	} wall_img;
-
-	extern const struct {
-		unsigned int 	 width;
-		unsigned int 	 height;
-		unsigned int 	 bytes_per_pixel;
-		unsigned char	 pixel_data[];
-	} field_img;
+	} dwarf_img,wall_img,field_img;
 }
 struct entity{
 	sf2d_texture *spriteData;
@@ -76,8 +62,8 @@ class map {
 private:
 	static char terrainMap[3][3][3][100][100][100];
 	entity entityList[1000]; //tractat a part del terreny un a un
-	terrain terrainList[1000]; //terrain Ès derivat de entity
-	point3D mapIndex[27]; //indica quin bloc de terreny hi ha a cada posiciÛ
+	terrain terrainList[1000]; //terrain √©s derivat de entity
+	point3D mapIndex[27]; //indica quin bloc de terreny hi ha a cada posici√≥
 	int blocX = 0, blocY = 0, blocZ = 0;
 public:
 	void emplenarLlistaWIP() {
@@ -111,7 +97,7 @@ public:
 	}
 	//void loadChunk(int chunkX,int chunkY,int chunkZ, int fillX, int fillY, int fillZ)
 	/*bool collision(int x, int y, int z) {
-		//ultra-wip falta abstracciÛ pel mapa
+		//ultra-wip falta abstracci√≥ pel mapa
 	}*/
 }map;
 
@@ -135,7 +121,7 @@ int main()
 	// Inits
 	srvInit();
 	aptInit();
-	hidInit(NULL);
+	hidInit();
 
 	srand(time(NULL));
 
@@ -308,7 +294,7 @@ void audio_load(const char *audio){
 	fseek(file, 0, SEEK_SET);
 
 	//allocate a buffer
-	buffer = linearAlloc(size);
+	buffer = (u8*)linearAlloc(size);
 
 	//read contents !
 	off_t bytesRead = fread(buffer, 1, size, file);
@@ -324,6 +310,6 @@ void audio_stop(void){
 	csndExecCmds(true);
 	CSND_SetPlayState(0x8, 0);
 	memset(buffer, 0, size);
-	GSPGPU_FlushDataCache(NULL, buffer, size);
+	GSPGPU_FlushDataCache(buffer, size);
 	linearFree(buffer);
 }
