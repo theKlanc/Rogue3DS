@@ -9,7 +9,7 @@ TO-DO
 7-modularitat en càrrega de textures  /  /  JUNT
 8-afegir events
 9-afegir combat
-10-millorar el so i afegir sfx 
+10-millorar el so i afegir sfx
 
 99-MP
 
@@ -31,15 +31,15 @@ TO-DO
 //test
 using namespace std;
 
-extern "C"{
+extern "C" {
 	extern const struct {
 		unsigned int 	 width;
 		unsigned int 	 height;
 		unsigned int 	 bytes_per_pixel;
 		unsigned char	 pixel_data[];
-	} dwarf_img,wall_img,field_img;
+	} dwarf_img, wall_img, field_img;
 }
-struct entity{
+struct entity {
 	sf2d_texture *spriteData;
 	int posX;
 	int posY;
@@ -51,7 +51,7 @@ struct terrain {
 	sf2d_texture *spriteData;
 	bool solid;
 };
-struct point3D{
+struct point3D {
 	int x;
 	int y;
 	int z;
@@ -97,15 +97,15 @@ public:
 	}
 	//void loadChunk(int chunkX,int chunkY,int chunkZ, int fillX, int fillY, int fillZ)
 	/*bool collision(int x, int y, int z) {
-		//ultra-wip falta abstracció pel mapa
+	//ultra-wip falta abstracció pel mapa
 	}*/
 }map;
 
-void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth){
-	if (player.posX < mapWidth - 10){ if (cameraX + 14 < player.posX){ cameraX++; } }
-	if (player.posX > 9){ if (cameraX + 10 > player.posX){ cameraX--; } }
-	if (player.posY < mapHeight - 6){ if (cameraY + 8 < player.posY){ cameraY++; } }
-	if (player.posY > 5){ if (cameraY + 6 > player.posY){ cameraY--; } }
+void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth) {
+	if (player.posX < mapWidth - 10) { if (cameraX + 14 < player.posX) { cameraX++; } }
+	if (player.posX > 9) { if (cameraX + 10 > player.posX) { cameraX--; } }
+	if (player.posY < mapHeight - 6) { if (cameraY + 8 < player.posY) { cameraY++; } }
+	if (player.posY > 5) { if (cameraY + 6 > player.posY) { cameraY--; } }
 }
 
 
@@ -175,19 +175,19 @@ int main()
 	wall.solid = 1;
 	list[2] = &wall;
 
-	for (int i = 0; i != mapHeight; i++){
-		for (int j = 0; j != mapWidth; j++){
+	for (int i = 0; i != mapHeight; i++) {
+		for (int j = 0; j != mapWidth; j++) {
 			map[j][i] = 2;
 		}
 	}
-	for (int i = 1; i != mapHeight - 1; i++){
-		for (int j = 1; j != mapWidth - 1; j++){
+	for (int i = 1; i != mapHeight - 1; i++) {
+		for (int j = 1; j != mapWidth - 1; j++) {
 			map[j][i] = 1;
 		}
 	}
-	for (int i = 1; i != mapHeight - 1; i++){
-		for (int j = 1; j != mapWidth - 1; j++){
-			if (rand() % 20 == 0){ map[j][i] = 2; }
+	for (int i = 1; i != mapHeight - 1; i++) {
+		for (int j = 1; j != mapWidth - 1; j++) {
+			if (rand() % 20 == 0) { map[j][i] = 2; }
 		}
 	}
 
@@ -198,67 +198,68 @@ int main()
 	csndInit();//start Audio Lib
 	audio_load("audio/original_raw.bin");
 
-	while (aptMainLoop()){
+	while (aptMainLoop()) {
 		//PREPARATIUS
 
 		sf2d_swapbuffers();
 		//INPUTS
 
-		if (temp == 0){ hidScanInput(); }
+		if (temp == 0) { hidScanInput(); }
 		kDown = hidKeysDown();
 		kHeld = hidKeysHeld();
 		kUp = hidKeysUp();
 
-		
-		if (!temp){
-			if (kHeld & KEY_UP){
-				if (!list[map[player.posX][player.posY - 1]]->solid){
+
+		if (!temp) {
+			if (kHeld & KEY_UP) {
+				if (!list[map[player.posX][player.posY - 1]]->solid) {
 					map[player.posX][player.posY] = 1;
 					player.posY--;
 					map[player.posX][player.posY] = 9;
 				}
 			}
-			if (kHeld & KEY_LEFT){
-				if (!list[map[player.posX - 1][player.posY]]->solid){
+			if (kHeld & KEY_LEFT) {
+				if (!list[map[player.posX - 1][player.posY]]->solid) {
 					map[player.posX][player.posY] = 1;
 					player.posX--;
 					map[player.posX][player.posY] = 9;
 				}
 			}
-			if (kHeld & KEY_RIGHT){
-				if (!list[map[player.posX + 1][player.posY]]->solid){
+			if (kHeld & KEY_RIGHT) {
+				if (!list[map[player.posX + 1][player.posY]]->solid) {
 					map[player.posX][player.posY] = 1;
 					player.posX++;
 					map[player.posX][player.posY] = 9;
 				}
 			}
-			if (kHeld & KEY_DOWN){
-				if (!list[map[player.posX][player.posY + 1]]->solid){
+			if (kHeld & KEY_DOWN) {
+				if (!list[map[player.posX][player.posY + 1]]->solid) {
 					map[player.posX][player.posY] = 1;
 					player.posY++;
 					map[player.posX][player.posY] = 9;
 
 				}
 			}
-			
-
+			if (kDown & KEY_START) {
+				stop = 1;
+			}
 		}
 
 		int rng1 = rand() % 4;
 
-		if (temp > 0){ temp--; }
+		if (temp > 0) { temp--; }
 		else { temp = 4; }
 		//OUTPUT
 		cameraOperation(player, cameraX, cameraY, mapHeight, mapWidth); //Moure la camera
 
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
-		for (int i = 0; i != 15; i++){
-			for (int j = 0; j != 25; j++){
+		for (int i = 0; i != 15; i++) {
+			for (int j = 0; j != 25; j++) {
 				sf2d_draw_texture(list[map[j + cameraX][i + cameraY]]->spriteData, j * 16, i * 16);
 			}
 		}
 		sf2d_end_frame();
-		if (stop){ break; }
+		if (stop) { break; }
 	}
 
 	audio_stop();
@@ -280,7 +281,7 @@ int main()
 }
 
 
-void audio_load(const char *audio){
+void audio_load(const char *audio) {
 
 	FILE *file = fopen(audio, "rb");
 
@@ -306,7 +307,7 @@ void audio_load(const char *audio){
 	csndPlaySound(8, SOUND_FORMAT_16BIT | SOUND_REPEAT, 48000, 1, 0, buffer, buffer, size);
 	linearFree(buffer);
 }
-void audio_stop(void){
+void audio_stop(void) {
 	csndExecCmds(true);
 	CSND_SetPlayState(0x8, 0);
 	memset(buffer, 0, size);
