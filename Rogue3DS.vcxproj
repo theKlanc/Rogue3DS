@@ -31,8 +31,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <IncludePath>D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\devkitPro\libctru\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\devkitPro\libctru\lib;$(LibraryPath)</LibraryPath>
     <NMakeBuildCommandLine>make</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>

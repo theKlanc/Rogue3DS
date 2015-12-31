@@ -12,9 +12,6 @@ TO-DO
 10-millorar el so i afegir sfx
 
 99-MP
-
-
-
 */
 
 
@@ -39,8 +36,9 @@ extern "C" {
 		unsigned char	 pixel_data[];
 	} dwarf_img, wall_img, field_img;
 }
+
 struct entity {
-	sf2d_texture *spriteData;
+	sf2d_texture* spriteData;
 	int posX;
 	int posY;
 	int posZ;
@@ -48,23 +46,27 @@ struct entity {
 };
 
 struct terrain {
-	sf2d_texture *spriteData;
+	sf2d_texture* spriteData;
 	bool solid;
 };
 struct point3D {
-	int x;
+	int x = 0;
 	int y;
 	int z;
 };
 
 
 class map {
+	//TO-DO
+	//Funcio per carregar sprite en memoria
+	//Funcio per carregar chunks a memoria
+	//
 private:
-	static char terrainMap[3][3][3][100][100][100];
+	static int terrainMap[27][100][100][100];
 	entity entityList[1000]; //tractat a part del terreny un a un
 	terrain terrainList[1000]; //terrain és derivat de entity
-	point3D mapIndex[27]; //indica quin bloc de terreny hi ha a cada posició
-	int blocX = 0, blocY = 0, blocZ = 0;
+	point3D mapIndex[27]; //indica quin bloc de terreny hi ha a cada posició		
+	sf2d_texture* texTable[30];
 public:
 	void emplenarLlistaWIP() {
 		terrainList[0].solid = 0;
@@ -74,22 +76,23 @@ public:
 
 
 	}
+	map() {
+		texTable[0] = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);   //s ha de fer bbbbbbb
+		sf2d_fill_texture_from_RGBA8(texTable[0], dwarf_img.pixel_data, dwarf_img.width, dwarf_img.height);
+		sf2d_texture_tile32(texTable[0]);
+	}
 	void emplenarWIP() {
-		for (int x = 0; x != 3; x++) {
-			for (int y = 0; y != 3; y++) {
-				for (int z = 0; z != 3; z++) {
-					for (int i = 0; i <= 99; i++) {
-						for (int j = 0; i <= 99; j++) {
-							for (int k = 0; k <= 1; k++) {
-								terrainMap[x][y][z][i][j][49 + k] = 1;
-							}
-						}
+		for (int x = 0; x != 27; x++) {
+			for (int i = 0; i <= 99; i++) {
+				for (int j = 0; i <= 99; j++) {
+					for (int k = 0; k <= 1; k++) {
+						terrainMap[x][i][j][49 + k] = 1;
 					}
-					for (int i = 1; i != 99; i++) {
-						for (int j = 1; i != 99; j++) {
-							terrainMap[x][y][z][i][j][50] = 0;
-						}
-					}
+				}
+			}
+			for (int i = 1; i != 99; i++) {
+				for (int j = 1; i != 99; j++) {
+					terrainMap[x][i][j][50] = 0;
 				}
 			}
 		}
@@ -99,7 +102,7 @@ public:
 	/*bool collision(int x, int y, int z) {
 	//ultra-wip falta abstracció pel mapa
 	}*/
-}map;
+};
 
 void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth) {
 	if (player.posX < mapWidth - 10) { if (cameraX + 14 < player.posX) { cameraX++; } }
@@ -130,7 +133,7 @@ int main()
 	consoleInit(GFX_BOTTOM, NULL);
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 
-	sf2d_texture *tex1 = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);   //s ha de fer bbbbbbb
+	sf2d_texture *tex1 = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	sf2d_fill_texture_from_RGBA8(tex1, dwarf_img.pixel_data, dwarf_img.width, dwarf_img.height);
 	sf2d_texture_tile32(tex1);
 
@@ -153,7 +156,7 @@ int main()
 	bool stop = 0;
 	const short mapHeight = 2000;
 	const short mapWidth = 2000;
-	static short map[mapWidth][mapHeight]; //necessita memalloc
+	static short mapa[mapWidth][mapHeight]; //necessita memalloc
 	static entity* list[10];
 
 	entity air;
@@ -177,27 +180,27 @@ int main()
 
 	for (int i = 0; i != mapHeight; i++) {
 		for (int j = 0; j != mapWidth; j++) {
-			map[j][i] = 2;
+			mapa[j][i] = 2;
 		}
 	}
 	for (int i = 1; i != mapHeight - 1; i++) {
 		for (int j = 1; j != mapWidth - 1; j++) {
-			map[j][i] = 1;
+			mapa[j][i] = 1;
 		}
 	}
 	for (int i = 1; i != mapHeight - 1; i++) {
 		for (int j = 1; j != mapWidth - 1; j++) {
-			if (rand() % 20 == 0) { map[j][i] = 2; }
+			if (rand() % 20 == 0) { mapa[j][i] = 2; }
 		}
 	}
 
 	player.posX = 5;
 	player.posY = 5;
-	map[5][5] = 9;
+	mapa[5][5] = 9;
 
 	csndInit();//start Audio Lib
 	audio_load("audio/original_raw.bin");
-
+	static map mapTest;
 	while (aptMainLoop()) {
 		//PREPARATIUS
 
@@ -212,31 +215,31 @@ int main()
 
 		if (!temp) {
 			if (kHeld & KEY_UP) {
-				if (!list[map[player.posX][player.posY - 1]]->solid) {
-					map[player.posX][player.posY] = 1;
+				if (!list[mapa[player.posX][player.posY - 1]]->solid) {
+					mapa[player.posX][player.posY] = 1;
 					player.posY--;
-					map[player.posX][player.posY] = 9;
+					mapa[player.posX][player.posY] = 9;
 				}
 			}
 			if (kHeld & KEY_LEFT) {
-				if (!list[map[player.posX - 1][player.posY]]->solid) {
-					map[player.posX][player.posY] = 1;
+				if (!list[mapa[player.posX - 1][player.posY]]->solid) {
+					mapa[player.posX][player.posY] = 1;
 					player.posX--;
-					map[player.posX][player.posY] = 9;
+					mapa[player.posX][player.posY] = 9;
 				}
 			}
 			if (kHeld & KEY_RIGHT) {
-				if (!list[map[player.posX + 1][player.posY]]->solid) {
-					map[player.posX][player.posY] = 1;
+				if (!list[mapa[player.posX + 1][player.posY]]->solid) {
+					mapa[player.posX][player.posY] = 1;
 					player.posX++;
-					map[player.posX][player.posY] = 9;
+					mapa[player.posX][player.posY] = 9;
 				}
 			}
 			if (kHeld & KEY_DOWN) {
-				if (!list[map[player.posX][player.posY + 1]]->solid) {
-					map[player.posX][player.posY] = 1;
+				if (!list[mapa[player.posX][player.posY + 1]]->solid) {
+					mapa[player.posX][player.posY] = 1;
 					player.posY++;
-					map[player.posX][player.posY] = 9;
+					mapa[player.posX][player.posY] = 9;
 
 				}
 			}
@@ -255,7 +258,7 @@ int main()
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 		for (int i = 0; i != 15; i++) {
 			for (int j = 0; j != 25; j++) {
-				sf2d_draw_texture(list[map[j + cameraX][i + cameraY]]->spriteData, j * 16, i * 16);
+				sf2d_draw_texture(list[mapa[j + cameraX][i + cameraY]]->spriteData, j * 16, i * 16);
 			}
 		}
 		sf2d_end_frame();

@@ -13,19 +13,22 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Resource Files\Sprites">
+      <UniqueIdentifier>{17321ff4-27fd-4014-aa6e-b3a978e2cbc1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\dwarf_img.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\field_img.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\wall_img.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\dwarf_img.cpp">
+      <Filter>Resource Files\Sprites</Filter>
+    </ClCompile>
+    <ClCompile Include="source\field_img.cpp">
+      <Filter>Resource Files\Sprites</Filter>
+    </ClCompile>
+    <ClCompile Include="source\wall_img.cpp">
+      <Filter>Resource Files\Sprites</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
