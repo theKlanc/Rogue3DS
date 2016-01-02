@@ -8,13 +8,21 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|3DS = Debug|3DS
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|3DS = Release|3DS
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9DFE7510-D45C-4514-A2DC-2B6C72F8B6F4}.Debug|3DS.ActiveCfg = Debug|ARM
 		{9DFE7510-D45C-4514-A2DC-2B6C72F8B6F4}.Debug|3DS.Build.0 = Debug|ARM
+		{9DFE7510-D45C-4514-A2DC-2B6C72F8B6F4}.Debug|x64.ActiveCfg = Debug|ARM
+		{9DFE7510-D45C-4514-A2DC-2B6C72F8B6F4}.Debug|x86.ActiveCfg = Debug|ARM
 		{9DFE7510-D45C-4514-A2DC-2B6C72F8B6F4}.Release|3DS.ActiveCfg = Release|ARM
 		{9DFE7510-D45C-4514-A2DC-2B6C72F8B6F4}.Release|3DS.Build.0 = Release|ARM
+		{9DFE7510-D45C-4514-A2DC-2B6C72F8B6F4}.Release|x64.ActiveCfg = Release|ARM
+		{9DFE7510-D45C-4514-A2DC-2B6C72F8B6F4}.Release|x86.ActiveCfg = Release|ARM
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

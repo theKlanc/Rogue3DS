@@ -13,10 +13,6 @@ TO-DO
 
 99-MP
 */
-const int CHUNK_NUM = 27;
-
-
-
 #include <3ds.h>
 #include <string.h>
 #include <stdlib.h>
@@ -26,14 +22,33 @@ const int CHUNK_NUM = 27;
 #include <math.h>
 #include <sf2d.h>
 #include <time.h>
+#include <vector>
 //test
+
+#define CHUNK_NUM  27
+#define ENTITY_LIST_SIZE  100
+#define TERRAIN_LIST_SIZE  100
+
+
+
 using namespace std;
 
 enum mode {
-	PRTY,
-	TERR,
-	ENTT,
-}/*terrainMode;*/;
+	PRRT,
+	TRRN,
+	NTT,
+	RAY,
+	BLCK,
+};
+
+enum direction {
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT,
+	FRONT,
+	BACK,
+};
 
 extern "C" {
 	extern const struct {
@@ -44,13 +59,16 @@ extern "C" {
 	} dwarf_img, wall_img, field_img;
 }
 
-struct entity {
-	sf2d_texture* spriteData;
-	bool visible = true;
-	int posX;
-	int posY;
-	int posZ;
-	bool solid;
+class entity { // es podrien passar a classe
+	public:
+		sf2d_texture* spriteData;
+		bool visible = true;
+		int posX;
+		int posY;
+		int posZ;
+		bool solid;
+
+		void update(){}
 };
 
 struct terrain {
@@ -65,18 +83,29 @@ struct point3D {
 };
 
 
-class map {
+class mapa {
 	//TO-DO
 	//Funcio per carregar sprite en memoria
 	//Funcio per carregar chunks a memoria
 	//
 private:
 	static int terrainMap[CHUNK_NUM][100][100][100];
-	entity entityList[1000]; //Processats individualment cada frame
-	terrain terrainList[1000]; //Llista de tipus de terrenys diferents, aqui és on es mirarà a partir del terrainMap
+	entity entityList[ENTITY_LIST_SIZE]; //Processats individualment cada frame // HAURIA D USAR UN STD::VECTOR PER PODERLOS REORDENAR
+	terrain terrainList[TERRAIN_LIST_SIZE]; //Llista de tipus de terrenys diferents, aqui és on es mirarà a partir del terrainMap
 	point3D mapIndex[CHUNK_NUM]; //indica quin bloc de terreny hi ha a cada posició		
 	sf2d_texture* texTable[30];
 public:
+	//FALTEN:
+	//funcio per carregar chunks al terrainMap adequat, donats un cert arxiu i la posicio a on inserirlo
+	//juntament amb aquesta, funcio per carregar els entities corresponents a akest chunk
+	//funcio per guardar chunks al terrainMap adequat, donats un cert arxiu i la posicio a on inserirlo
+	//juntament amb aquesta, funcio per guardar els entities corresponents a akest chunk
+	//funcio per actualitzar chunks carregats, i decidir quins sobreescriure //per escollir els chunks a descarregar, restarem el numero de chunkX del player del numero del chunkX actual,
+																			 //en farem el valor absolut, i li sumarem el mateix procés pero fet amb chunkY i chunkZ, això ens donara una
+																			 //distància aproximada del chunk analitzat al player, i per tant, podrem descarregar el chunk més llunyà
+	//fisiques, amb modes ray i block
+
+
 	int getChunk(int posX, int posY, int posZ) {
 		for (int i = 0; i < CHUNK_NUM; i++) {
 			if (posX == mapIndex[i].x) {
@@ -87,42 +116,66 @@ public:
 				}
 			}
 		}
+		cout << "No s'ha trobat cap chunk carregat amb aquestes coordenades" << endl << "X:" << posX << endl << "Y:" << posY << endl << "Z:" << posZ << endl;
 		return -1;
 	}
 
-	bool isVisible(int posX, int posY, int posZ, mode mode_t = PRTY) {
+	int visibleEntity(int posX, int posY, int posZ) { 
+		while (1) {
+			for (int i = 0; i < ENTITY_LIST_SIZE; i++) {
+				if (entityList[i].posX < 0) {
+					cout << "No s'ha trobat cap entity visible en aquesta posicio" << endl;
+					return -1;
+				}
+				if (entityList[i].posX == posX) {
+					if (entityList[i].posY == posY) {
+						if (entityList[i].posZ == posZ) {
+							if (entityList[i].visible) {
+								return i;
+							}
+
+						}
+					}
+				}
+			}
+		}
+	}
+	bool isVisible(int posX, int posY, int posZ, mode mode_t = PRRT) {
 		int blockX = floor(posX / 100);
 		int blockY = floor(posY / 100);
 		int blockZ = floor(posZ / 100);
 		int chunkPosition = getChunk(blockX, blockY, blockZ);
 
-		return terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible;
+		switch (mode_t) {
+		case TRRN:
+			return terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible;
+		case NTT:
+			return (visibleEntity(posX, posY, posZ)==-1);
+		case PRRT:
+			return ((visibleEntity(posX, posY, posZ) != -1) ? terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible : 1);
+		}
 	}
 
-	sf2d_texture* getTexture(int posX, int posY, int posZ, mode mode_t = PRTY) {
+	sf2d_texture* getTexture(int posX, int posY, int posZ, mode mode_t = PRRT) {
 		int blockX = floor(posX / 100);
 		int blockY = floor(posY / 100);
 		int blockZ = floor(posZ / 100);
 		int chunkPosition = getChunk(blockX, blockY, blockZ);
 		switch (mode_t) {
-		case TERR:
+		case TRRN:
 			return terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData;
-		case ENTT:
-			return entityList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData;
-		case PRTY:
-			return (entityList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible ? entityList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData : terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData);
+		case NTT:
+			return entityList[visibleEntity(posX,posY,posZ)].spriteData;
+		case PRRT:
+			return ((visibleEntity(posX,posY,posZ)!=-1) ? entityList[visibleEntity(posX, posY, posZ)].spriteData : terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData);
 		}
 	}
-
-	void emplenarLlistaWIP() {
+	map() {
+		//inicialitzar la entityList amb tot a -1
+		//quan esborrem algo de la entitylist, primer el swappejem per el entity en ultima posició, i després substituim tots els seus paramtres per -1;
+		//
 		terrainList[0].solid = 0;
 		terrainList[1].solid = 1;
-		//[0].spriteData = tex0;
-		//terrainList[1].spriteData = tex1;
-
-
-	}
-	map() {
 		texTable[0] = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);   //s ha de fer bbbbbbb
 		sf2d_fill_texture_from_RGBA8(texTable[0], dwarf_img.pixel_data, dwarf_img.width, dwarf_img.height);
 		sf2d_texture_tile32(texTable[0]);
@@ -159,7 +212,7 @@ void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHei
 
 
 static u8* buffer;
-static u32 size;
+static u32 audioSize;
 
 void audio_load(const char *audio);
 void audio_stop(void);
@@ -338,28 +391,28 @@ void audio_load(const char *audio) {
 	fseek(file, 0, SEEK_END);
 
 	// file pointer tells us the size
-	off_t size = ftell(file);
+	off_t audioSize = ftell(file);
 
 	// seek back to start
 	fseek(file, 0, SEEK_SET);
 
 	//allocate a buffer
-	buffer = (u8*)linearAlloc(size);
+	buffer = (u8*)linearAlloc(audioSize);
 
 	//read contents !
-	off_t bytesRead = fread(buffer, 1, size, file);
+	off_t bytesRead = fread(buffer, 1, audioSize, file);
 	//u8 test = &buffer;
 
 	//close the file because we like being nice and tidy
 	fclose(file);
 
-	csndPlaySound(8, SOUND_FORMAT_16BIT | SOUND_REPEAT, 48000, 1, 0, buffer, buffer, size);
+	csndPlaySound(8, SOUND_FORMAT_16BIT | SOUND_REPEAT, 48000, 1, 0, buffer, buffer, audioSize);
 	linearFree(buffer);
 }
 void audio_stop(void) {
 	csndExecCmds(true);
 	CSND_SetPlayState(0x8, 0);
-	memset(buffer, 0, size);
-	GSPGPU_FlushDataCache(buffer, size);
+	memset(buffer, 0, audioSize);
+	GSPGPU_FlushDataCache(buffer, audioSize);
 	linearFree(buffer);
 }
