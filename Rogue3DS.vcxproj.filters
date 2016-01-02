@@ -21,13 +21,13 @@
     <ClCompile Include="source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\dwarf_img.cpp">
+    <ClCompile Include="source\field_img.c">
       <Filter>Resource Files\Sprites</Filter>
     </ClCompile>
-    <ClCompile Include="source\field_img.cpp">
+    <ClCompile Include="source\dwarf_img.c">
       <Filter>Resource Files\Sprites</Filter>
     </ClCompile>
-    <ClCompile Include="source\wall_img.cpp">
+    <ClCompile Include="source\wall_img.c">
       <Filter>Resource Files\Sprites</Filter>
     </ClCompile>
   </ItemGroup>
@@ -42,5 +42,15 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Rogue3DS.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

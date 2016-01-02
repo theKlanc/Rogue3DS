@@ -13,6 +13,7 @@ TO-DO
 
 99-MP
 */
+const int CHUNK_NUM = 27;
 
 
 
@@ -28,6 +29,12 @@ TO-DO
 //test
 using namespace std;
 
+enum mode {
+	PRTY,
+	TERR,
+	ENTT,
+}/*terrainMode;*/;
+
 extern "C" {
 	extern const struct {
 		unsigned int 	 width;
@@ -39,6 +46,7 @@ extern "C" {
 
 struct entity {
 	sf2d_texture* spriteData;
+	bool visible = true;
 	int posX;
 	int posY;
 	int posZ;
@@ -47,10 +55,11 @@ struct entity {
 
 struct terrain {
 	sf2d_texture* spriteData;
+	bool visible = false;
 	bool solid;
 };
 struct point3D {
-	int x = 0;
+	int x;
 	int y;
 	int z;
 };
@@ -62,12 +71,49 @@ class map {
 	//Funcio per carregar chunks a memoria
 	//
 private:
-	static int terrainMap[27][100][100][100];
-	entity entityList[1000]; //tractat a part del terreny un a un
-	terrain terrainList[1000]; //terrain és derivat de entity
-	point3D mapIndex[27]; //indica quin bloc de terreny hi ha a cada posició		
+	static int terrainMap[CHUNK_NUM][100][100][100];
+	entity entityList[1000]; //Processats individualment cada frame
+	terrain terrainList[1000]; //Llista de tipus de terrenys diferents, aqui és on es mirarà a partir del terrainMap
+	point3D mapIndex[CHUNK_NUM]; //indica quin bloc de terreny hi ha a cada posició		
 	sf2d_texture* texTable[30];
 public:
+	int getChunk(int posX, int posY, int posZ) {
+		for (int i = 0; i < CHUNK_NUM; i++) {
+			if (posX == mapIndex[i].x) {
+				if (posY == mapIndex[i].y) {
+					if (posZ == mapIndex[i].z) {
+						return i;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+
+	bool isVisible(int posX, int posY, int posZ, mode mode_t = PRTY) {
+		int blockX = floor(posX / 100);
+		int blockY = floor(posY / 100);
+		int blockZ = floor(posZ / 100);
+		int chunkPosition = getChunk(blockX, blockY, blockZ);
+
+		return terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible;
+	}
+
+	sf2d_texture* getTexture(int posX, int posY, int posZ, mode mode_t = PRTY) {
+		int blockX = floor(posX / 100);
+		int blockY = floor(posY / 100);
+		int blockZ = floor(posZ / 100);
+		int chunkPosition = getChunk(blockX, blockY, blockZ);
+		switch (mode_t) {
+		case TERR:
+			return terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData;
+		case ENTT:
+			return entityList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData;
+		case PRTY:
+			return (entityList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible ? entityList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData : terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData);
+		}
+	}
+
 	void emplenarLlistaWIP() {
 		terrainList[0].solid = 0;
 		terrainList[1].solid = 1;
