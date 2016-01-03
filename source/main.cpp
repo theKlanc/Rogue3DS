@@ -23,6 +23,9 @@ TO-DO
 #include <sf2d.h>
 #include <time.h>
 #include <vector>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 //test
 
 #define CHUNK_NUM  27
@@ -32,6 +35,12 @@ TO-DO
 
 
 using namespace std;
+
+string to_string(int number) {
+	stringstream ss;
+	ss << number;
+	return ss.str();
+}
 
 enum mode {
 	PRRT,
@@ -60,21 +69,27 @@ extern "C" {
 }
 
 class entity { // es podrien passar a classe
-	public:
-		sf2d_texture* spriteData;
-		bool visible = true;
-		int posX;
-		int posY;
-		int posZ;
-		bool solid;
+public:
+	sf2d_texture* spriteData = (sf2d_texture *)-1; //sep, definitivament s hauria de treure;
+	string spriteName = "NULL";
+	bool visible = 1;
+	bool solid = 1;
+	int posX = -1;
+	int posY = -1;
+	int posZ = -1;
 
-		void update(){}
+	void update() {}
+};
+
+struct textureName {
+	sf2d_texture* texture;
+	string textureName;
 };
 
 struct terrain {
 	sf2d_texture* spriteData;
-	bool visible = false;
-	bool solid;
+	bool visible = true;
+	bool solid = true;
 };
 struct point3D {
 	int x;
@@ -83,7 +98,7 @@ struct point3D {
 };
 
 
-class mapa {
+class map {
 	//TO-DO
 	//Funcio per carregar sprite en memoria
 	//Funcio per carregar chunks a memoria
@@ -93,7 +108,100 @@ private:
 	entity entityList[ENTITY_LIST_SIZE]; //Processats individualment cada frame // HAURIA D USAR UN STD::VECTOR PER PODERLOS REORDENAR
 	terrain terrainList[TERRAIN_LIST_SIZE]; //Llista de tipus de terrenys diferents, aqui és on es mirarà a partir del terrainMap
 	point3D mapIndex[CHUNK_NUM]; //indica quin bloc de terreny hi ha a cada posició		
-	sf2d_texture* texTable[30];
+	textureName texTable[30];
+
+	void loadChunk(int chunkPos, int chunkX, int chunkY, int chunkZ, string fileName = "default") {
+
+		ifstream chunkFile;
+		string terrainName = ("/save/" + fileName + "/terrain." + to_string(chunkX) + '.' + to_string(chunkY) + '.' + to_string(chunkZ));
+		chunkFile.open(terrainName);
+		for (int i = 0; i < 100; i++) {
+			for (int j = 0; j < 100; j++) {
+				for (int k = 0; k < 100; k++) {
+					chunkFile >> terrainMap[chunkPos][k][j][i];
+				}
+			}
+		}
+		int emptyChunkPos = -1;
+		int i = 0;
+		while (emptyChunkPos == -1 && i < ENTITY_LIST_SIZE) {
+			if (entityList[i].posX == -1) {
+				emptyChunkPos = i;
+			}
+			i++;
+		}
+		chunkFile.close();
+		ifstream entitiesFile;
+		string entitiesName = ("/save/" + fileName + "/entities." + to_string(chunkX) + '.' + to_string(chunkY) + '.' + to_string(chunkZ));
+		entitiesFile.open(entitiesName);
+
+		while (!entitiesFile.eof()) {
+			entitiesFile >> entityList[emptyChunkPos].spriteName >> entityList[emptyChunkPos].visible >> entityList[emptyChunkPos].solid >> entityList[emptyChunkPos].posX >> entityList[emptyChunkPos].posY >> entityList[emptyChunkPos].posZ;
+
+			emptyChunkPos++;
+			if (emptyChunkPos >= ENTITY_LIST_SIZE) {
+				cout << "No entity space available";
+			}
+		}
+
+		mapIndex[chunkPos].x = chunkX;
+		mapIndex[chunkPos].y = chunkY;
+		mapIndex[chunkPos].z = chunkZ;
+	}
+	void saveChunk(int chunkPos, int chunkX, int chunkY, int chunkZ, string fileName = "default") {
+		ofstream chunkFile;
+		string mapName = ("/save/" + fileName + "/terrain." + to_string(chunkX) + '.' + to_string(chunkY) + '.' + to_string(chunkZ));
+		chunkFile.open(mapName);
+		for (int i = 0; i < 100; i++) {
+			for (int j = 0; j < 100; j++) {
+				for (int k = 0; k < 100; k++) {
+					chunkFile << terrainMap[chunkPos][k][j][i];
+				}
+			}
+		}
+		int emptyChunkPos = -1;
+		int i = 0;
+		while (emptyChunkPos == -1 && i < ENTITY_LIST_SIZE) {
+			if (entityList[i].posX == -1) {
+				emptyChunkPos = i;
+			}
+			i++;
+		}
+		if (emptyChunkPos == -1) {
+			emptyChunkPos = ENTITY_LIST_SIZE;
+		}
+		chunkFile.close();
+		ofstream entitiesFile;
+		string entitiesName = ("/save/" + fileName + "/entities." + to_string(chunkX) + '.' + to_string(chunkY) + '.' + to_string(chunkZ));
+		entitiesFile.open(entitiesName);
+
+		//aqui s han de buscar entities que es trobin en el chunk que descarreguem, i tot seguit swappejar la seva posicio amb la de la ultima entity de la llista abans de les buides, i tot seguit esborrarla;
+
+		for (int i = 0; i < ENTITY_LIST_SIZE; i++) {
+			if (entityList[i].posX < 0) {
+				cout << "No hi ha cap entity vàlida aqui    entityList[" << i << ']' << endl;
+			}
+			if (floor(entityList[i].posX / 100) == chunkX) {
+				if (floor(entityList[i].posY / 100) == chunkY) {
+					if (floor(entityList[i].posZ / 100) == chunkZ) {
+						if (entityList[i].visible) {
+							entityList[i] = entityList[emptyChunkPos - 1];
+							entityList[emptyChunkPos].posX = -1;
+							entityList[emptyChunkPos].posY = -1;
+							entityList[emptyChunkPos].posZ = -1;
+							emptyChunkPos--;
+						}
+					}
+				}
+			}
+		}
+
+		mapIndex[chunkPos].x = -1;
+		mapIndex[chunkPos].y = -1;
+		mapIndex[chunkPos].z = -1;
+	}
+
+
 public:
 	//FALTEN:
 	//funcio per carregar chunks al terrainMap adequat, donats un cert arxiu i la posicio a on inserirlo
@@ -120,21 +228,19 @@ public:
 		return -1;
 	}
 
-	int visibleEntity(int posX, int posY, int posZ) { 
-		while (1) {
-			for (int i = 0; i < ENTITY_LIST_SIZE; i++) {
-				if (entityList[i].posX < 0) {
-					cout << "No s'ha trobat cap entity visible en aquesta posicio" << endl;
-					return -1;
-				}
-				if (entityList[i].posX == posX) {
-					if (entityList[i].posY == posY) {
-						if (entityList[i].posZ == posZ) {
-							if (entityList[i].visible) {
-								return i;
-							}
-
+	int visibleEntity(int posX, int posY, int posZ) {
+		for (int i = 0; i < ENTITY_LIST_SIZE; i++) {
+			if (entityList[i].posX < 0) {
+				cout << "No s'ha trobat cap entity visible en aquesta posicio" << endl;
+				return -1;
+			}
+			if (entityList[i].posX == posX) {
+				if (entityList[i].posY == posY) {
+					if (entityList[i].posZ == posZ) {
+						if (entityList[i].visible) {
+							return i;
 						}
+
 					}
 				}
 			}
@@ -150,7 +256,7 @@ public:
 		case TRRN:
 			return terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible;
 		case NTT:
-			return (visibleEntity(posX, posY, posZ)==-1);
+			return (visibleEntity(posX, posY, posZ) == -1);
 		case PRRT:
 			return ((visibleEntity(posX, posY, posZ) != -1) ? terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible : 1);
 		}
@@ -165,9 +271,22 @@ public:
 		case TRRN:
 			return terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData;
 		case NTT:
-			return entityList[visibleEntity(posX,posY,posZ)].spriteData;
+			for (int i = 0; i < ENTITY_LIST_SIZE; i++) {
+				if (entityList[visibleEntity(posX, posY, posZ)].spriteName == texTable[i].textureName) {
+					return texTable[i].texture;
+				}
+			}
+			cout << "Entity texture not found in position" << posX << ' ' << posY << ' ' << posZ << endl;
 		case PRRT:
-			return ((visibleEntity(posX,posY,posZ)!=-1) ? entityList[visibleEntity(posX, posY, posZ)].spriteData : terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData);
+			if (terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible == 1){
+				return terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData;
+			}
+			cout << "es posible k aixo sigui molt lent, sabelo";
+			for (int i = 0; i < ENTITY_LIST_SIZE; i++) {
+				if (entityList[visibleEntity(posX, posY, posZ)].spriteName == texTable[i].textureName) {
+					return texTable[i].texture;
+				}
+			}	
 		}
 	}
 	map() {
@@ -176,9 +295,9 @@ public:
 		//
 		terrainList[0].solid = 0;
 		terrainList[1].solid = 1;
-		texTable[0] = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);   //s ha de fer bbbbbbb
-		sf2d_fill_texture_from_RGBA8(texTable[0], dwarf_img.pixel_data, dwarf_img.width, dwarf_img.height);
-		sf2d_texture_tile32(texTable[0]);
+		texTable[0].texture = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);   //s ha de fer bbbbbbb
+		sf2d_fill_texture_from_RGBA8(texTable[0].texture, dwarf_img.pixel_data, dwarf_img.width, dwarf_img.height);
+		sf2d_texture_tile32(texTable[0].texture);
 	}
 	void emplenarWIP() {
 		for (int x = 0; x != 27; x++) {

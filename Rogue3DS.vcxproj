@@ -50,7 +50,6 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="map.cpp" />
     <ClCompile Include="source\dwarf_img.c" />
     <ClCompile Include="source\field_img.c" />
     <ClCompile Include="source\main.cpp" />
@@ -63,7 +62,6 @@
     <None Include="resources\icon.bin" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="map.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
