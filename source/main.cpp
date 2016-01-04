@@ -98,11 +98,7 @@ struct point3D {
 };
 
 
-class map {
-	//TO-DO
-	//Funcio per carregar sprite en memoria
-	//Funcio per carregar chunks a memoria
-	//
+class map {	
 private:
 	static int terrainMap[CHUNK_NUM][100][100][100];
 	entity entityList[ENTITY_LIST_SIZE]; //Processats individualment cada frame // HAURIA D USAR UN STD::VECTOR PER PODERLOS REORDENAR
@@ -204,16 +200,21 @@ private:
 
 public:
 	//FALTEN:
-	//funcio per carregar chunks al terrainMap adequat, donats un cert arxiu i la posicio a on inserirlo
-	//juntament amb aquesta, funcio per carregar els entities corresponents a akest chunk
-	//funcio per guardar chunks al terrainMap adequat, donats un cert arxiu i la posicio a on inserirlo
-	//juntament amb aquesta, funcio per guardar els entities corresponents a akest chunk
+	//Funcio per carregar sprite en memoria	
 	//funcio per actualitzar chunks carregats, i decidir quins sobreescriure //per escollir els chunks a descarregar, restarem el numero de chunkX del player del numero del chunkX actual,
 																			 //en farem el valor absolut, i li sumarem el mateix procés pero fet amb chunkY i chunkZ, això ens donara una
-																			 //distància aproximada del chunk analitzat al player, i per tant, podrem descarregar el chunk més llunyà
-	//fisiques, amb modes ray i block
+																			 //distància aproximada del chunk analitzat al player, i per tant, podrem descarregar el chunk més lluny
 
-
+	bool simpleCollision(int posX, int posY, int posZ, mode collisionMode = TRRN) {
+		int blockX = floor(posX / 100);
+		int blockY = floor(posY / 100);
+		int blockZ = floor(posZ / 100);
+		int chunkPosition = getChunk(blockX, blockY, blockZ);
+		//switch case pels tipus de modes
+		if (terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].solid == 1) {
+			return 1;
+		}
+	}
 	int getChunk(int posX, int posY, int posZ) {
 		for (int i = 0; i < CHUNK_NUM; i++) {
 			if (posX == mapIndex[i].x) {
@@ -290,9 +291,6 @@ public:
 		}
 	}
 	map() {
-		//inicialitzar la entityList amb tot a -1
-		//quan esborrem algo de la entitylist, primer el swappejem per el entity en ultima posició, i després substituim tots els seus paramtres per -1;
-		//
 		terrainList[0].solid = 0;
 		terrainList[1].solid = 1;
 		texTable[0].texture = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);   //s ha de fer bbbbbbb
@@ -316,10 +314,6 @@ public:
 		}
 
 	}
-	//void loadChunk(int chunkX,int chunkY,int chunkZ, int fillX, int fillY, int fillZ)
-	/*bool collision(int x, int y, int z) {
-	//ultra-wip falta abstracció pel mapa
-	}*/
 };
 
 void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth) {
