@@ -21,6 +21,7 @@ TO-DO
 #include <string.h>
 #include <math.h>
 #include <sf2d.h>
+#include <sfil.h>
 #include <time.h>
 #include <vector>
 #include <fstream>
@@ -31,6 +32,8 @@ TO-DO
 #define CHUNK_NUM  27
 #define ENTITY_LIST_SIZE  100
 #define TERRAIN_LIST_SIZE  100
+#define TEX_TABLE_SIZE  30
+
 
 
 
@@ -59,18 +62,9 @@ enum direction {
 	BACK,
 };
 
-extern "C" {
-	extern const struct {
-		unsigned int 	 width;
-		unsigned int 	 height;
-		unsigned int 	 bytes_per_pixel;
-		unsigned char	 pixel_data[];
-	} dwarf_img, wall_img, field_img;
-}
-
 class entity { // es podrien passar a classe
 public:
-	sf2d_texture* spriteData = (sf2d_texture *)-1; //sep, definitivament s hauria de treure;
+	sf2d_texture* spriteData;
 	string spriteName = "NULL";
 	bool visible = 1;
 	bool solid = 1;
@@ -83,11 +77,12 @@ public:
 
 struct textureName {
 	sf2d_texture* texture;
-	string textureName;
+	string name;
 };
 
 struct terrain {
 	sf2d_texture* spriteData;
+	string textureFile;
 	bool visible = true;
 	bool solid = true;
 };
@@ -98,13 +93,13 @@ struct point3D {
 };
 
 
-class map {	
+class map {
 private:
 	static int terrainMap[CHUNK_NUM][100][100][100];
 	entity entityList[ENTITY_LIST_SIZE]; //Processats individualment cada frame // HAURIA D USAR UN STD::VECTOR PER PODERLOS REORDENAR
 	terrain terrainList[TERRAIN_LIST_SIZE]; //Llista de tipus de terrenys diferents, aqui és on es mirarà a partir del terrainMap
 	point3D mapIndex[CHUNK_NUM]; //indica quin bloc de terreny hi ha a cada posició		
-	textureName texTable[30];
+	textureName texTable[TEX_TABLE_SIZE];
 
 	void loadChunk(int chunkPos, int chunkX, int chunkY, int chunkZ, string fileName = "default") {
 
@@ -196,7 +191,48 @@ private:
 		mapIndex[chunkPos].y = -1;
 		mapIndex[chunkPos].z = -1;
 	}
-
+	bool isTextureLoaded(string textureName, textureName texTable[]) {
+		for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != "free"; i++) {
+			if (texTable[i].name == textureName) {
+				return 1;
+			}
+		}
+		return 0;
+	}
+	int freeTexturePos(textureName texTable[]) {// s ha de passar a bolzano
+		for (int i = 0; i < TEX_TABLE_SIZE; i++) {
+			if (texTable[i].name == "free") {
+				return i;
+			}
+		}
+		cout << "NO FREE SPACE IN TEXTABLE" << endl;
+		return -1;
+	}
+	int getTexturePos(string fileName, textureName texTable[]) {
+		for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != "free"; i++) {
+			if (texTable[i].name == fileName) {
+				return i;
+			}
+		}
+		cout << "NO TEXTURE W/ FNAME " << fileName << " FOUND" << endl;
+		return -1;
+	}
+	void loadTexture(string fileName, textureName texTable[]) {
+		int freeTextureLoc = freeTexturePos(texTable);
+		texTable[freeTextureLoc].texture = sfil_load_PNG_file(fileName.c_str(), SF2D_PLACE_RAM);   //s ha de fer bbbbbbb
+		
+		sf2d_texture_tile32(texTable[freeTextureLoc].texture);
+		texTable[freeTextureLoc].name = fileName;
+	}
+	void freeTexture(string fileName, textureName texTable[]) {
+		int textureLocation = getTexturePos(fileName, texTable);
+		int freeTexLoc = freeTexturePos(texTable);
+		textureName temp = texTable[textureLocation];
+		texTable[textureLocation] = texTable[freeTexLoc - 1];
+		texTable[freeTexLoc - 1] = temp;
+		sf2d_free_texture(texTable[freeTexLoc - 1].texture);
+		texTable[freeTexLoc - 1].name = "free";
+	}
 
 public:
 	//FALTEN:
@@ -270,32 +306,33 @@ public:
 		int chunkPosition = getChunk(blockX, blockY, blockZ);
 		switch (mode_t) {
 		case TRRN:
-			return terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData;
+			return texTable[getTexturePos((terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].textureFile),texTable)].texture;
 		case NTT:
-			for (int i = 0; i < ENTITY_LIST_SIZE; i++) {
-				if (entityList[visibleEntity(posX, posY, posZ)].spriteName == texTable[i].textureName) {
+			for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].posX != -1; i++) {
+
+				if (entityList[visibleEntity(posX, posY, posZ)].spriteName == texTable[i].name) {
 					return texTable[i].texture;
 				}
 			}
 			cout << "Entity texture not found in position" << posX << ' ' << posY << ' ' << posZ << endl;
 		case PRRT:
-			if (terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible == 1){
+			if (terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible == 1) {
 				return terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].spriteData;
 			}
 			cout << "es posible k aixo sigui molt lent, sabelo";
-			for (int i = 0; i < ENTITY_LIST_SIZE; i++) {
-				if (entityList[visibleEntity(posX, posY, posZ)].spriteName == texTable[i].textureName) {
+			for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].posX != -1; i++) {
+				if (entityList[visibleEntity(posX, posY, posZ)].spriteName == texTable[i].name) {
 					return texTable[i].texture;
 				}
-			}	
+			}
 		}
 	}
 	map() {
 		terrainList[0].solid = 0;
 		terrainList[1].solid = 1;
-		texTable[0].texture = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);   //s ha de fer bbbbbbb
-		sf2d_fill_texture_from_RGBA8(texTable[0].texture, dwarf_img.pixel_data, dwarf_img.width, dwarf_img.height);
-		sf2d_texture_tile32(texTable[0].texture);
+		for (int i = 0; i < TEX_TABLE_SIZE; i++) {
+			texTable[i].name = "free";
+		}
 	}
 	void emplenarWIP() {
 		for (int x = 0; x != 27; x++) {
@@ -323,6 +360,47 @@ void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHei
 	if (player.posY > 5) { if (cameraY + 6 > player.posY) { cameraY--; } }
 }
 
+class gameMain {
+private:
+	u32 kDown;
+	u32 kHeld;
+	u32 kUp;
+	map mainMap;
+	void gameLoop() {//abans de les accions
+
+	
+	}
+public:
+	void gameStart() {
+		// Inits
+		srvInit();
+		aptInit();
+		hidInit();
+		srand(time(NULL));
+		sf2d_init();
+		consoleInit(GFX_BOTTOM, NULL);
+		sf2d_set_clear_color(RGBA8(0x31, 0xb0, 0x15, 0xFF));
+		
+		// demanar arxius a carregar i ficar un menu o halgo
+
+		//
+		//loadMap
+		//gameLoop
+
+		audio_stop();
+		csndExit();
+		// Exit
+		sf2d_free_texture(tex1);
+		sf2d_free_texture(tex2);
+		sf2d_free_texture(tex3);
+
+		sf2d_fini();
+		gfxExit();
+		hidExit();
+		aptExit();
+		srvExit();
+	}
+};
 
 static u8* buffer;
 static u32 audioSize;
@@ -343,18 +421,15 @@ int main()
 	sf2d_init();
 	//gfxInitDefault();
 	consoleInit(GFX_BOTTOM, NULL);
-	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
+	sf2d_set_clear_color(RGBA8(0x31, 0xb0, 0x15, 0xFF));
 
-	sf2d_texture *tex1 = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	sf2d_fill_texture_from_RGBA8(tex1, dwarf_img.pixel_data, dwarf_img.width, dwarf_img.height);
+	sf2d_texture *tex1 = sfil_load_PNG_file("player.png", SF2D_PLACE_RAM);
 	sf2d_texture_tile32(tex1);
 
-	sf2d_texture *tex2 = sf2d_create_texture(wall_img.width, wall_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	sf2d_fill_texture_from_RGBA8(tex2, wall_img.pixel_data, wall_img.width, wall_img.height);
+	sf2d_texture *tex2 = sfil_load_PNG_file("wall.png", SF2D_PLACE_RAM);
 	sf2d_texture_tile32(tex2);
 
-	sf2d_texture *tex3 = sf2d_create_texture(field_img.width, field_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	sf2d_fill_texture_from_RGBA8(tex3, field_img.pixel_data, field_img.width, field_img.height);
+	sf2d_texture *tex3 = sfil_load_PNG_file("grass.png", SF2D_PLACE_RAM);
 	sf2d_texture_tile32(tex3);
 
 
@@ -412,7 +487,7 @@ int main()
 
 	csndInit();//start Audio Lib
 	audio_load("audio/original_raw.bin");
-	static map mapTest;
+	//static map mapTest;
 	while (aptMainLoop()) {
 		//PREPARATIUS
 
@@ -424,7 +499,7 @@ int main()
 		kHeld = hidKeysHeld();
 		kUp = hidKeysUp();
 
-
+		u64 lmao= 0;
 		if (!temp) {
 			if (kHeld & KEY_UP) {
 				if (!list[mapa[player.posX][player.posY - 1]]->solid) {
@@ -475,9 +550,9 @@ int main()
 		}
 		sf2d_end_frame();
 		if (stop) { break; }
+		cout << lmao - 1<<endl;
 	}
 
-	audio_stop();
 	audio_stop();
 	csndExit();
 	// Exit

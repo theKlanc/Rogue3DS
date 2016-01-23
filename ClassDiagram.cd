@@ -3,24 +3,17 @@
   <Class Name="map">
     <Position X="0.5" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>BAAAEAAAAIAAAgAAgBAAACAAAAAAAAAAAIAAYAAAAAA=</HashCode>
+      <HashCode>BAAAEAAACIAAAgAAgBAAACAAAAAAAAAAAKAAYCAAAAA=</HashCode>
       <FileName>source\main.cpp</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="entity">
     <Position X="2.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAzAIEAAA=</HashCode>
+      <HashCode>AAAQAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAzAIEAAA=</HashCode>
       <FileName>source\main.cpp</FileName>
     </TypeIdentifier>
   </Class>
-  <Struct Name="point3D">
-    <Position X="5.5" Y="0.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAQAAAAA=</HashCode>
-      <FileName>source\main.cpp</FileName>
-    </TypeIdentifier>
-  </Struct>
   <Struct Name="terrain">
     <Position X="4" Y="0.5" Width="1.5" />
     <TypeIdentifier>
@@ -28,17 +21,24 @@
       <FileName>source\main.cpp</FileName>
     </TypeIdentifier>
   </Struct>
-  <Enum Name="mode">
-    <Position X="8.5" Y="0.5" Width="1.25" />
+  <Struct Name="point3D">
+    <Position X="5.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AQAgAABAAAAAAAAAAAAAAIAAAAAAAAAAABAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAQAAAAA=</HashCode>
       <FileName>source\main.cpp</FileName>
     </TypeIdentifier>
-  </Enum>
+  </Struct>
   <Enum Name="direction">
     <Position X="9.75" Y="0.5" Width="1.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAgAAAAAAAAEAAAICAAAwAAAAAAAAAAA=</HashCode>
+      <FileName>source\main.cpp</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="mode">
+    <Position X="8.5" Y="0.5" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AQAgAABAAAAAAAAAAAAAAIAAAAAAAAAAABAAAAAAAAA=</HashCode>
       <FileName>source\main.cpp</FileName>
     </TypeIdentifier>
   </Enum>

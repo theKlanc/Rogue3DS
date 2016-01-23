@@ -40,9 +40,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <IncludePath>D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\devkitPro\libctru\lib;$(LibraryPath)</LibraryPath>
-    <NMakeBuildCommandLine>make</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>D:\devkitPro\msys\bin\make.exe</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>D:\devkitPro\msys\bin\make.exe</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>D:\devkitPro\msys\bin\make.exe clean</NMakeCleanCommandLine>
     <ExecutablePath />
     <NMakeOutput>
     </NMakeOutput>
