@@ -115,8 +115,7 @@ struct point3D {
 };
 class entity {
 public:
-	sf2d_texture* spriteData;
-	string spriteName = "NULL";
+	string spriteName = "ENULL";
 	bool visible = 1;
 	bool solid = 1;
 	int posX = -1;
@@ -132,8 +131,7 @@ struct textureName {
 };
 
 struct terrain {
-	sf2d_texture* spriteData;
-	string textureFile;
+	string textureFile = "TNULL";
 	bool visible = true;
 	bool solid = true;
 };
@@ -273,22 +271,16 @@ public:
 				}
 			}
 		}
-
-		/*for (int i = 0; i < 100; i++) {
-			for (int j = 0; j < 100; j++) {
-				for (int k = 0; k < 100; k++) {
-					chunkFile >> terrainMap[chunkPos][k][j][i];
-				}
-			}
-		}*/
-		int emptyChunkPos = -1;
+		/*int emptyChunkPos = -1;
 		int i = 0;
 		while (emptyChunkPos == -1 && i < ENTITY_LIST_SIZE) {
 			if (entityList[i].posX == -1) {
 				emptyChunkPos = i;
 			}
 			i++;
-		}
+		}*/
+		int emptyChunkPos = freeChunkPos();
+		cout << "freechunkPos: " << emptyChunkPos << endl;
 		chunkFile.close();
 		ifstream entitiesFile;
 		string entitiesName = ("saves/" + saveName + "/entities." + get_string(chunkX) + '.' + get_string(chunkY) + '.' + get_string(chunkZ));
@@ -417,23 +409,18 @@ public:
 	}
 
 	int visibleEntity(int posX, int posY, int posZ) { // returns the position inside entityList if the entered 3d position contains a visible entity
-		for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].posX == -1; i++) {
-			if (entityList[i].posX < 0) {
-				cout << "No s'ha trobat cap entity visible a X: " << posX << " Y: " << posY << " Z: " << posZ << endl;
-				return -1;
-			}
-			if (entityList[i].posX == posX) {
-				if (entityList[i].posY == posY) {
-					if (entityList[i].posZ == posZ) {
-						if (entityList[i].visible) {
-							cout << "n he trobat una i es diu" << (entityList[i].spriteName);
+		for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].posX != -1; i++) {
+			if (entityList[i].visible) {
+				if (entityList[i].posX == posX) {
+					if (entityList[i].posY == posY) {
+						if (entityList[i].posZ == posZ) {
 							return i;
 						}
-
 					}
 				}
 			}
 		}
+		return -1;
 	}
 	bool isVisible(int posX, int posY, int posZ, mode mode_t = PRRT) { //
 		int blockX = floor(posX / 100);
@@ -469,24 +456,11 @@ public:
 			}
 			cout << "Entity texture not found in position" << posX << ' ' << posY << ' ' << posZ << endl;
 		case PRRT:
-			if (isVisible(posX, posY, posZ, TRRN)) {
-				cout << terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100];
-				return texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].textureFile)].texture;
-			}
-			else {
-				cout << "es posible k aixo sigui molt lent, sabelo" << endl;
-				if (isVisible(posX, posY, posZ,NTT) != -1) {
-					return texTable[getTexturePos(entityList[visibleEntity(posX, posY, posZ)].spriteName)].texture;
-				}
-			}
-
-			cout << "es posible k aixo sigui molt lent, sabelo" << endl;
-			if (isVisible(posX, posY, posZ, NTT) != -1) {
+			if (isVisible(posX, posY, posZ, NTT) ==1) {
 				return texTable[getTexturePos(entityList[visibleEntity(posX, posY, posZ)].spriteName)].texture;
 			}
 
 			else if (isVisible(posX, posY, posZ, TRRN)) {
-				cout << terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100];
 				return texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].textureFile)].texture;
 			}
 		}
@@ -544,13 +518,12 @@ private:
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 		for (int i = 0; i != 15; i++) {
 			for (int j = 0; j != 25; j++) {
-				//cout << map.terrainMap[map.getChunkPos((player->posX + j)/100, (player->posY + i)/100,( player->posZ)/100)][(int)((player->posX + j) - 100 * (floor(player->posX)))][(int)((player->posY + i) - 100 * (floor(player->posY)))][(int)((player->posZ) - 100 * (floor(player->posZ)))];
-				if (map.isVisible(player->posX + j, player->posY + i, player->posZ)) {
-					sf2d_draw_texture(map.getTexture(player->posX + j, player->posY + i, player->posZ), j * 16, i * 16);
+				if (map.isVisible((player->posX + j), (player->posY + i), (player->posZ - 1))) {
+					sf2d_draw_texture(map.getTexture((player->posX + j), (player->posY + i), (player->posZ - 1)), j * 16, i * 16);
 				}
-				/*else if (map.isVisible(player->posX + j, player->posY + i, player->posZ-1)) {
-					sf2d_draw_texture(map.getTexture(player->posX + j, player->posY + i, player->posZ-1), j * 16, i * 16);
-				}*/
+				if (map.isVisible((player->posX + j), (player->posY + i), (player->posZ))) {
+					sf2d_draw_texture(map.getTexture((player->posX + j), (player->posY + i), (player->posZ)), j * 16, i * 16);
+				}
 			}
 		}
 		sf2d_end_frame();
@@ -558,6 +531,7 @@ private:
 	void gameLoop() {
 		hidScanInput();
 		kDown = hidKeysDown();
+		kHeld = hidKeysHeld();
 		//processar input
 		//refrescar coses carregades
 		//dibuixar
@@ -569,6 +543,8 @@ private:
 			srvExit();
 			exit(1);
 		}
+		if (kHeld & KEY_L) { player->posZ--; }
+		if (kHeld & KEY_R) { player->posZ++; }
 		sf2d_swapbuffers();
 		//processar input
 		//refrescar coses carregades
@@ -620,11 +596,7 @@ public:
 		map.loadTexture("player.png");
 
 		map.loadTexture("wall.png");
-		map.entityList[0].posX = 149;
-		map.entityList[0].posY = 149;
-		map.entityList[0].posZ = 149;
 		map.entityList[0].solid = 1;
-		map.entityList[0].spriteName = "player.png";
 		map.entityList[0].visible = 1;
 
 		map.terrainList[0].solid = 0;
@@ -651,7 +623,6 @@ int main()
 	sf2d_init();
 	consoleInit(GFX_BOTTOM, NULL);
 	sf2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
-	string saveName = "default";	   //guarro 
 	gameMain gameMain1;
 	gameMain1.gameCore();
 
