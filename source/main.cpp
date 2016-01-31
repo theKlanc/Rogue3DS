@@ -1,26 +1,11 @@
-//LEGUIS TM DEBUGGER SAYS:
-  // LE FILES DONNE LOAD PROPERLY
- //  END LE TEXTURE WIZ FNAME grass.png IS NUT FUNDE EITHER. DETS BED
- //MEIBI I SHOULDE DO ZINGES PROPERLY, INSTED OF RUXING AND UNIT-TESTING, BUT HEY, THATS MEINE OPINIEN
-//AT LE CURRENT MOUMENT IT DISPLEYS:
-/*
-Lewis
-chunkposition is4
-terrainlist position is 1
-NO TEXTURE W/ FNAME grass.png FOUND
-*/ // FIN DE LA CITA
 /*
 TO-DO
-1-crear llista d entities
-2-^-crear custom entities(instancies?)-^(no se si es podra)
-4-afegir menu principal
-3-separar la creacio de mapa i guardar mapa (guardat dinamic)      /  / RELACIONAT
-5-afegir suport per transicio de mapes seamless                   /  /  RELACIONAT
-6-gestio de memoria                    /  / JUNT
-7-modularitat en càrrega de textures  /  /  JUNT
+-88-generació de mapa interessant i otfly
+-87-arreglar savechunk
 8-afegir events
 9-afegir combat
 10-millorar el so i afegir sfx
+11-passar a romfs
 
 99-MP
 */
@@ -40,7 +25,7 @@ TO-DO
 #include <sstream>
 
 #define CHUNK_SIZE 100
-#define CHUNK_NUM  19 //( 19 = rubik's (n=2) - corners, 11 = baldufa(n = 2, però z pondera més) , 7 = rubik's core (n = 1))
+#define CHUNK_NUM  19 //( 19 = rubik's (n=2) - corners, 11 = baldufa(n = 2, però z pondera més) , 7 = rubik's core (n = 1))  la n3ds aguanta almenys 80, la old 26
 #define ENTITY_LIST_SIZE  100
 #define TERRAIN_LIST_SIZE  100
 #define TEX_TABLE_SIZE  30
@@ -76,7 +61,7 @@ void audio_load(const char *audio) {
 	//close the file because we like being nice and tidy
 	fclose(file);
 
-	csndPlaySound(8, SOUND_FORMAT_16BIT | SOUND_REPEAT, 48000, 1, 0, buffer, buffer, audioSize);
+	csndPlaySound(8, SOUND_FORMAT_8BIT | SOUND_REPEAT, 48000, 1, 0, buffer, buffer, audioSize);
 	linearFree(buffer);
 }
 void audio_stop(void) {
@@ -411,6 +396,9 @@ public:
 		int blockY = floor(posY / CHUNK_SIZE);
 		int blockZ = floor(posZ / CHUNK_SIZE);
 		int chunkPosition = getChunkPos(blockX, blockY, blockZ);
+		if (chunkPosition == -1) {
+			return 0;
+		}
 		//switch case pels tipus de modes
 		if (terrainList[terrainMap[chunkPosition][posX - (blockX * CHUNK_SIZE)][posY -( blockY * CHUNK_SIZE)][posZ - (blockZ * CHUNK_SIZE)]].solid == 1) {
 			return 1;
@@ -427,7 +415,6 @@ public:
 				}
 			}
 		}
-		cout << "No s'ha trobat cap chunk carregat amb aquestes coordenades" << endl << "X:" << posX << endl << "Y:" << posY << endl << "Z:" << posZ << endl;
 		return -1;
 	}
 
@@ -450,6 +437,9 @@ public:
 		int blockY = floor(posY / CHUNK_SIZE);
 		int blockZ = floor(posZ / CHUNK_SIZE);
 		int chunkPosition = getChunkPos(blockX, blockY, blockZ);
+		if (chunkPosition == -1) {
+			return (visibleEntity(posX, posY, posZ) != -1);
+		}
 
 		switch (mode_t) {
 		case TRRN:
@@ -466,6 +456,14 @@ public:
 		int blockY = floor(posY / CHUNK_SIZE);
 		int blockZ = floor(posZ / CHUNK_SIZE);
 		int chunkPosition = getChunkPos(blockX, blockY, blockZ);
+		if (chunkPosition == -1) {
+			for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].posX != -1; i++) {
+
+				if (entityList[visibleEntity(posX, posY, posZ)].spriteName == texTable[i].name) {
+					return texTable[i].texture;
+				}
+			}
+		}
 		switch (mode_t) {
 
 		case TRRN:
@@ -537,7 +535,18 @@ private:
 	entity* player;
 	bool o = 0;
 	sf2d_texture *overlay;
-
+	u64 loop = 0;
+	
+	void exitGame() {
+		audio_stop();
+		csndExit();
+		sf2d_fini();
+		gfxExit();
+		hidExit();
+		aptExit();
+		srvExit();
+		exit(1);
+	}
 	void moveEntity(entity &currentEntity, direction dir, bool autojump = true) {
 		switch (dir) {
 		case DOWN:
@@ -594,6 +603,11 @@ private:
 		if (map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ - 1) == 0) {
 			cout << "que es faci la gravetat " << endl;
 			currentEntity.posZ--;
+			if (currentEntity.posZ < 0) {
+				cout << "has caigut del mon, capoll" << endl;
+				svcSleepThread(3000000000);
+				exitGame();
+			}
 		}
 		switch (currentEntity.type) {
 		case NPC:
@@ -629,12 +643,7 @@ private:
 		kDown = hidKeysDown();
 		kHeld = hidKeysHeld();
 		if (kDown & KEY_START) {
-			sf2d_fini();
-			gfxExit();
-			hidExit();
-			aptExit();
-			srvExit();
-			exit(1);
+			exitGame();
 		}
 		if (kHeld & KEY_SELECT) {
 			o = 1;
@@ -692,6 +701,7 @@ public:
 		//select which one
 		saveName = selected;
 		*/
+		
 		overlay = sfil_load_PNG_file("data/sprites/overlay.png", SF2D_PLACE_RAM);
 		player = &map.entityList[0];
 		string saveName = "default";
@@ -709,7 +719,7 @@ public:
 		playerPos.y = player->posY;
 		playerPos.z = player->posZ;
 		//loadmap
-		for (int i = 0; i < 19; i++) {
+		for (int i = 0; i < CHUNK_NUM; i++) {
 			map.loadNewChunk(playerPos);
 		}
 
@@ -718,8 +728,10 @@ public:
 		cout << "vram: " << vramSpaceFree() << endl;
 		cout << "mappable: " << mappableSpaceFree() << endl;
 		cout << "linear: " << linearSpaceFree() << endl;
+		//audio_load("data/sounds/bgm/wilderness.raw"); //[N3DS] only 
 		while (1) {
-			gameLoop();
+			if (loop % 60 == 0) { gameLoop(); }
+			loop++;
 		}
 
 	}
@@ -736,11 +748,13 @@ int main()
 	srand(time(NULL));
 	sf2d_init();
 	consoleInit(GFX_BOTTOM, NULL);
+	csndInit();
 	sf2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
 	srand(time(NULL));
 	gameMain gameMain1;
 	gameMain1.gameCore();
-
+	audio_stop();
+	csndExit();
 
 
 	// Exit
