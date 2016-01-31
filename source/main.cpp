@@ -1,24 +1,13 @@
 /*
 TO-DO
-1-crear llista d entities
-2-^-crear custom entities(instancies?)-^(no se si es podra)
-4-afegir menu principal
-3-separar la creacio de mapa i guardar mapa (guardat dinamic)      /  / RELACIONAT
-5-afegir suport per transicio de mapes seamless                   /  /  RELACIONAT
-6-gestio de memoria                    /  / JUNT
-7-modularitat en c�rrega de textures  /  /  JUNT
+88-generació de mapa interessant i arreclar la on-the-fly
+afegir threading, guardar mapa és etern
 8-afegir events
 9-afegir combat
 10-millorar el so i afegir sfx
-
+11-passar a romfs i extdata
 99-MP
-
-
-
 */
-
-
-
 #include <3ds.h>
 #include <string.h>
 #include <stdlib.h>
@@ -27,303 +16,29 @@ TO-DO
 #include <string.h>
 #include <math.h>
 #include <sf2d.h>
+#include <sfil.h>
 #include <time.h>
-//test
+#include <vector>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+
+#define CHUNK_SIZE 100
+#define CHUNK_NUM  19 //( 19 = rubik's (n=2) - corners, 11 = baldufa(n = 2, però z pondera més) , 7 = rubik's core (n = 1))  la n3ds aguanta almenys 80, la old 26
+#define ENTITY_LIST_SIZE  100
+#define TERRAIN_LIST_SIZE  100
+#define TEX_TABLE_SIZE  30
+#define RENDER_HEIGHT 5
+#define FLOOR_HEIGHT 550
+
+
+
 using namespace std;
 
-extern "C"{
-	extern const struct {
-		unsigned int 	 width;
-		unsigned int 	 height;
-		unsigned int 	 bytes_per_pixel;
-		unsigned char	 pixel_data[];
-	} dwarf_img;
+static u8* buffer;
+static u32 audioSize;
 
-	extern const struct {
-		unsigned int 	 width;
-		unsigned int 	 height;
-		unsigned int 	 bytes_per_pixel;
-		unsigned char	 pixel_data[];
-	} wall_img;
-
-	extern const struct {
-		unsigned int 	 width;
-		unsigned int 	 height;
-		unsigned int 	 bytes_per_pixel;
-		unsigned char	 pixel_data[];
-	} field_img;
-}
-struct entity{
-	sf2d_texture *spriteData;
-	int spriteHeight;
-	int spriteWidth;
-	int posX;
-	int posY;
-	bool posZ;
-	bool solid;
-};
-
-void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth){
-	if (player.posX < mapWidth - 10){ if (cameraX + 14 < player.posX){ cameraX++; } }
-	if (player.posX > 9){ if (cameraX + 10 > player.posX){ cameraX--; } }
-	if (player.posY < mapHeight - 6){ if (cameraY + 8 < player.posY){ cameraY++; } }
-	if (player.posY > 5){ if (cameraY + 6 > player.posY){ cameraY--; } }
-}
-
-//Audio Stuff WIP
-u8* buffer;
-u32 size;
-
-static void audio_load(const char *audio);
-static void audio_stop(void);
-
-
-int main()
-{
-	// Inits
-	srvInit();
-	aptInit();
-	hidInit(NULL);
-
-	srand(time(NULL));
-
-	sf2d_init();
-	//gfxInitDefault();
-	consoleInit(GFX_BOTTOM, NULL);
-	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
-
-	sf2d_texture *tex1 = sf2d_create_texture(dwarf_img.width, dwarf_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);   //s ha de fer bbbbbbb
-	sf2d_fill_texture_from_RGBA8(tex1, dwarf_img.pixel_data, dwarf_img.width, dwarf_img.height);
-	sf2d_texture_tile32(tex1);
-
-	sf2d_texture *tex2 = sf2d_create_texture(wall_img.width, wall_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	sf2d_fill_texture_from_RGBA8(tex2, wall_img.pixel_data, wall_img.width, wall_img.height);
-	sf2d_texture_tile32(tex2);
-
-	sf2d_texture *tex3 = sf2d_create_texture(field_img.width, field_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	sf2d_fill_texture_from_RGBA8(tex3, field_img.pixel_data, field_img.width, field_img.height);
-	sf2d_texture_tile32(tex3);
-
-	u32 kDown;
-	u32 kHeld;
-	u32 kUp;
-	int cameraY = 0;
-	int cameraX = 0;
-	char temp = 0;
-	bool stop = 0;
-	const short mapHeight = 2000;
-	const short mapWidth = 2000;
-	static short map[mapWidth][mapHeight]; //necessita memalloc
-	static entity* list[10];
-
-	entity air;
-	air.solid = 1;
-	list[0] = &air;
-
-	entity player;
-	player.spriteData = tex1;
-	player.spriteHeight = 16;
-	player.spriteWidth = 16;
-	player.solid = 1;
-	list[9] = &player;
-	
-	entity field;
-	field.spriteData = tex3;
-	field.spriteHeight = 16;
-	field.spriteWidth = 16;
-	field.solid = 0;
-	list[1] = &field;
-
-	entity wall;
-	wall.spriteData = tex2;
-	wall.spriteHeight = 16;
-	wall.spriteWidth = 16;
-	wall.solid = 1;
-	list[2] = &wall;
-
-	for (int i = 0; i != mapHeight; i++){
-		for (int j = 0; j != mapWidth; j++){
-			map[j][i] = 2;
-		}
-	}
-	for (int i = 1; i != mapHeight - 1; i++){
-		for (int j = 1; j != mapWidth - 1; j++){
-			map[j][i] = 1;
-		}
-	}
-	for (int i = 1; i != mapHeight - 1; i++){
-		for (int j = 1; j != mapWidth - 1; j++){
-			if (rand() % 20 == 0){ map[j][i] = 2; }
-		}
-	}
-
-	player.posX = 5;
-	player.posY = 5;
-	map[5][5] = 9;
-
-	csndInit();//start Audio Lib
-	audio_load("audio/original_raw.bin");
-
-	while (aptMainLoop()){
-		//PREPARATIUS
-
-		sf2d_swapbuffers();
-		//INPUTS
-
-		if (temp == 0){ hidScanInput(); }
-		kDown = hidKeysDown();
-		kHeld = hidKeysHeld();
-		kUp = hidKeysUp();
-
-		if (kDown & KEY_START){
-			int option = 0;
-			bool loop = 1;
-			bool changed = 0;
-			printf(">>BACK");
-			printf("\n");
-			printf("EXIT");
-			while (loop){
-				hidScanInput();
-				kDown = hidKeysDown();
-				if (kDown & KEY_UP){
-					if (option > 0){
-						option--;
-						changed = 1;
-					}
-				}
-
-				if (kDown & KEY_DOWN){
-					if (option < 1){
-						option++;
-						changed = 1;
-					}
-				}
-				if (changed){
-					changed = 0;
-					consoleClear();
-					if (option == 0){
-						printf(">>BACK");
-						printf("\n");
-						printf("EXIT");
-					}
-					if (option){
-						printf("BACK");
-						printf("\n");
-						printf(">>EXIT");
-					}
-
-				}
-				if (kDown & KEY_A){
-					if (!option){ consoleClear(); break; }
-					if (option){ stop = 1; consoleClear(); break; }
-				}
-				gfxSwapBuffers();
-				gfxFlushBuffers();
-
-			}
-		}
-		if (!temp){
-			if (kHeld & KEY_UP){
-				if (!list[map[player.posX][player.posY - 1]]->solid){
-					map[player.posX][player.posY] = 1;
-					player.posY--;
-					map[player.posX][player.posY] = 9;
-				}
-			}
-			if (kHeld & KEY_LEFT){
-				if (!list[map[player.posX - 1][player.posY]]->solid){
-					map[player.posX][player.posY] = 1;
-					player.posX--;
-					map[player.posX][player.posY] = 9;
-				}
-			}
-			if (kHeld & KEY_RIGHT){
-				if (!list[map[player.posX + 1][player.posY]]->solid){
-					map[player.posX][player.posY] = 1;
-					player.posX++;
-					map[player.posX][player.posY] = 9;
-				}
-			}
-			if (kHeld & KEY_DOWN){
-				if (!list[map[player.posX][player.posY + 1]]->solid){
-					map[player.posX][player.posY] = 1;
-					player.posY++;
-					map[player.posX][player.posY] = 9;
-
-				}
-			}
-			if (kHeld & KEY_A){
-				if (map[player.posX + 1][player.posY] == 2){
-					map[player.posX + 1][player.posY] = 1;
-				}
-				else{
-					map[player.posX + 1][player.posY] = 2;
-				}
-			}
-			if (kHeld & KEY_B){
-				if (map[player.posX][player.posY + 1] == 2){
-					map[player.posX][player.posY + 1] = 1;
-				}
-				else{
-					map[player.posX][player.posY + 1] = 2;
-				}
-			}
-			if (kHeld & KEY_Y){
-				if (map[player.posX - 1][player.posY] == 2){
-					map[player.posX - 1][player.posY] = 1;
-				}
-				else{
-					map[player.posX - 1][player.posY] = 2;
-				}
-			}
-			if (kHeld & KEY_X){
-				if (map[player.posX][player.posY - 1] == 2){
-					map[player.posX][player.posY - 1] = 1;
-				}
-				else{
-					map[player.posX][player.posY - 1] = 2;
-				}
-			}
-
-		}
-
-		int rng1 = rand() % 4;
-
-		if (temp > 0){ temp--; }
-		else { temp = 4; }
-		//OUTPUT
-		cameraOperation(player, cameraX, cameraY, mapHeight, mapWidth); //Moure la camera
-
-		sf2d_start_frame(GFX_TOP, GFX_LEFT);
-		for (int i = 0; i != 15; i++){
-			for (int j = 0; j != 25; j++){
-				sf2d_draw_texture(list[map[j + cameraX][i + cameraY]]->spriteData, j * 16, i * 16);
-			}
-		}
-		sf2d_end_frame();
-		if (stop){ break; }
-	}
-
-	audio_stop();
-	audio_stop();
-	csndExit();
-	// Exit
-	sf2d_free_texture(tex1);
-	sf2d_free_texture(tex2);
-	sf2d_free_texture(tex3);
-
-	sf2d_fini();
-	gfxExit();
-	hidExit();
-	aptExit();
-	srvExit();
-
-	// Return to hbmenu
-	return 0;
-}
-
-
-void audio_load(const char *audio){
+void audio_load(const char *audio) {
 
 	FILE *file = fopen(audio, "rb");
 
@@ -331,28 +46,818 @@ void audio_load(const char *audio){
 	fseek(file, 0, SEEK_END);
 
 	// file pointer tells us the size
-	off_t size = ftell(file);
+	off_t audioSize = ftell(file);
 
 	// seek back to start
 	fseek(file, 0, SEEK_SET);
 
 	//allocate a buffer
-	buffer = linearAlloc(size);
+	buffer = (u8*)linearAlloc(audioSize);
 
 	//read contents !
-	off_t bytesRead = fread(buffer, 1, size, file);
+	off_t bytesRead = fread(buffer, 1, audioSize, file);
 	//u8 test = &buffer;
 
 	//close the file because we like being nice and tidy
 	fclose(file);
 
-	csndPlaySound(8, SOUND_FORMAT_16BIT | SOUND_REPEAT, 48000, 1, 0, buffer, buffer, size);
+	csndPlaySound(8, SOUND_FORMAT_8BIT | SOUND_REPEAT, 48000, 1, 0, buffer, buffer, audioSize);
 	linearFree(buffer);
 }
-void audio_stop(void){
+void audio_stop(void) {
 	csndExecCmds(true);
 	CSND_SetPlayState(0x8, 0);
-	memset(buffer, 0, size);
-	GSPGPU_FlushDataCache(NULL, buffer, size);
+	memset(buffer, 0, audioSize);
+	GSPGPU_FlushDataCache(buffer, audioSize);
 	linearFree(buffer);
+}
+
+string get_string(int number) {
+	stringstream ss;
+	ss << number;
+	return ss.str();
+}
+
+enum mode {
+	PRRT,
+	TRRN,
+	NTT,
+	RAY,
+	BLCK,
+};
+
+enum nttype {
+	NPC,
+	PLR,
+};
+
+enum direction {
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT,
+	FRONT,
+	BACK,
+};
+struct point3D {
+	int x = -1;
+	int y = -1;
+	int z = -1;
+};
+struct entity {
+	string spriteName = "ENULL";
+	bool visible = 1;
+	bool solid = 1;
+	int posX = -1;
+	int posY = -1;
+	int posZ = -1;
+	nttype type = NPC;
+};
+
+struct textureName {
+	sf2d_texture* texture;
+	string name = "free";
+};
+
+struct terrain {
+	string textureFile = "TNULL";
+	bool visible = true;
+	bool solid = true;
+};
+
+
+class mapCreator {
+private:
+	void saveMap(char map[100][100][100], int x, int y, int z) {
+
+		ofstream file;
+		string filename = "terrain.";
+		filename = (filename + get_string(x) + '.' + get_string(y) + '.' + get_string(z));
+		file.open(filename, fstream::out);
+		char current = 255;
+		int num = 0;
+		for (int i = 0; i < 100; i++) {
+			for (int j = 0; j < 100; j++) {
+				for (int k = 0; k < 100; k++) {
+					if ((int)map[i][j][k] != current) {
+						file << (int)current << ' ' << num << endl;
+						current = (int)map[k][j][i];
+						num = 1;
+					}
+					else num++;
+				}
+			}
+		}
+		file << (int)current << ' ' << num << endl;
+	}
+public:
+	void createMap(string saveName, int chunkX, int chunkY, int chunkZ) {
+		srand(time(NULL));
+		char map[100][100][100];
+
+		ofstream file;
+		string filename = "saves/" + saveName + "/chunks/terrain.";
+		filename = (filename + get_string(chunkX) + '.' + get_string(chunkY) + '.' + get_string(chunkZ));
+		file.open(filename, fstream::out);
+		if (chunkZ < FLOOR_HEIGHT) {
+			file << 1 << ' ' << 1000000 << endl;
+			file.close();
+		}
+		else if (chunkZ == FLOOR_HEIGHT) {
+			for (int n = 0; n < 100; n++) {
+				for (int m = 0; m < 100; m++) {
+					for (int l = 0; l < 100; l++) {
+						file.open(filename);
+						if (n < 50) {
+							map[l][m][n] = 1;
+						}
+						else if (n == 50) {
+							int bloc = rand() % 7;
+							if (bloc == 1) { bloc++; }
+							else bloc = 0;
+							map[l][m][n] = bloc;
+						}
+						else {
+							map[l][m][n] = 0;
+						}
+					}
+				}
+			}
+			saveMap(map, chunkX, chunkY, chunkZ);
+		}
+		else {
+			file << 0 << ' ' << 1000000 << endl;
+			file.close();
+		}
+	}
+}creator;
+
+
+class gameMap {
+	//private:
+public:
+	u8 ****terrainMap = new u8***[CHUNK_NUM];
+
+	entity entityList[ENTITY_LIST_SIZE]; //Processats individualment cada frame // HAURIA D USAR UN STD::VECTOR PER PODERLOS REORDENAR
+	terrain terrainList[TERRAIN_LIST_SIZE]; //Llista de tipus de terrenys diferents, aqui és on es mirarà a partir del terrainMap
+	point3D mapIndex[CHUNK_NUM]; //indica quin bloc de terreny hi ha a cada posició		
+	textureName texTable[TEX_TABLE_SIZE];
+	string saveName = "default";
+	int chunkValue(point3D chunkN, point3D chunkO) {
+		int res = (pow(chunkN.x - chunkO.x,2) + pow(chunkN.y - chunkO.y,2) + pow(chunkN.z - chunkO.z,2));
+		////cout << "value:" << res << endl;
+		return res;
+	}
+	int freeChunkPos() { //returns the position inside texTable[] of the first free texture space
+		for (int i = 0; i < CHUNK_NUM; i++) {
+			if (mapIndex[i].x == -1) {
+				return i;
+			}
+		}
+		//cout << "NO FREE SPACE IN MAPINDEX" << endl;
+		return -1;
+	}
+	int getChunkPos(int posX, int posY, int posZ) { //returns the position inside mapIndex of the aforementioned chunk;
+		for (int i = 0; i < CHUNK_NUM; i++) {
+			if (posX == mapIndex[i].x) {
+				if (posY == mapIndex[i].y) {
+					if (posZ == mapIndex[i].z) {
+						return i;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+	bool isChunkLoaded(int posX, int posY, int posZ) { // tells if said chunk is loaded in mapIndex[]
+		for (int i = 0; i < CHUNK_NUM; i++) {
+			if (mapIndex[i].z == posZ) {
+				if (mapIndex[i].x == posX) {
+					if (mapIndex[i].y == posY) {
+						return 1;
+					}
+				}
+			}
+		}
+		return 0;
+	}
+	void saveChunk(int chunkX, int chunkY, int chunkZ) { //unloads a chunk from memory and saves it in its file
+		//cout << "saving chunk " << chunkX << chunkY << chunkZ << endl;
+		int chunkPos = getChunkPos(chunkX, chunkY, chunkZ);
+		if (chunkPos == -1) {
+			//cout << "chunk is already unloaded";
+			return;
+		}
+		ofstream chunkFile;
+		string terrainName = ("saves/" + saveName + "/chunks/terrain." + get_string(chunkX) + '.' + get_string(chunkY) + '.' + get_string(chunkZ));
+		chunkFile.open(terrainName);
+		if (!chunkFile.is_open()) {
+			//cout << "couldn't open file: " << terrainName << endl;
+		}
+		char current = 255;
+		int num = 0;
+		for (int i = 0; i < 100; i++) {
+			for (int j = 0; j < 100; j++) {
+				for (int k = 0; k < 100; k++) {
+					if ((int)terrainMap[chunkPos][k][j][i] != current) {
+						chunkFile << (int)current << ' ' << num << endl;
+						current = (int)terrainMap[chunkPos][k][j][i];
+						num = 1;
+					}
+					else {
+						num++;
+						terrainMap[chunkPos][k][j][i] = 1;
+					}
+				}
+			}
+		}
+		chunkFile << (int)current << ' ' << num << endl;
+		chunkFile.close();
+
+		mapIndex[chunkPos].x = -1;
+		mapIndex[chunkPos].y = -1;
+		mapIndex[chunkPos].z = -1;
+	}
+
+	void freeAChunk(point3D playerPos) {
+		point3D playerChunk;
+		playerChunk.x = playerPos.x / CHUNK_SIZE;
+		playerChunk.y = playerPos.y / CHUNK_SIZE;
+		playerChunk.z = playerPos.z / CHUNK_SIZE;
+		for (int i = 0; i < CHUNK_NUM; i++) {
+			point3D chunkN = mapIndex[i];
+			if (chunkValue(chunkN, playerChunk) > 2) {
+				saveChunk(chunkN.x, chunkN.y, chunkN.z);
+				return;
+			}
+		}//[DEBUG]
+		//cout << "tiu, no se que passa, pero algo va mal";
+		for (int i = 0; i < CHUNK_NUM; i++) {
+			////cout << chunkValue(mapIndex[i], playerPos) << endl;
+		}
+		//[/DEBUG]
+
+	}
+	void loadChunk(int chunkX, int chunkY, int chunkZ, point3D playerPos) { //Loads a certain chunk inside mapIndex[] and terrainMap[][][][];
+		int chunkPos = freeChunkPos();
+		if (chunkPos == -1) {
+			freeAChunk(playerPos);
+			chunkPos = freeChunkPos();
+		}
+		ifstream chunkFile;
+		string terrainName = ("saves/" + saveName + "/chunks/terrain." + get_string(chunkX) + '.' + get_string(chunkY) + '.' + get_string(chunkZ));
+		chunkFile.open(terrainName);
+		if (!chunkFile.is_open()) {
+			//cout << "couldn't open file: " << terrainName << endl;
+			creator.createMap(saveName, chunkX, chunkY, chunkZ);
+			chunkFile.open(terrainName);
+		}
+		int currentTerrain;
+		int amountTerrain;
+		chunkFile >> currentTerrain >> amountTerrain;
+		for (int i = 0; i < CHUNK_SIZE; i++) {
+			for (int j = 0; j < CHUNK_SIZE; j++) {
+				for (int k = 0; k < CHUNK_SIZE; k++) {
+					if (amountTerrain == 0) {
+						chunkFile >> currentTerrain >> amountTerrain;
+					}
+					terrainMap[chunkPos][k][j][i] = currentTerrain;
+					amountTerrain--;
+				}
+			}
+		}
+		/*int emptyChunkPos = -1;
+		int i = 0;
+		while (emptyChunkPos == -1 && i < ENTITY_LIST_SIZE) {
+			if (entityList[i].posX == -1) {
+				emptyChunkPos = i;
+			}
+			i++;
+		}*/
+		int emptyChunkPos = freeChunkPos();
+		chunkFile.close();
+		ifstream entitiesFile;
+		string entitiesName = ("saves/" + saveName + "/entities." + get_string(chunkX) + '.' + get_string(chunkY) + '.' + get_string(chunkZ));
+		entitiesFile.open(entitiesName);
+		if (!entitiesFile.is_open()) {
+			//cout << "couldn't open file: " << entitiesName << endl;
+		}
+		if (entitiesFile.is_open()) {
+			while (!entitiesFile.eof()) {
+				entitiesFile >> entityList[emptyChunkPos].spriteName >> entityList[emptyChunkPos].visible >> entityList[emptyChunkPos].solid >> entityList[emptyChunkPos].posX >> entityList[emptyChunkPos].posY >> entityList[emptyChunkPos].posZ;
+
+				emptyChunkPos++;
+				if (emptyChunkPos >= ENTITY_LIST_SIZE) {
+					//cout << "No entity space available";
+				}
+			}
+		}
+
+		mapIndex[chunkPos].x = chunkX;
+		mapIndex[chunkPos].y = chunkY;
+		mapIndex[chunkPos].z = chunkZ;
+	}
+	void loadTerrainTable() {
+		ifstream terrainTable;
+		string terrainName = ("saves/" + saveName + "/terrainTable.txt");
+		terrainTable.open(terrainName);
+		if (!terrainTable.is_open()) {
+			//cout << "error opening terrainTable" << endl;
+
+			return;
+		}
+		int i = 0;
+		while (!terrainTable.eof()) {
+			terrainTable >> terrainList[i].textureFile >> terrainList[i].visible >> terrainList[i].solid;
+			if (terrainList[i].visible) {
+				loadTexture(terrainList[i].textureFile);
+			}
+			i++;
+		}
+		terrainTable.close();
+	}
+	void loadNewChunk(point3D playerPos) {
+		//cout << "loudNewChunk"<<endl;
+		point3D playerChunk;
+		playerChunk.x = playerPos.x / CHUNK_SIZE;
+		playerChunk.y = playerPos.y / CHUNK_SIZE;
+		playerChunk.z = playerPos.z / CHUNK_SIZE;
+
+		for (int i = -1; i < 2; i++)
+		{
+			for (int j = -1; j < 2; j++)
+			{
+				for (int k = -1; k < 2; k++)
+				{
+					point3D chunkPos;
+					chunkPos.x = playerChunk.x + i;
+					chunkPos.y = playerChunk.y + j;
+					chunkPos.z = playerChunk.z + k;
+					if (chunkValue(chunkPos, playerChunk) <= 2) {
+						if (isChunkLoaded(chunkPos.x, chunkPos.y, chunkPos.z) == 0) {
+							//cout << "trying to load chunk " << chunkPos.x << chunkPos.y << chunkPos.z << endl;
+							if (freeChunkPos() == -1) {
+								freeAChunk(playerPos);
+								if (freeChunkPos() == -1) {
+									return;
+								}
+							}
+							loadChunk(chunkPos.x, chunkPos.y, chunkPos.z, playerPos);
+							return;
+						}
+
+					}
+				}
+			}
+		}
+	}
+
+	bool isTextureLoaded(string textureFile) { // tells if a texture with said name is present on texTable
+		for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != "free"; i++) {
+			if (texTable[i].name == textureFile) {
+				return 1;
+			}
+		}
+		return 0;
+	}
+	int freeTexturePos() { //returns the position inside texTable[] of the first free texture space
+		for (int i = 0; i < TEX_TABLE_SIZE; i++) {
+			if (texTable[i].name == "free") {
+				return i;
+			}
+		}
+		//cout << "NO FREE SPACE IN TEXTABLE" << endl;
+		return -1;
+	}
+	int getTexturePos(string fileName) { //returns the position inside texTable[] of the texture with said filename
+		for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != "free"; i++) {
+			if (texTable[i].name == fileName) {
+				return i;
+			}
+		}
+		//cout << "NO TEXTURE W/ FNAME " << fileName << " FOUND" << endl;
+		return -1;
+	}
+	void loadTexture(string fileName) { //load a texture from a file into the first free space inside texTable[]
+		int freeTextureLoc = freeTexturePos();
+		texTable[freeTextureLoc].name = fileName;
+		fileName = "data/sprites/" + fileName;
+		texTable[freeTextureLoc].texture = sfil_load_PNG_file(fileName.c_str(), SF2D_PLACE_RAM);
+		sf2d_texture_tile32(texTable[freeTextureLoc].texture);
+
+	}
+	void freeTexture(string fileName) { //frees a texture from texTable[]
+		int textureLocation = getTexturePos(fileName);
+		int freeTexLoc = freeTexturePos();
+		textureName temp = texTable[textureLocation];
+		texTable[textureLocation] = texTable[freeTexLoc - 1];
+		texTable[freeTexLoc - 1] = temp;
+		sf2d_free_texture(texTable[freeTexLoc - 1].texture);
+		texTable[freeTexLoc - 1].name = "free";
+	}
+	//public:
+		//FALTEN:
+		//funcio per actualitzar chunks carregats, i decidir quins sobreescriure //per escollir els chunks a descarregar, restarem el numero de chunkX del player del numero del chunkX actual,
+																				 //en farem el valor absolut, i li sumarem el mateix procés pero fet amb chunkY i chunkZ, això ens donara una
+																				 //distància aproximada del chunk analitzat al player, i per tant, podrem descarregar el chunk més lluny
+	void freeAllTextures() {	 //frees all textures
+		for (int i = 0; i < TEX_TABLE_SIZE; i++) {
+			texTable[i].name = "free";
+			sf2d_free_texture(texTable[i].texture);
+		}
+	}
+	bool simpleCollision(int posX, int posY, int posZ, mode collisionMode = TRRN) {	//Tells if terrain at position is occupied
+		int blockX = floor(posX / CHUNK_SIZE);
+		int blockY = floor(posY / CHUNK_SIZE);
+		int blockZ = floor(posZ / CHUNK_SIZE);
+		int chunkPosition = getChunkPos(blockX, blockY, blockZ);
+		if (chunkPosition == -1) {
+			return 0;
+		}
+		//switch case pels tipus de modes
+		if (terrainList[terrainMap[chunkPosition][posX - (blockX * CHUNK_SIZE)][posY - (blockY * CHUNK_SIZE)][posZ - (blockZ * CHUNK_SIZE)]].solid == 1) {
+			return 1;
+		}
+		return 0;
+	}
+
+	int visibleEntity(int posX, int posY, int posZ) { // returns the position inside entityList if the entered 3d position contains a visible entity
+		for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].posX != -1; i++) {
+			if (entityList[i].visible) {
+				if (entityList[i].posX == posX) {
+					if (entityList[i].posY == posY) {
+						if (entityList[i].posZ == posZ) {
+							return i;
+						}
+					}
+				}
+			}
+		}
+		return -1;
+	}
+	bool isVisible(int posX, int posY, int posZ, mode mode_t = PRRT) { //
+		int blockX = floor(posX / CHUNK_SIZE);
+		int blockY = floor(posY / CHUNK_SIZE);
+		int blockZ = floor(posZ / CHUNK_SIZE);
+		int chunkPosition = getChunkPos(blockX, blockY, blockZ);
+		if (chunkPosition == -1) {
+			return (visibleEntity(posX, posY, posZ) != -1);
+		}
+
+		switch (mode_t) {
+		case TRRN:
+			return terrainList[terrainMap[chunkPosition][posX - blockX * CHUNK_SIZE][posY - blockY * CHUNK_SIZE][posZ - blockZ * CHUNK_SIZE]].visible;
+		case NTT:
+			return (visibleEntity(posX, posY, posZ) != -1);
+		case PRRT:
+			return (isVisible(posX, posY, posZ, TRRN)) ? 1 : isVisible(posX, posY, posZ, NTT);
+		}
+	}
+
+	sf2d_texture* getTexture(int posX, int posY, int posZ, mode mode_t = PRRT) {
+		int blockX = floor(posX / CHUNK_SIZE);
+		int blockY = floor(posY / CHUNK_SIZE);
+		int blockZ = floor(posZ / CHUNK_SIZE);
+		int chunkPosition = getChunkPos(blockX, blockY, blockZ);
+		if (chunkPosition == -1) {
+			for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].posX != -1; i++) {
+
+				if (entityList[visibleEntity(posX, posY, posZ)].spriteName == texTable[i].name) {
+					return texTable[i].texture;
+				}
+			}
+		}
+		switch (mode_t) {
+
+		case TRRN:
+			return texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * CHUNK_SIZE][posY - blockY * CHUNK_SIZE][posZ - blockZ * CHUNK_SIZE]].textureFile)].texture;
+		case NTT:
+			for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].posX != -1; i++) {
+
+				if (entityList[visibleEntity(posX, posY, posZ)].spriteName == texTable[i].name) {
+					return texTable[i].texture;
+				}
+			}
+			//cout << "Entity texture not found in position" << posX << ' ' << posY << ' ' << posZ << endl;
+		case PRRT:
+			if (isVisible(posX, posY, posZ, NTT) == 1) {
+				return texTable[getTexturePos(entityList[visibleEntity(posX, posY, posZ)].spriteName)].texture;
+			}
+
+			else if (isVisible(posX, posY, posZ, TRRN)) {
+				return texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * CHUNK_SIZE][posY - blockY * CHUNK_SIZE][posZ - blockZ * CHUNK_SIZE]].textureFile)].texture;
+			}
+		}
+	}
+	gameMap() {
+		for (int i = 0; i < CHUNK_NUM; i++) {
+			terrainMap[i] = new u8**[CHUNK_SIZE];
+			for (int j = 0; j < CHUNK_SIZE; j++) {
+				terrainMap[i][j] = new u8*[CHUNK_SIZE];
+				for (int k = 0; k < CHUNK_SIZE; k++) {
+					terrainMap[i][j][k] = new u8[CHUNK_SIZE];
+					for (int l = 0; l < CHUNK_SIZE; l++) {
+						terrainMap[i][j][k][l] = 1;
+					}
+				}
+			}
+		}
+	}
+	void emplenarWIP() {
+		for (int x = 0; x != CHUNK_NUM; x++) {
+			for (int i = 0; i <= 99; i++) {
+				for (int j = 0; i <= 99; j++) {
+					for (int k = 0; k <= 1; k++) {
+						terrainMap[x][i][j][49 + k] = 1;
+					}
+				}
+			}
+			for (int i = 1; i != 99; i++) {
+				for (int j = 1; i != 99; j++) {
+					terrainMap[x][i][j][50] = 0;
+				}
+			}
+		}
+
+	}
+};
+
+
+void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth) {
+	if (player.posX < mapWidth - 10) { if (cameraX + 14 < player.posX) { cameraX++; } }
+	if (player.posX > 9) { if (cameraX + 10 > player.posX) { cameraX--; } }
+	if (player.posY < mapHeight - 6) { if (cameraY + 8 < player.posY) { cameraY++; } }
+	if (player.posY > 5) { if (cameraY + 6 > player.posY) { cameraY--; } }
+}
+
+class gameMain {
+private:
+	u32 kDown;
+	u32 kHeld;
+	u32 kUp;
+	gameMap map;
+	entity* player;
+	bool o = 0;
+	sf2d_texture *overlay;
+	u64 loop = 0;
+	bool jump = 0;
+	int jumped = 0;
+
+	void exitGame() {
+		audio_stop();
+		csndExit();
+		sf2d_fini();
+		gfxExit();
+		hidExit();
+		aptExit();
+		srvExit();
+		exit(1);
+	}
+	void moveEntity(entity &currentEntity, direction dir, bool autojump = false) {
+		switch (dir) {
+		case DOWN:
+			if (map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ - 1) == 0) {
+				currentEntity.posZ--;
+			}
+			break;
+		case UP:
+			if (map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0) {
+				currentEntity.posZ++;
+			}
+			break;
+		case FRONT:
+			if (currentEntity.posY > 8) {
+				if (map.simpleCollision(currentEntity.posX, currentEntity.posY - 1, currentEntity.posZ) == 0) {
+					currentEntity.posY--;
+				}
+				else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX, currentEntity.posY - 1, currentEntity.posZ + 1) == 0) {
+					currentEntity.posY--;
+					currentEntity.posZ++;
+				}
+			}
+			else //cout << "BARRERA INVISBLE LOKO" << endl;
+			break;
+		case BACK:
+			if (map.simpleCollision(currentEntity.posX, currentEntity.posY + 1, currentEntity.posZ) == 0) {
+				currentEntity.posY++;
+			}
+			else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX, currentEntity.posY + 1, currentEntity.posZ + 1) == 0) {
+				currentEntity.posY++;
+				currentEntity.posZ++;
+			}
+			break;
+		case LEFT:
+			if (currentEntity.posX > 16) {
+				if (map.simpleCollision(currentEntity.posX - 1, currentEntity.posY, currentEntity.posZ) == 0) {
+					currentEntity.posX--;
+				}
+				else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX - 1, currentEntity.posY, currentEntity.posZ + 1) == 0) {
+					currentEntity.posX--;
+					currentEntity.posZ++;
+				}
+			}
+			else //cout << "BARRERA INVISBLE LOKO" << endl;
+			break;
+		case RIGHT:
+			if (map.simpleCollision(currentEntity.posX + 1, currentEntity.posY, currentEntity.posZ) == 0) {
+				currentEntity.posX++;
+			}
+			else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX + 1, currentEntity.posY, currentEntity.posZ + 1) == 0) {
+				currentEntity.posX++;
+				currentEntity.posZ++;
+			}
+			break;
+		}
+	}
+
+	void updateEntity(entity &currentEntity) {
+		if (map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ - 1) == 0) {
+			//cout << "que es faci la gravetat " << endl;
+			currentEntity.posZ--;
+			if (currentEntity.posZ < 0) {
+				//cout << "has caigut del mon, capoll" << endl;
+				svcSleepThread(3000000000);
+				exitGame();
+			}
+		}
+		switch (currentEntity.type) {
+		case NPC:
+			break;
+		}
+	}
+	void updateEntities() {
+		for (int i = 0; i < ENTITY_LIST_SIZE && map.entityList[i].posX >= 0; i++)
+		{
+			updateEntity(map.entityList[i]);
+		}
+	}
+
+	void drawFrame() {
+		sf2d_start_frame(GFX_TOP, GFX_LEFT);
+		for (int i = 0; i != 15; i++) {
+			for (int j = 0; j != 25; j++) {
+				for (int y = RENDER_HEIGHT; y >= 0; y--) {
+					if (map.isVisible((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ - y))) {
+						sf2d_draw_texture(map.getTexture((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ - y)), j * 16, i * 16);
+					}
+				}
+			}
+		}
+		if (o) {
+			sf2d_draw_texture(overlay, 0, 0);
+		}
+		sf2d_end_frame();
+	}
+	void handleInput() {
+		hidScanInput();
+		kDown = hidKeysDown();
+		kHeld = hidKeysHeld();
+		if (kDown & KEY_START) {
+			exitGame();
+		}
+		if (kDown & KEY_X) {
+			jump = !jump;
+		}
+		if (kHeld & KEY_SELECT) {
+			o = 1;
+		}
+		else o = 0;
+		if (kHeld & KEY_RIGHT) {
+			moveEntity(*player, RIGHT, jump);
+		}
+		if (kHeld & KEY_LEFT) {
+			moveEntity(*player, LEFT, jump);
+		}
+		if (kHeld & KEY_UP) {
+			moveEntity(*player, FRONT, jump);
+		}
+		if (kHeld & KEY_DOWN) {
+			moveEntity(*player, BACK, jump);
+		}
+		if (kHeld & KEY_A) {
+			if (!jumped) {
+				moveEntity(*player, UP, jump);
+				moveEntity(*player, UP, jump);
+				jumped = 2;
+			}
+		}
+
+	}
+	void gameLoop() {
+		//cout << "loop."<<loop;
+		point3D playerPos;
+		playerPos.x = player->posX;
+		playerPos.y = player->posY;
+		playerPos.z = player->posZ;
+
+		handleInput();
+		
+		updateEntities();
+	
+		map.loadNewChunk(playerPos);
+		if (jumped > 0) { jumped--; }
+
+		//cout << player->posX << ' ' << player->posY << ' ' << player->posZ << endl;
+		sf2d_swapbuffers();
+		//processar input
+		//refrescar coses carregades
+		//dibuixar
+
+		drawFrame();
+		//FALTA intentar carregar chunks a cada loop, i crearlos on the fly, a més s haurien de fer bé, i ficarlos en un thread separat al carregar
+
+	}
+public:
+	void gameCore() {
+		//gameMap map;
+		// Inits
+
+		//demanar arxius a carregar i ficar un menu o halgo
+
+		//
+
+		/*
+		ifstream index;
+		index.open("saves/index.txt");
+		int saveNum;
+		index >> saveNum;
+		string saveList[saveNum];
+		for (int i=0;i<saveNum;i++){
+			index >> saveList[i];
+		}
+		index.close();
+		//select which one
+		saveName = selected;
+		*/
+
+		overlay = sfil_load_PNG_file("data/sprites/overlay.png", SF2D_PLACE_RAM);
+		player = &map.entityList[0];
+		string saveName = "default";
+		ifstream general;
+		general.open("saves/" + saveName + "/general.txt");
+		if (!general.is_open()) {
+			//cout << "couldn't open file: " << ("saves/" + saveName + "/general.txt") << endl;
+		}
+		string playerSprite, playerName;
+		general >> playerName >> player->spriteName >> player->posX >> player->posY >> player->posZ;
+		//cout << playerName << endl;
+		point3D playerPos;
+		//cout << player->posX << endl;
+		playerPos.x = player->posX;
+		playerPos.y = player->posY;
+		playerPos.z = player->posZ;
+		//loadmap
+		for (int i = 0; i < CHUNK_NUM; i++) {
+			map.loadNewChunk(playerPos);
+		}
+
+		map.loadTexture("player.png");
+		map.loadTerrainTable();
+		//cout << "vram: " << vramSpaceFree() << endl;
+		//cout << "mappable: " << mappableSpaceFree() << endl;
+		//cout << "linear: " << linearSpaceFree() << endl;
+		audio_load("data/sounds/bgm/wilderness.raw"); //[N3DS] only 
+		while (1) {
+			gameLoop();
+			loop++;
+		}
+
+	}
+
+};
+
+
+
+int main()
+{
+	srvInit();
+	aptInit();
+	hidInit();
+	srand(time(NULL));
+	sf2d_init();
+	consoleInit(GFX_BOTTOM, NULL);
+	csndInit();
+	sf2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
+	srand(time(NULL));
+	gameMain gameMain1;
+	gameMain1.gameCore();
+	audio_stop();
+	csndExit();
+
+
+	// Exit
+	//map.freeAllTextures();
+
+	sf2d_fini();
+
+	gfxExit();
+
+	hidExit();
+
+	aptExit();
+
+	srvExit();
+
+
+	return 1;
 }
