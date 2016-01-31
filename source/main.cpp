@@ -39,6 +39,7 @@ TO-DO
 #include <iomanip>
 #include <sstream>
 
+#define CHUNK_SIZE 100
 #define CHUNK_NUM  19 //( 19 = rubik's (n=2) - corners, 11 = baldufa(n = 2, però z pondera més) , 7 = rubik's core (n = 1))
 #define ENTITY_LIST_SIZE  100
 #define TERRAIN_LIST_SIZE  100
@@ -100,6 +101,11 @@ enum mode {
 	BLCK,
 };
 
+enum nttype {
+	NPC,
+	PLR,
+};
+
 enum direction {
 	UP,
 	DOWN,
@@ -113,16 +119,14 @@ struct point3D {
 	int y = -1;
 	int z = -1;
 };
-class entity {
-public:
+struct entity {
 	string spriteName = "ENULL";
 	bool visible = 1;
 	bool solid = 1;
 	int posX = -1;
 	int posY = -1;
 	int posZ = -1;
-
-	void update() {}
+	nttype type = NPC;
 };
 
 struct textureName {
@@ -141,9 +145,8 @@ struct terrain {
 class gameMap {
 	//private:
 public:
-	int ****terrainMap = new int***[CHUNK_NUM];
+	u8 ****terrainMap = new u8***[CHUNK_NUM];
 
-	//int terrainMap = new int[CHUNK_NUM][100][100][100]();
 	entity entityList[ENTITY_LIST_SIZE]; //Processats individualment cada frame // HAURIA D USAR UN STD::VECTOR PER PODERLOS REORDENAR
 	terrain terrainList[TERRAIN_LIST_SIZE]; //Llista de tipus de terrenys diferents, aqui és on es mirarà a partir del terrainMap
 	point3D mapIndex[CHUNK_NUM]; //indica quin bloc de terreny hi ha a cada posició		
@@ -173,17 +176,17 @@ public:
 		}
 		return 0;
 	}
-	void saveChunk(int chunkX, int chunkY, int chunkZ, string fileName = "default") { //unloads a chunk from memory and saves it in its file
+	void saveChunk(int chunkX, int chunkY, int chunkZ) { //unloads a chunk from memory and saves it in its file
 		int chunkPos = getChunkPos(chunkX, chunkY, chunkZ);
 		ofstream chunkFile;
-		string mapName = ("saves/" + fileName + "/terrain." + get_string(chunkX) + '.' + get_string(chunkY) + '.' + get_string(chunkZ));
+		string mapName = ("saves/" + saveName + "/terrain." + get_string(chunkX) + '.' + get_string(chunkY) + '.' + get_string(chunkZ));
 		chunkFile.open(mapName);
 		if (!chunkFile.is_open()) {
 			cout << "couldn't open file: " << mapName << endl;
 		}
-		for (int i = 0; i < 100; i++) {
-			for (int j = 0; j < 100; j++) {
-				for (int k = 0; k < 100; k++) {
+		for (int i = 0; i < CHUNK_SIZE; i++) {
+			for (int j = 0; j < CHUNK_SIZE; j++) {
+				for (int k = 0; k < CHUNK_SIZE; k++) {
 					chunkFile << terrainMap[chunkPos][k][j][i];
 				}
 			}
@@ -201,7 +204,7 @@ public:
 		}
 		chunkFile.close();
 		ofstream entitiesFile;
-		string entitiesName = ("saves/" + fileName + "/entities." + get_string(chunkX) + '.' + get_string(chunkY) + '.' + get_string(chunkZ));
+		string entitiesName = ("saves/" + saveName + "/entities." + get_string(chunkX) + '.' + get_string(chunkY) + '.' + get_string(chunkZ));
 		entitiesFile.open(entitiesName);
 		if (!entitiesFile.is_open()) {
 			cout << "couldn't open file: " << entitiesName << endl;
@@ -213,9 +216,9 @@ public:
 			if (entityList[i].posX < 0) {
 				cout << "No hi ha cap entity vàlida aqui    entityList[" << i << ']' << endl;
 			}
-			if (floor(entityList[i].posX / 100) == chunkX) {
-				if (floor(entityList[i].posY / 100) == chunkY) {
-					if (floor(entityList[i].posZ / 100) == chunkZ) {
+			if (floor(entityList[i].posX / CHUNK_SIZE) == chunkX) {
+				if (floor(entityList[i].posY / CHUNK_SIZE) == chunkY) {
+					if (floor(entityList[i].posZ / CHUNK_SIZE) == chunkZ) {
 						if (entityList[i].visible) {
 							entityList[i] = entityList[emptyChunkPos - 1];
 							entityList[emptyChunkPos].posX = -1;
@@ -235,9 +238,9 @@ public:
 
 	void freeAChunk(point3D playerPos) {
 		point3D playerChunk;
-		playerChunk.x = playerPos.x / 100;
-		playerChunk.y = playerPos.y / 100;
-		playerChunk.z = playerPos.z / 100;
+		playerChunk.x = playerPos.x / CHUNK_SIZE;
+		playerChunk.y = playerPos.y / CHUNK_SIZE;
+		playerChunk.z = playerPos.z / CHUNK_SIZE;
 		for (int i = 0; i < CHUNK_NUM; i++) {
 			point3D chunkN = mapIndex[i];
 			if (chunkValue(chunkN, playerChunk) > 2) {
@@ -260,9 +263,9 @@ public:
 		int currentTerrain;
 		int amountTerrain;
 		chunkFile >> currentTerrain >> amountTerrain;
-		for (int i = 0; i < 100; i++) {
-			for (int j = 0; j < 100; j++) {
-				for (int k = 0; k < 100; k++) {
+		for (int i = 0; i < CHUNK_SIZE; i++) {
+			for (int j = 0; j < CHUNK_SIZE; j++) {
+				for (int k = 0; k < CHUNK_SIZE; k++) {
 					if (amountTerrain == 0) {
 						chunkFile >> currentTerrain >> amountTerrain;
 					}
@@ -303,11 +306,30 @@ public:
 		mapIndex[chunkPos].y = chunkY;
 		mapIndex[chunkPos].z = chunkZ;
 	}
+	void loadTerrainTable() {
+		ifstream terrainTable;
+		string terrainName = ("saves/" + saveName + "/terrainTable.txt");
+		terrainTable.open(terrainName);
+		if (!terrainTable.is_open()) {
+			cout << "error opening terrainTable" << endl;
+
+			return;
+		}
+		int i = 0;
+		while (!terrainTable.eof()) {
+			terrainTable >> terrainList[i].textureFile >> terrainList[i].visible >> terrainList[i].solid;
+			if (terrainList[i].visible) {
+				loadTexture(terrainList[i].textureFile);
+			}
+			i++;
+		}
+		terrainTable.close();
+	}
 	void loadNewChunk(point3D playerPos) {
 		point3D playerChunk;
-		playerChunk.x = playerPos.x / 100;
-		playerChunk.y = playerPos.y / 100;
-		playerChunk.z = playerPos.z / 100;
+		playerChunk.x = playerPos.x / CHUNK_SIZE;
+		playerChunk.y = playerPos.y / CHUNK_SIZE;
+		playerChunk.z = playerPos.z / CHUNK_SIZE;
 		for (int i = -1; i < 2; i++)
 		{
 			for (int j = -1; j < 2; j++)
@@ -385,14 +407,15 @@ public:
 		}
 	}
 	bool simpleCollision(int posX, int posY, int posZ, mode collisionMode = TRRN) {	//Tells if terrain at position is occupied
-		int blockX = floor(posX / 100);
-		int blockY = floor(posY / 100);
-		int blockZ = floor(posZ / 100);
+		int blockX = floor(posX / CHUNK_SIZE);
+		int blockY = floor(posY / CHUNK_SIZE);
+		int blockZ = floor(posZ / CHUNK_SIZE);
 		int chunkPosition = getChunkPos(blockX, blockY, blockZ);
 		//switch case pels tipus de modes
-		if (terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].solid == 1) {
+		if (terrainList[terrainMap[chunkPosition][posX - (blockX * CHUNK_SIZE)][posY -( blockY * CHUNK_SIZE)][posZ - (blockZ * CHUNK_SIZE)]].solid == 1) {
 			return 1;
 		}
+		return 0;
 	}
 	int getChunkPos(int posX, int posY, int posZ) { //returns the position inside mapIndex of the aforementioned chunk;
 		for (int i = 0; i < CHUNK_NUM; i++) {
@@ -423,14 +446,14 @@ public:
 		return -1;
 	}
 	bool isVisible(int posX, int posY, int posZ, mode mode_t = PRRT) { //
-		int blockX = floor(posX / 100);
-		int blockY = floor(posY / 100);
-		int blockZ = floor(posZ / 100);
+		int blockX = floor(posX / CHUNK_SIZE);
+		int blockY = floor(posY / CHUNK_SIZE);
+		int blockZ = floor(posZ / CHUNK_SIZE);
 		int chunkPosition = getChunkPos(blockX, blockY, blockZ);
 
 		switch (mode_t) {
 		case TRRN:
-			return terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].visible;
+			return terrainList[terrainMap[chunkPosition][posX - blockX * CHUNK_SIZE][posY - blockY * CHUNK_SIZE][posZ - blockZ * CHUNK_SIZE]].visible;
 		case NTT:
 			return (visibleEntity(posX, posY, posZ) != -1);
 		case PRRT:
@@ -439,14 +462,14 @@ public:
 	}
 
 	sf2d_texture* getTexture(int posX, int posY, int posZ, mode mode_t = PRRT) {
-		int blockX = floor(posX / 100);
-		int blockY = floor(posY / 100);
-		int blockZ = floor(posZ / 100);
+		int blockX = floor(posX / CHUNK_SIZE);
+		int blockY = floor(posY / CHUNK_SIZE);
+		int blockZ = floor(posZ / CHUNK_SIZE);
 		int chunkPosition = getChunkPos(blockX, blockY, blockZ);
 		switch (mode_t) {
 
 		case TRRN:
-			return texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].textureFile)].texture;
+			return texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * CHUNK_SIZE][posY - blockY * CHUNK_SIZE][posZ - blockZ * CHUNK_SIZE]].textureFile)].texture;
 		case NTT:
 			for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].posX != -1; i++) {
 
@@ -456,23 +479,23 @@ public:
 			}
 			cout << "Entity texture not found in position" << posX << ' ' << posY << ' ' << posZ << endl;
 		case PRRT:
-			if (isVisible(posX, posY, posZ, NTT) ==1) {
+			if (isVisible(posX, posY, posZ, NTT) == 1) {
 				return texTable[getTexturePos(entityList[visibleEntity(posX, posY, posZ)].spriteName)].texture;
 			}
 
 			else if (isVisible(posX, posY, posZ, TRRN)) {
-				return texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * 100][posY - blockY * 100][posZ - blockZ * 100]].textureFile)].texture;
+				return texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * CHUNK_SIZE][posY - blockY * CHUNK_SIZE][posZ - blockZ * CHUNK_SIZE]].textureFile)].texture;
 			}
 		}
 	}
 	gameMap() {
 		for (int i = 0; i < CHUNK_NUM; i++) {
-			terrainMap[i] = new int**[100];
-			for (int j = 0; j < 100; j++) {
-				terrainMap[i][j] = new int*[100];
-				for (int k = 0; k < 100; k++) {
-					terrainMap[i][j][k] = new int[100];
-					for (int l = 0; l < 100; l++) {
+			terrainMap[i] = new u8**[CHUNK_SIZE];
+			for (int j = 0; j < CHUNK_SIZE; j++) {
+				terrainMap[i][j] = new u8*[CHUNK_SIZE];
+				for (int k = 0; k < CHUNK_SIZE; k++) {
+					terrainMap[i][j][k] = new u8[CHUNK_SIZE];
+					for (int l = 0; l < CHUNK_SIZE; l++) {
 						terrainMap[i][j][k][l] = 1;
 					}
 				}
@@ -512,29 +535,99 @@ private:
 	u32 kUp;
 	gameMap map;
 	entity* player;
-	sf2d_texture *texturaTest;
+	bool o = 0;
+	sf2d_texture *overlay;
+
+	void moveEntity(entity &currentEntity, direction dir, bool autojump = true) {
+		switch (dir) {
+		case DOWN:
+			if (map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ - 1) == 0) {
+				currentEntity.posZ--;
+			}
+			break;
+		case UP:
+			if (map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0) {
+				currentEntity.posZ++;
+			}
+			break;
+		case FRONT:
+			if (map.simpleCollision(currentEntity.posX, currentEntity.posY - 1, currentEntity.posZ) == 0) {
+				currentEntity.posY--;
+			}
+			else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX, currentEntity.posY - 1, currentEntity.posZ + 1) == 0) {
+				currentEntity.posY--;
+				currentEntity.posZ++;
+			}
+			break;
+		case BACK:
+			if (map.simpleCollision(currentEntity.posX, currentEntity.posY + 1, currentEntity.posZ) == 0) {
+				currentEntity.posY++;
+			}
+			else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX, currentEntity.posY + 1, currentEntity.posZ + 1) == 0) {
+				currentEntity.posY++;
+				currentEntity.posZ++;
+			}
+			break;
+		case LEFT:
+			if (map.simpleCollision(currentEntity.posX - 1, currentEntity.posY, currentEntity.posZ) == 0) {
+				currentEntity.posX--;
+			}
+			else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX - 1, currentEntity.posY, currentEntity.posZ + 1) == 0) {
+				currentEntity.posX--;
+				currentEntity.posZ++;
+			}
+			break;
+		case RIGHT:
+			if (map.simpleCollision(currentEntity.posX + 1, currentEntity.posY - 1, currentEntity.posZ) == 0) {
+				currentEntity.posX++;
+			}
+			else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX + 1, currentEntity.posY, currentEntity.posZ + 1) == 0) {
+				currentEntity.posX++;
+				currentEntity.posZ++;
+			}
+			break;
+		}
+	}
+
+	void updateEntity(entity &currentEntity) {	
+		cout << "updating entities " << endl;
+		if (map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ - 1) == 0) {
+			cout << "que es faci la gravetat " << endl;
+			currentEntity.posZ--;
+		}
+		switch (currentEntity.type) {
+		case NPC:
+			break;
+		}
+	}
+	void updateEntities() {
+		for (int i = 0; i < ENTITY_LIST_SIZE && map.entityList[i].posX >= 0; i++)
+		{
+			updateEntity(map.entityList[i]);
+		}
+	}
 
 	void drawFrame() {
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 		for (int i = 0; i != 15; i++) {
 			for (int j = 0; j != 25; j++) {
-				if (map.isVisible((player->posX + j), (player->posY + i), (player->posZ - 1))) {
-					sf2d_draw_texture(map.getTexture((player->posX + j), (player->posY + i), (player->posZ - 1)), j * 16, i * 16);
+				if (map.isVisible((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ - 1))) {
+					sf2d_draw_texture(map.getTexture((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ - 1)), j * 16, i * 16);
 				}
-				if (map.isVisible((player->posX + j), (player->posY + i), (player->posZ))) {
-					sf2d_draw_texture(map.getTexture((player->posX + j), (player->posY + i), (player->posZ)), j * 16, i * 16);
+				if (map.isVisible((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ))) {
+					sf2d_draw_texture(map.getTexture((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ)), j * 16, i * 16);
 				}
 			}
 		}
+		if (o) {
+			sf2d_draw_texture(overlay, 0, 0);
+		}
 		sf2d_end_frame();
 	}
-	void gameLoop() {
+	void handleInput() {
 		hidScanInput();
 		kDown = hidKeysDown();
 		kHeld = hidKeysHeld();
-		//processar input
-		//refrescar coses carregades
-		//dibuixar
 		if (kDown & KEY_START) {
 			sf2d_fini();
 			gfxExit();
@@ -543,13 +636,39 @@ private:
 			srvExit();
 			exit(1);
 		}
-		if (kHeld & KEY_L) { player->posZ--; }
-		if (kHeld & KEY_R) { player->posZ++; }
+		if (kHeld & KEY_SELECT) {
+			o = 1;
+		}
+		else o = 0;
+		if (kHeld & KEY_RIGHT) {
+			moveEntity(*player, RIGHT);
+		}
+		if (kHeld & KEY_LEFT) {
+			moveEntity(*player, LEFT);
+		}
+		if (kHeld & KEY_UP) {
+			moveEntity(*player, FRONT);
+		}
+		if (kHeld & KEY_DOWN) {
+			moveEntity(*player, BACK);
+		}
+		if (kHeld & KEY_A) {
+			moveEntity(*player, UP);
+		}
+
+	}
+	void gameLoop() {
+
+		updateEntities();
+		handleInput();
+		cout << player->posX << ' ' << player->posY << ' ' << player->posZ << endl;
 		sf2d_swapbuffers();
 		//processar input
 		//refrescar coses carregades
 		//dibuixar
 		drawFrame();
+		//FALTA intentar carregar chunks a cada loop, i crearlos on the fly, a més s haurien de fer bé, i ficarlos en un thread separat al carregar
+
 	}
 public:
 	void gameCore() {
@@ -573,6 +692,7 @@ public:
 		//select which one
 		saveName = selected;
 		*/
+		overlay = sfil_load_PNG_file("data/sprites/overlay.png", SF2D_PLACE_RAM);
 		player = &map.entityList[0];
 		string saveName = "default";
 		ifstream general;
@@ -592,18 +712,12 @@ public:
 		for (int i = 0; i < 19; i++) {
 			map.loadNewChunk(playerPos);
 		}
-		map.loadTexture("grass.png");
+
 		map.loadTexture("player.png");
-
-		map.loadTexture("wall.png");
-		map.entityList[0].solid = 1;
-		map.entityList[0].visible = 1;
-
-		map.terrainList[0].solid = 0;
-		map.terrainList[0].visible = 0;
-		map.terrainList[1].solid = 1;
-		map.terrainList[1].visible = 1;
-		map.terrainList[1].textureFile = "grass.png";
+		map.loadTerrainTable();
+		cout << "vram: " << vramSpaceFree() << endl;
+		cout << "mappable: " << mappableSpaceFree() << endl;
+		cout << "linear: " << linearSpaceFree() << endl;
 		while (1) {
 			gameLoop();
 		}
@@ -623,6 +737,7 @@ int main()
 	sf2d_init();
 	consoleInit(GFX_BOTTOM, NULL);
 	sf2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
+	srand(time(NULL));
 	gameMain gameMain1;
 	gameMain1.gameCore();
 

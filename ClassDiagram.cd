@@ -1,16 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="entity">
-    <Position X="2.5" Y="0.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAQAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAzAIEAAA=</HashCode>
-      <FileName>source\main.cpp</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="gameMap">
     <Position X="0.5" Y="0.5" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAABEAQADJAAAgAAgBAAADAAAAAEABCEArMAYCAAAAA=</HashCode>
+      <HashCode>AAABEAQADJAAAgAAgBAAADAAAAAEQBCEArMAYCAAAAA=</HashCode>
       <FileName>source\main.cpp</FileName>
     </TypeIdentifier>
   </Class>
