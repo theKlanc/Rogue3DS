@@ -816,7 +816,7 @@ public:
 		//cout << "vram: " << vramSpaceFree() << endl;
 		//cout << "mappable: " << mappableSpaceFree() << endl;
 		//cout << "linear: " << linearSpaceFree() << endl;
-		audio_load("data/sounds/bgm/wilderness.raw"); //[N3DS] only 
+		//audio_load("data/sounds/bgm/wilderness.raw"); //[N3DS] only 
 		while (1) {
 			gameLoop();
 			loop++;
