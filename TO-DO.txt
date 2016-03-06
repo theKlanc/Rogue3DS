@@ -1,0 +1,18 @@
+/*
+TO-DO
+
+separar en diferents arxius i decouplejar tot de worldMap a diverses classes. (si abans feia rework, ara és restructure)
+
+arreglar l'ultra lag(USAR FILE* mayB?)
+
+afegir menu i creador de personatge
+creador de carpetes(puto c++ wtf)
+88-generació de mapa + interessant
+8-afegir events
+9-afegir combat
+10-millorar el so i afegir sfx
+11-passar a romfs i extdata
+99-MP
+*/
+-------------------------------
+·Fusionar textures: usar get pixel a la textura superior a tots els pixels, els k no siguin buits (u32 -> RGBA8) els faig un setPixel amb akell color a la textura inferior
