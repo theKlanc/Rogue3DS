@@ -189,6 +189,49 @@ void createMap(string saveName, int chunkX, int chunkY, int chunkZ) {
 	}
 
 }
+void createMapAndLoad(u8*** map, int chunkX, int chunkY, int chunkZ) {
+	//cout<< "intento crear un chunk a " << chunkX << chunkY << chunkZ << endl;
+	if (chunkZ < FLOOR_HEIGHT / CHUNK_SIZE) {
+		for (int i = 0; i < CHUNK_SIZE;i++){
+			for (int j = 0; j < CHUNK_SIZE; j++) {
+				for (int k = 0; k < CHUNK_SIZE; k++) {
+					map[i][j][k] = 1;
+				} 
+			} 
+		}
+	}
+	else if (chunkZ == FLOOR_HEIGHT / CHUNK_SIZE) {
+		for (int n = 0; n < CHUNK_SIZE; n++) {
+			for (int m = 0; m < CHUNK_SIZE; m++) {
+				for (int l = 0; l < CHUNK_SIZE; l++) {
+					if (n < CHUNK_SIZE / 2) {
+						map[l][m][n] = 1;
+					}
+					else if (n == CHUNK_SIZE / 2) {
+						int bloc = rand() % 7;
+						if (bloc == 1) { bloc++; }
+						else bloc = 0;
+						map[l][m][n] = bloc;
+					}
+					else {
+						map[l][m][n] = 0;
+					}
+				}
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < CHUNK_SIZE; i++) {
+			for (int j = 0; j < CHUNK_SIZE; j++) {
+				for (int k = 0; k < CHUNK_SIZE; k++) {
+					map[i][j][k] = 0;
+				}
+			}
+		}
+	}
+
+}
+
 
 
 
@@ -240,7 +283,8 @@ public:
 		return 0;
 	}
 	void saveChunk(int chunkX, int chunkY, int chunkZ) { //unloads a chunk from memory and saves it in its file
-														 //cout<< "saving chunk " << chunkX << chunkY << chunkZ << endl;
+		cout << "SAVING";
+														//cout<< "saving chunk " << chunkX << chunkY << chunkZ << endl;
 		clock_t t = clock();
 		int chunkPos = getChunkPos(chunkX, chunkY, chunkZ);
 		if (chunkPos == -1) {
@@ -279,6 +323,7 @@ public:
 		mapIndex[chunkPos].x = -1;
 		mapIndex[chunkPos].y = -1;
 		mapIndex[chunkPos].z = -1;
+		cout << " END" << endl;
 		//cout<< "                 SAVE " << (float)(clock() - t) / CLOCKS_PER_SEC * 1000 << endl;
 		//cout<< "done saving" << endl;
 	}
@@ -305,20 +350,28 @@ public:
 
 	}
 	void loadChunk(int chunkX, int chunkY, int chunkZ, point3D playerPos) { //Loads a certain chunk inside mapIndex[] and terrainMap[][][][];
+		
 		clock_t t = clock();
 		int chunkPos = freeChunkPos();
 		if (chunkPos == -1) {
 			freeAChunk(playerPos);
 			chunkPos = freeChunkPos();
 		}
+		mapIndex[chunkPos].x = chunkX;
+		mapIndex[chunkPos].y = chunkY;
+		mapIndex[chunkPos].z = chunkZ;
 		ifstream chunkFile;
 		string terrainName = ("saves/" + saveName + "/chunks/terrain." + get_string(chunkX) + '.' + get_string(chunkY) + '.' + get_string(chunkZ));
 		chunkFile.open(terrainName, ios_base::binary);
 		if (!chunkFile.is_open()) {
+			cout << "CREATING";
 			//cout<< "couldn't open file: " << terrainName << endl;
-			createMap(saveName, chunkX, chunkY, chunkZ);
-			chunkFile.open(terrainName, ios_base::binary);
+			createMapAndLoad(terrainMap[chunkPos],chunkX,chunkY,chunkZ);
+			cout << " END" << endl;
+			return;
+			//chunkFile.open(terrainName, ios_base::binary);
 		}
+		cout << "LOADING";
 		int currentTerrain;
 		int amountTerrain;
 		stringstream sstream;
@@ -353,10 +406,7 @@ public:
 				}
 			}
 		}
-
-		mapIndex[chunkPos].x = chunkX;
-		mapIndex[chunkPos].y = chunkY;
-		mapIndex[chunkPos].z = chunkZ;
+		cout << " END" << endl;
 		//cout<< "                 LOAD " << (float)(clock() - t) / CLOCKS_PER_SEC * 1000 << endl;
 	}
 	void loadTerrainTable() {
@@ -884,7 +934,7 @@ void gameLoop() {
 			window.close();
 	}
 #else 
-	cout << sf2d_get_fps()<<endl;
+	
 	sf2d_swapbuffers();
 #endif
 
