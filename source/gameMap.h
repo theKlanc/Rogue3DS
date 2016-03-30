@@ -25,20 +25,21 @@ private:
 public:
 	entity entityList[ENTITY_LIST_SIZE]; //Processats individualment cada frame // HAURIA D USAR UN STD::VECTOR PER PODERLOS REORDENAR
 
-	void createMapAndLoad(unsigned char*** map, int chunkX, int chunkY, int chunkZ);
+	void createMapAndLoad(unsigned char*** map, point3D c);
 	int chunkValue(point3D chunkN, point3D chunkO);
 	int freeChunkPos();
-	int getChunkPos(int posX, int posY, int posZ);
-	bool isChunkLoaded(int posX, int posY, int posZ);
-	void saveChunk(int chunkX, int chunkY, int chunkZ);
+	int getChunkPos(point3D p);
+	bool isChunkLoaded(point3D p);
+	void saveChunk(point3D c);
 	void freeAChunk(point3D playerPos);
-	void loadChunk(int chunkX, int chunkY, int chunkZ, point3D playerPos);
+	void loadChunk(point3D c, point3D playerPos);
 	void loadTerrainTable();
 	void loadNewChunk(point3D playerPos);
 	int getTerrainListSize();
-	bool simpleCollision(int posX, int posY, int posZ, mode collisionMode = TRRN);
-	int visibleEntity(int posX, int posY, int posZ);
-	bool isVisible(int posX, int posY, int posZ, mode mode_t = PRRT);
+	bool simpleCollision(point3D p, mode collisionMode = TRRN);
+	bool simpleCollision(int posX,int posY, int posZ, mode collisionMode = TRRN);
+	int visibleEntity(point3D p);
+	bool isVisible(point3D p, mode mode_t = PRRT);
 	bool isVisible(int n);
 	string getTextureName(int n);
 	int getTerrainListPos(point3D p);

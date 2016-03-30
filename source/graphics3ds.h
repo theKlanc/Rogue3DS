@@ -14,7 +14,7 @@ private:
 	void loadTexture(string fileName);
 	void freeTexture(string fileName);
 	void freeAllTextures();
-	sf2d_texture* getTexture(int posX, int posY, int posZ, mode mode_t = PRRT);
+	sf2d_texture* getTexture(point3D p, mode mode_t = PRRT);
 public:
 	graphics();
 	graphics(gameMap &map, entity &playerOrig);

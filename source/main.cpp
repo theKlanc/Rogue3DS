@@ -26,10 +26,10 @@
 using namespace std;
 
 void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth) {
-	if (player.posX < mapWidth - 10) { if (cameraX + 14 < player.posX) { cameraX++; } }
-	if (player.posX > 9) { if (cameraX + 10 > player.posX) { cameraX--; } }
-	if (player.posY < mapHeight - 6) { if (cameraY + 8 < player.posY) { cameraY++; } }
-	if (player.posY > 5) { if (cameraY + 6 > player.posY) { cameraY--; } }
+	if (player.pos.x < mapWidth - 10) { if (cameraX + 14 < player.pos.x) { cameraX++; } }
+	if (player.pos.x > 9) { if (cameraX + 10 > player.pos.x) { cameraX--; } }
+	if (player.pos.y < mapHeight - 6) { if (cameraY + 8 < player.pos.y) { cameraY++; } }
+	if (player.pos.y > 5) { if (cameraY + 6 > player.pos.y) { cameraY--; } }
 }
 
 class gameMain {
@@ -68,23 +68,23 @@ private:
 	void moveEntity(entity &currentEntity, direction dir, bool autojump = false) {
 		switch (dir) {
 		case DOWN:
-			if (map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ - 1) == 0) {
-				currentEntity.posZ--;
+			if (map.simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1) == 0) {
+				currentEntity.pos.z--;
 			}
 			break;
 		case UP:
-			if (map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0) {
-				currentEntity.posZ++;
+			if (map.simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0) {
+				currentEntity.pos.z++;
 			}
 			break;
 		case FRONT:
-			if (currentEntity.posY > 8) {
-				if (map.simpleCollision(currentEntity.posX, currentEntity.posY - 1, currentEntity.posZ) == 0) {
-					currentEntity.posY--;
+			if (currentEntity.pos.y > 8) {
+				if (map.simpleCollision(currentEntity.pos.x, currentEntity.pos.y - 1, currentEntity.pos.z) == 0) {
+					currentEntity.pos.y--;
 				}
-				else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX, currentEntity.posY - 1, currentEntity.posZ + 1) == 0) {
-					currentEntity.posY--;
-					currentEntity.posZ++;
+				else if (autojump && map.simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0 && map.simpleCollision(currentEntity.pos.x, currentEntity.pos.y - 1, currentEntity.pos.z + 1) == 0) {
+					currentEntity.pos.y--;
+					currentEntity.pos.z++;
 				}
 			}
 			else {
@@ -92,22 +92,22 @@ private:
 			}
 			break;
 		case BACK:
-			if (map.simpleCollision(currentEntity.posX, currentEntity.posY + 1, currentEntity.posZ) == 0) {
-				currentEntity.posY++;
+			if (map.simpleCollision(currentEntity.pos.x, currentEntity.pos.y + 1, currentEntity.pos.z) == 0) {
+				currentEntity.pos.y++;
 			}
-			else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX, currentEntity.posY + 1, currentEntity.posZ + 1) == 0) {
-				currentEntity.posY++;
-				currentEntity.posZ++;
+			else if (autojump && map.simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0 && map.simpleCollision(currentEntity.pos.x, currentEntity.pos.y + 1, currentEntity.pos.z + 1) == 0) {
+				currentEntity.pos.y++;
+				currentEntity.pos.z++;
 			}
 			break;
 		case LEFT:
-			if (currentEntity.posX > 16) {
-				if (map.simpleCollision(currentEntity.posX - 1, currentEntity.posY, currentEntity.posZ) == 0) {
-					currentEntity.posX--;
+			if (currentEntity.pos.x > 16) {
+				if (map.simpleCollision(currentEntity.pos.x - 1, currentEntity.pos.y, currentEntity.pos.z) == 0) {
+					currentEntity.pos.x--;
 				}
-				else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX - 1, currentEntity.posY, currentEntity.posZ + 1) == 0) {
-					currentEntity.posX--;
-					currentEntity.posZ++;
+				else if (autojump && map.simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0 && map.simpleCollision(currentEntity.pos.x - 1, currentEntity.pos.y, currentEntity.pos.z + 1) == 0) {
+					currentEntity.pos.x--;
+					currentEntity.pos.z++;
 				}
 			}
 			else {
@@ -115,22 +115,24 @@ private:
 			}
 			break;
 		case RIGHT:
-			if (map.simpleCollision(currentEntity.posX + 1, currentEntity.posY, currentEntity.posZ) == 0) {
-				currentEntity.posX++;
+			if (map.simpleCollision(currentEntity.pos.x + 1, currentEntity.pos.y, currentEntity.pos.z) == 0) {
+				currentEntity.pos.x++;
 			}
-			else if (autojump && map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ + 1) == 0 && map.simpleCollision(currentEntity.posX + 1, currentEntity.posY, currentEntity.posZ + 1) == 0) {
-				currentEntity.posX++;
-				currentEntity.posZ++;
+			else if (autojump && map.simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0 && map.simpleCollision(currentEntity.pos.x + 1, currentEntity.pos.y, currentEntity.pos.z + 1) == 0) {
+				currentEntity.pos.x++;
+				currentEntity.pos.z++;
 			}
 			break;
 		}
 	}
 
 	void updateEntity(entity &currentEntity) {
-		if (map.simpleCollision(currentEntity.posX, currentEntity.posY, currentEntity.posZ - 1) == 0) {
+		point3D c = currentEntity.pos;
+		c.z--;
+		if (map.simpleCollision(c) == 0) {
 			//cout<< "que es faci la gravetat " << endl;
-			currentEntity.posZ--;
-			if (currentEntity.posZ < 0) {
+			currentEntity.pos.z--;
+			if (currentEntity.pos.z < 0) {
 				cout << "has caigut del mon, capoll" << endl;
 				exitGame();
 			}
@@ -141,7 +143,7 @@ private:
 		}
 	}
 	void updateEntities() {
-		for (int i = 0; i < ENTITY_LIST_SIZE && map.entityList[i].posX >= 0; i++)
+		for (int i = 0; i < ENTITY_LIST_SIZE && map.entityList[i].pos.x >= 0; i++)
 		{
 			updateEntity(map.entityList[i]);
 		}
@@ -216,16 +218,11 @@ private:
 	}
 void gameLoop() {
 	//cout<< "loop." << loop;
-
-	point3D playerPos;
-	playerPos.x = player->posX;
-	playerPos.y = player->posY;
-	playerPos.z = player->posZ;
 	if (loop % 10 == 0) {
 		handleInput();
 		updateEntities();
 	}
-	map.loadNewChunk(playerPos);
+	map.loadNewChunk(player->pos);
 	if (jumped > 0) { jumped--; }
 
 	//cout<< player->posX << ' ' << player->posY << ' ' << player->posZ << endl;
@@ -289,16 +286,11 @@ public:
 			//cout<< "couldn't open file: " << ("saves/" + saveName + "/general.txt") << endl;
 		}
 		string playerSprite, playerName;
-		general >> playerName >> player->spriteName >> player->posX >> player->posY >> player->posZ;
+		general >> playerName >> player->spriteName >> player->pos.x >> player->pos.y >> player->pos.z;
 		//cout<< playerName << endl;
-		point3D playerPos;
-		//cout<< player->posX << endl;
-		playerPos.x = player->posX;
-		playerPos.y = player->posY;
-		playerPos.z = player->posZ;
 		//loadmap
 		for (int i = 0; i < CHUNK_NUM; i++) {
-			map.loadNewChunk(playerPos);
+			map.loadNewChunk(player->pos);
 		}
 		map.loadTerrainTable();
 		graphicsObj.reloadTextures();

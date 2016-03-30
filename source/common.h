@@ -54,9 +54,7 @@ struct entity {
 	string spriteName = "ENULL";
 	bool visible = 1;
 	bool solid = 1;
-	int posX = -1;
-	int posY = -1;
-	int posZ = -1;
+	point3D pos;
 	nttype type = NPC;
 };
 

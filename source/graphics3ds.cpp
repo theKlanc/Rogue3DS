@@ -22,11 +22,15 @@ void graphics::edit(gameMap &map, entity &playerOrig) {
 
 void graphics::drawFrame() {
 	sf2d_start_frame(GFX_TOP, GFX_LEFT);
+	point3D p;
 	for (int i = 0; i != 15; i++) {
 		for (int j = 0; j != 25; j++) {
 			for (int y = RENDER_HEIGHT; y >= 0; y--) {
-				if (mapObj->isVisible((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ - y), PRRT)) {
-					sf2d_draw_texture(getTexture((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ - y), PRRT), j * 16, i * 16);
+				p.x = (player->pos.x + j) - 12;
+				p.y = (player->pos.y + i) - 7;
+				p.z = (player->pos.z - y);
+				if (mapObj->isVisible(p, PRRT)) {
+					sf2d_draw_texture(getTexture(p, PRRT), j * 16, i * 16);
 				}
 			}
 		}
@@ -94,28 +98,25 @@ void graphics::freeAllTextures() {	 //frees all textures
 }
 
 
-sf2d_texture* graphics::getTexture(int posX, int posY, int posZ, mode mode_t) {
+sf2d_texture* graphics::getTexture(point3D p, mode mode_t) {
 
-	int blockX = floor(posX / CHUNK_SIZE);												   //AKESTA FUNCIO ES EL PUTO SIDA, I DEMOSTRA QUE HI HA MOLTA COSA A CANVIAR, MOLTISSIMA
-	int blockY = floor(posY / CHUNK_SIZE);
-	int blockZ = floor(posZ / CHUNK_SIZE);
-	point3D p;
-	p.x = posX;
-	p.y = posY;
-	p.z = posZ;
+	point3D b;
+	b.x = floor(p.x / CHUNK_SIZE);												   //AKESTA FUNCIO ES EL PUTO SIDA, I DEMOSTRA QUE HI HA MOLTA COSA A CANVIAR, MOLTISSIMA
+	b.y = floor(p.y / CHUNK_SIZE);
+	b.z = floor(p.z / CHUNK_SIZE);
 
-	int chunkPosition = mapObj->getChunkPos(blockX, blockY, blockZ);
+	int chunkPosition = mapObj->getChunkPos(b);
 	switch (mode_t) {
 	case TRRN:
 		if (chunkPosition == -1) {
-			getTexture(posX, posY, posZ, NTT);
+			getTexture(p, NTT);
 		}
-		if (mapObj->isVisible(posX, posY, posZ, TRRN)) {
+		if (mapObj->isVisible(p, TRRN)) {
 			return texTable[getTexturePos(mapObj->getTerrainName(p))].texture;
 		}
 		break;
 	case NTT:
-		for (int i = 0; i < ENTITY_LIST_SIZE && mapObj->entityList[i].posX != -1; i++) {
+		for (int i = 0; i < ENTITY_LIST_SIZE && mapObj->entityList[i].pos.x != -1; i++) {
 			if (mapObj->getEntityName(p) == texTable[i].name) {
 				return texTable[i].texture;
 			}
@@ -124,16 +125,16 @@ sf2d_texture* graphics::getTexture(int posX, int posY, int posZ, mode mode_t) {
 		//cout<< "Entity texture not found in position" << posX << ' ' << posY << ' ' << posZ << endl;
 	case PRRT:
 		if (chunkPosition == -1) {
-			getTexture(posX, posY, posZ, NTT);
+			getTexture(p, NTT);
 		}
-		if (mapObj->isVisible(posX, posY, posZ, NTT) == 1) {
-			for (int i = 0; i < ENTITY_LIST_SIZE && mapObj->entityList[i].posX != -1; i++) {
+		if (mapObj->isVisible(p, NTT) == 1) {
+			for (int i = 0; i < ENTITY_LIST_SIZE && mapObj->entityList[i].pos.x != -1; i++) {
 				if (mapObj->getEntityName(p) == texTable[i].name) {
 					return texTable[i].texture;
 				}
 			}
 		}
-		else if (mapObj->isVisible(posX, posY, posZ, TRRN)) {
+		else if (mapObj->isVisible(p, TRRN)) {
 			return texTable[getTexturePos(mapObj->getTerrainName(p))].texture;
 		}
 		break;
