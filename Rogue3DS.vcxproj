@@ -119,6 +119,7 @@
     <ClCompile Include="source\common.cpp" />
     <ClCompile Include="source\gameMap.cpp" />
     <ClCompile Include="source\graphics3ds.cpp" />
+    <ClCompile Include="source\graphicsPC.cpp" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +133,7 @@
     <ClInclude Include="source\common.h" />
     <ClInclude Include="source\gameMap.h" />
     <ClInclude Include="source\graphics3ds.h" />
+    <ClInclude Include="source\graphicsPC.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

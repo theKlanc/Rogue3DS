@@ -17,7 +17,7 @@ using namespace std;
 #define CHUNK_SIZE 100
 #define CHUNK_NUM  19 //( 19 = rubik's sense corners (n=2) - corners, 11 = baldufa(n = 2, però z pondera més) , 7 = rubik's core (n = 1))  la n3ds aguanta almenys 80, la old 26
 #define ENTITY_LIST_SIZE  100
-#define TERRAIN_LIST_SIZE  100
+#define TERRAIN_LIST_MAX_SIZE  100
 #define TEX_TABLE_SIZE  30
 #define RENDER_HEIGHT 1
 #define FLOOR_HEIGHT 550

@@ -17,9 +17,10 @@ class gameMap {
 private:
 	unsigned char**** terrainMap;
 
-	terrain terrainList[TERRAIN_LIST_SIZE]; //Llista de tipus de terrenys diferents, aqui és on es mirarà a partir del terrainMap
+	terrain terrainList[TERRAIN_LIST_MAX_SIZE]; //Llista de tipus de terrenys diferents, aqui és on es mirarà a partir del terrainMap
+	int terrainListSize;
 	point3D mapIndex[CHUNK_NUM]; //indica quin bloc de terreny hi ha a cada posició		
-	textureName texTable[TEX_TABLE_SIZE];
+	
 	string saveName;
 public:
 	entity entityList[ENTITY_LIST_SIZE]; //Processats individualment cada frame // HAURIA D USAR UN STD::VECTOR PER PODERLOS REORDENAR
@@ -34,22 +35,19 @@ public:
 	void loadChunk(int chunkX, int chunkY, int chunkZ, point3D playerPos);
 	void loadTerrainTable();
 	void loadNewChunk(point3D playerPos);
-	bool isTextureLoaded(string textureFile);
-	int freeTexturePos();
-	int getTexturePos(string fileName);
-	void loadTexture(string fileName);
-	void freeTexture(string fileName);
-	void freeAllTextures();
+	int getTerrainListSize();
 	bool simpleCollision(int posX, int posY, int posZ, mode collisionMode = TRRN);
 	int visibleEntity(int posX, int posY, int posZ);
 	bool isVisible(int posX, int posY, int posZ, mode mode_t = PRRT);
-#ifdef _WIN32
-	sf::Texture* getTexture(int posX, int posY, int posZ, mode mode_t = PRRT);
+	bool isVisible(int n);
+	string getTextureName(int n);
+	int getTerrainListPos(point3D p);
+	string getTerrainName(point3D p);
+	bool getTerrainVisible(point3D p);
+	bool getTerrainSolid(point3D p);
 
-#else
-	sf2d_texture* getTexture(int posX, int posY, int posZ, mode mode_t = PRRT);
-
-#endif
-		
+	string getEntityName(point3D p);
+	bool getEntityVisible(point3D p);
+	bool getEntitySolid(point3D p);
 	gameMap();
 };

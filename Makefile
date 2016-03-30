@@ -30,7 +30,7 @@ TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	source
 DATA		:=	data
-INCLUDES	:=	include
+INCLUDES	:=	source
 
 APP_TITLE       := Rogue3DS
 APP_DESCRIPTION := Rogue Development test

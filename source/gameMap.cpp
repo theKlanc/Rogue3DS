@@ -215,9 +215,7 @@ void gameMap::loadTerrainTable() {
 	int i = 0;
 	while (!terrainTable.eof()) {
 		terrainTable >> terrainList[i].textureFile >> terrainList[i].visible >> terrainList[i].solid;
-		if (terrainList[i].visible) {
-			loadTexture(terrainList[i].textureFile);
-		}
+		terrainListSize++;
 		i++;
 	}
 	terrainTable.close();
@@ -255,64 +253,6 @@ void gameMap::loadNewChunk(point3D playerPos) {
 					}
 			}
 		}
-	}
-}
-bool gameMap::isTextureLoaded(string textureFile) { // tells if a texture with said name is present on texTable
-	for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != "free"; i++) {
-		if (texTable[i].name == textureFile) {
-			return 1;
-		}
-	}
-	return 0;
-}
-int gameMap::freeTexturePos() { //returns the position inside texTable[] of the first free texture space
-	for (int i = 0; i < TEX_TABLE_SIZE; i++) {
-		if (texTable[i].name == "free") {
-			return i;
-		}
-	}
-	//cout<< "NO FREE SPACE IN TEXTABLE" << endl;
-	return -1;
-}
-int gameMap::getTexturePos(string fileName) { //returns the position inside texTable[] of the texture with said filename
-	for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != "free"; i++) {
-		if (texTable[i].name == fileName) {
-			return i;
-		}
-	}
-	//cout<< "NO TEXTURE W/ FNAME " << fileName << " FOUND" << endl;
-	return -1;
-}
-void gameMap::loadTexture(string fileName) { //load a texture from a file into the first free space inside texTable[]
-	int freeTextureLoc = freeTexturePos();
-	texTable[freeTextureLoc].name = fileName;
-	fileName = "data/sprites/" + fileName;
-#ifdef _WIN32
-	texTable[freeTextureLoc].texture.loadFromFile(fileName);
-	texTable[freeTextureLoc].texture.setSmooth(false);
-#else
-	texTable[freeTextureLoc].texture = sfil_load_PNG_file(fileName.c_str(), SF2D_PLACE_RAM);
-	sf2d_texture_tile32(texTable[freeTextureLoc].texture);
-#endif
-
-}
-void gameMap::freeTexture(string fileName) { //frees a texture from texTable[]
-	int textureLocation = getTexturePos(fileName);
-	int freeTexLoc = freeTexturePos();
-	textureName temp = texTable[textureLocation];
-	texTable[textureLocation] = texTable[freeTexLoc - 1];
-	texTable[freeTexLoc - 1] = temp;
-	texTable[freeTexLoc - 1].name = "free";
-#ifndef _WIN32
-	sf2d_free_texture(texTable[freeTexLoc - 1].texture);
-#endif
-}
-void gameMap::freeAllTextures() {	 //frees all textures
-	for (int i = 0; i < TEX_TABLE_SIZE; i++) {
-		texTable[i].name = "free";
-#ifndef _WIN32
-		sf2d_free_texture(texTable[i].texture);
-#endif
 	}
 }
 bool gameMap::simpleCollision(int posX, int posY, int posZ, mode collisionMode) {	//Tells if terrain at position is occupied
@@ -364,79 +304,59 @@ bool gameMap::isVisible(int posX, int posY, int posZ, mode mode_t) { //
 		break;
 	}
 }
+int gameMap::getTerrainListSize() {
+	return terrainListSize;
+}
+bool gameMap::isVisible(int n) {
+	return terrainList[n].visible;
+}
+string gameMap::getTextureName(int n) {
+	return terrainList[n].textureFile;
+}
 
-#ifdef _WIN32
-sf::Texture* gameMap::getTexture(int posX, int posY, int posZ, mode mode_t) {
-
-#else
-sf2d_texture* gameMap::getTexture(int posX, int posY, int posZ, mode mode_t) {
-
-#endif
-	int blockX = floor(posX / CHUNK_SIZE);
-	int blockY = floor(posY / CHUNK_SIZE);
-	int blockZ = floor(posZ / CHUNK_SIZE);
+int gameMap::getTerrainListPos(point3D p) {
+	int blockX = floor(p.x / CHUNK_SIZE);												   //AKESTA FUNCIO ES EL PUTO SIDA, I DEMOSTRA QUE HI HA MOLTA COSA A CANVIAR, MOLTISSIMA
+	int blockY = floor(p.y / CHUNK_SIZE);
+	int blockZ = floor(p.z / CHUNK_SIZE);
 	int chunkPosition = getChunkPos(blockX, blockY, blockZ);
 	if (chunkPosition == -1) {
-		for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].posX != -1; i++) {
-
-			if (entityList[visibleEntity(posX, posY, posZ)].spriteName == texTable[i].name) {
-#ifdef _WIN32
-				return &texTable[i].texture;
-#else 
-				return texTable[i].texture;
-#endif
-			}
-		}
+		cout << "NO S'HA TROBAT EL CHUNK" << endl;
 	}
-	switch (mode_t) {
-
-	case TRRN:
-#ifdef _WIN32
-		if (isVisible(posX, posY, posZ, TRRN)) {
-			return &texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * CHUNK_SIZE][posY - blockY * CHUNK_SIZE][posZ - blockZ * CHUNK_SIZE]].textureFile)].texture;
-		}
-#else 
-		if (isVisible(posX, posY, posZ, TRRN)) {
-			return texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * CHUNK_SIZE][posY - blockY * CHUNK_SIZE][posZ - blockZ * CHUNK_SIZE]].textureFile)].texture;
-		}
-#endif
-		break;
-	case NTT:
-		for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].posX != -1; i++) {
-
-			if (entityList[visibleEntity(posX, posY, posZ)].spriteName == texTable[i].name) {
-#ifdef _WIN32
-				return &texTable[i].texture;
-#else 
-				return texTable[i].texture;
-#endif
-			}
-		}
-		break;
-		//cout<< "Entity texture not found in position" << posX << ' ' << posY << ' ' << posZ << endl;
-	case PRRT:
-		if (isVisible(posX, posY, posZ, NTT) == 1) {
-#ifdef _WIN32
-			return &texTable[getTexturePos(entityList[visibleEntity(posX, posY, posZ)].spriteName)].texture;
-#else 
-			return texTable[getTexturePos(entityList[visibleEntity(posX, posY, posZ)].spriteName)].texture;
-#endif
-		}
-
-		else if (isVisible(posX, posY, posZ, TRRN)) {
-#ifdef _WIN32
-			return &texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * CHUNK_SIZE][posY - blockY * CHUNK_SIZE][posZ - blockZ * CHUNK_SIZE]].textureFile)].texture;
-
-#else 
-			return texTable[getTexturePos(terrainList[terrainMap[chunkPosition][posX - blockX * CHUNK_SIZE][posY - blockY * CHUNK_SIZE][posZ - blockZ * CHUNK_SIZE]].textureFile)].texture;
-
-#endif
-		}
-		break;
-	}
-
+	return terrainMap[chunkPosition][p.x - blockX * CHUNK_SIZE][p.y - blockY * CHUNK_SIZE][p.z - blockZ * CHUNK_SIZE];
 }
+
+string gameMap::getTerrainName(point3D p)
+{
+	return terrainList[getTerrainListPos(p)].textureFile;
+}
+
+bool gameMap::getTerrainVisible(point3D p)
+{
+	return terrainList[getTerrainListPos(p)].visible;
+}
+
+bool gameMap::getTerrainSolid(point3D p)
+{
+	return terrainList[getTerrainListPos(p)].solid;
+}
+
+std::string gameMap::getEntityName(point3D p)
+{
+	return (entityList[visibleEntity(p.x, p.y, p.z)].spriteName);
+}
+
+bool gameMap::getEntityVisible(point3D p)
+{
+	return (entityList[visibleEntity(p.x, p.y, p.z)].visible);
+}
+
+bool gameMap::getEntitySolid(point3D p)
+{
+	return (entityList[visibleEntity(p.x, p.y, p.z)].solid);
+}
+
 gameMap::gameMap() {
+	terrainListSize = 0;
 	saveName = "default";
 	terrainMap = new unsigned char***[CHUNK_NUM];
 	for (int i = 0; i < CHUNK_NUM; i++) {

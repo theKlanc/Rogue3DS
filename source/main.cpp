@@ -2,10 +2,12 @@
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+#include "graphicsPC.h"
 #else
 #include <3ds.h>
 #include <sf2d.h>
 #include <sfil.h>
+#include "graphics3ds.h"
 #endif
 #include <string.h>
 #include <stdlib.h>
@@ -43,6 +45,7 @@ private:
 #endif
 
 	gameMap map;
+	graphics graphicsObj;
 	entity* player;
 	bool showGrid = 0;
 
@@ -142,46 +145,6 @@ private:
 		{
 			updateEntity(map.entityList[i]);
 		}
-	}
-
-	void drawFrame() {
-#ifdef _WIN32
-		window.clear();
-		//window.draw();
-		sf::Sprite sprite[15][25];
-		for (int i = 0; i != 15; i++) {
-			for (int j = 0; j != 25; j++) {
-				for (int y = RENDER_HEIGHT; y >= 0; y--) {
-					if (map.isVisible((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ - y),PRRT)) {
-						//sprite[i][j].setTexture(map.getTexture((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ - y)));
-						sprite[i][j].setTexture(*map.getTexture((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ - y),PRRT));
-
-						sprite[i][j].setPosition(sf::Vector2f(j * 16, i * 16));
-						window.draw(sprite[i][j]);
-					}
-				}
-			}
-		}
-		if (showGrid) {
-			//sf2d_draw_texture(overlay, 0, 0);
-		}
-		window.display();
-#else
-		sf2d_start_frame(GFX_TOP, GFX_LEFT);
-		for (int i = 0; i != 15; i++) {
-			for (int j = 0; j != 25; j++) {
-				for (int y = RENDER_HEIGHT; y >= 0; y--) {
-					if (map.isVisible((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ - y),PRRT)) {
-						sf2d_draw_texture(map.getTexture((player->posX + j) - 12, (player->posY + i) - 7, (player->posZ - y),PRRT), j * 16, i * 16);
-					}
-				}
-			}
-		}
-		if (showGrid) {
-			sf2d_draw_texture(overlay, 0, 0);
-		}
-		sf2d_end_frame();
-#endif
 	}
 	void handleInput() {
 #ifdef _WIN32
@@ -283,7 +246,7 @@ void gameLoop() {
 	//refrescar coses carregades
 	//dibuixar
 
-	drawFrame();
+	graphicsObj.drawFrame();
 }
 public:
 	void gameCore() {
@@ -318,6 +281,7 @@ public:
 		//overlay = sfil_load_PNG_file("data/sprites/overlay.png", SF2D_PLACE_RAM);
 		
 		player = &map.entityList[0];
+		graphicsObj.edit(map, *player);
 		string saveName = "default";
 		ifstream general;
 		general.open("saves/" + saveName + "/general.txt");
@@ -336,11 +300,8 @@ public:
 		for (int i = 0; i < CHUNK_NUM; i++) {
 			map.loadNewChunk(playerPos);
 		}
-		map.loadTexture("player.png");
 		map.loadTerrainTable();
-		//cout<< "vram: " << vramSpaceFree() << endl;
-		//cout<< "mappable: " << mappableSpaceFree() << endl;
-		//cout<< "linear: " << linearSpaceFree() << endl;
+		graphicsObj.reloadTextures();
 		//audio_load("data/sounds/bgm/wilderness.raw"); //[N3DS] only 
 		while (1) {
 			gameLoop();
