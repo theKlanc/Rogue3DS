@@ -1,14 +1,17 @@
-#ifndef _WIN32
+#ifdef _WIN32
 #pragma once
-#include <sf2d.h>
 #include "gameMap.h"
 #include "common.h"
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
 
 class graphics
 {
 private:
 	entity* player;
 	gameMap* mapObj;
+	sf::RenderWindow window;
+	sf::Texture overlay;
 	textureName texTable[TEX_TABLE_SIZE];
 	bool isTextureLoaded(string textureFile);
 	int freeTexturePos();
@@ -16,7 +19,7 @@ private:
 	void loadTexture(string fileName);
 	void freeTexture(string fileName);
 	void freeAllTextures();
-	sf2d_texture* getTexture(point3D p, mode mode_t = PRRT);
+	sf::Texture* getTexture(point3D p, mode mode_t = PRRT);
 public:
 	graphics();
 	graphics(gameMap &map, entity &playerOrig);

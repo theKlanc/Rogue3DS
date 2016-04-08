@@ -248,7 +248,6 @@ void gameLoop() {
 public:
 	void gameCore() {
 #ifdef _WIN32
-		window.create(sf::VideoMode(400, 240), "RoguePC");
 		sf::Music music;
 		music.openFromFile("data/sounds/bgm/wilderness.ogg");
 		music.play();

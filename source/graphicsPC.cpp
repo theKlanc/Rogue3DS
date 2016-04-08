@@ -1,19 +1,19 @@
-#ifndef _WIN32
-#include <3ds.h>
-#include <sf2d.h>
-#include <sfil.h>
+#ifdef _WIN32
+#include <SFML/Graphics.hpp>
 #include "gameMap.h"
-#include "graphics3ds.h"
+#include "graphicsPC.h"
 
 using namespace std;
 
 graphics::graphics() {
 	loadTexture("player.png");
+	window.create(sf::VideoMode(400, 240), "RoguePC");
 }
 graphics::graphics(gameMap &map, entity &playerOrig) {
 	loadTexture("player.png");
 	mapObj = &map;
 	player = &playerOrig;
+	window.create(sf::VideoMode(400, 240), "RoguePC");
 }
 
 void graphics::edit(gameMap &map, entity &playerOrig) {
@@ -22,21 +22,25 @@ void graphics::edit(gameMap &map, entity &playerOrig) {
 }
 
 void graphics::drawFrame() {
-	sf2d_start_frame(GFX_TOP, GFX_LEFT);
-	point3D p;
+	window.clear();
+	//window.draw();
+	sf::Sprite sprite[15][25];
 	for (int i = 0; i != 15; i++) {
 		for (int j = 0; j != 25; j++) {
 			for (int y = RENDER_HEIGHT; y >= 0; y--) {
+				point3D p;
 				p.x = (player->pos.x + j) - 12;
 				p.y = (player->pos.y + i) - 7;
 				p.z = (player->pos.z - y);
 				if (mapObj->isVisible(p, PRRT)) {
-					sf2d_draw_texture(getTexture(p, PRRT), j * 16, i * 16);
+					sprite[i][j].setTexture(*getTexture(p, PRRT));
+					sprite[i][j].setPosition(sf::Vector2f(j * 16, i * 16));
+					window.draw(sprite[i][j]);
 				}
 			}
 		}
 	}
-	sf2d_end_frame();
+	window.display();
 }
 
 bool graphics::isTextureLoaded(string textureFile) { // tells if a texture with said name is present on texTable
@@ -99,7 +103,7 @@ void graphics::freeAllTextures() {	 //frees all textures
 }
 
 
-sf2d_texture* graphics::getTexture(point3D p, mode mode_t) {
+sf::Texture* graphics::getTexture(point3D p, mode mode_t) {
 
 	point3D b;
 	b.x = floor(p.x / CHUNK_SIZE);												   //AKESTA FUNCIO ES EL PUTO SIDA, I DEMOSTRA QUE HI HA MOLTA COSA A CANVIAR, MOLTISSIMA
@@ -113,13 +117,13 @@ sf2d_texture* graphics::getTexture(point3D p, mode mode_t) {
 			getTexture(p, NTT);
 		}
 		if (mapObj->isVisible(p, TRRN)) {
-			return texTable[getTexturePos(mapObj->getTerrainName(p))].texture;
+			return &texTable[getTexturePos(mapObj->getTerrainName(p))].texture;
 		}
 		break;
 	case NTT:
 		for (int i = 0; i < ENTITY_LIST_SIZE && mapObj->entityList[i].pos.x != -1; i++) {
 			if (mapObj->getEntityName(p) == texTable[i].name) {
-				return texTable[i].texture;
+				return &texTable[i].texture;
 			}
 		}
 		break;
@@ -131,16 +135,15 @@ sf2d_texture* graphics::getTexture(point3D p, mode mode_t) {
 		if (mapObj->isVisible(p, NTT) == 1) {
 			for (int i = 0; i < ENTITY_LIST_SIZE && mapObj->entityList[i].pos.x != -1; i++) {
 				if (mapObj->getEntityName(p) == texTable[i].name) {
-					return texTable[i].texture;
+					return &texTable[i].texture;
 				}
 			}
 		}
 		else if (mapObj->isVisible(p, TRRN)) {
-			return texTable[getTexturePos(mapObj->getTerrainName(p))].texture;
+			return &texTable[getTexturePos(mapObj->getTerrainName(p))].texture;
 		}
 		break;
 	}
-
 }
 
 void graphics::reloadTextures() {
@@ -149,6 +152,5 @@ void graphics::reloadTextures() {
 			loadTexture(mapObj->getTextureName(i));
 		}
 	}
-
 }
-#endif
+#endif	

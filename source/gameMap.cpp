@@ -82,11 +82,11 @@ bool gameMap::isChunkLoaded(point3D p) { // tells if said chunk is loaded in map
 	return 0;
 }
 void gameMap::saveChunk(point3D c) { //unloads a chunk from memory and saves it in its file
-	cout << "SAVING";
+	cout << "SAVING"<<endl;
 	//cout<< "saving chunk " << chunkX << chunkY << chunkZ << endl;
 	int chunkPos = getChunkPos(c);
 	if (chunkPos == -1) {
-		//cout<< "chunk is already unloaded";
+		cout<< "chunk is already unloaded"<<endl;
 		return;
 	}
 	ofstream chunkFile;
@@ -133,7 +133,7 @@ void gameMap::freeAChunk(point3D playerPos) {
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		point3D chunkN = mapIndex[i];
 		if (chunkValue(chunkN, playerChunk) > 2) {
-			saveChunk(playerChunk);
+			saveChunk(chunkN);
 			//cout<< "                 FREE " << (float)(clock() - t) / CLOCKS_PER_SEC * 1000 << endl;
 			return;
 		}
