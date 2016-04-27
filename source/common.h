@@ -19,7 +19,7 @@ using namespace std;
 #define ENTITY_LIST_SIZE  100
 #define TERRAIN_LIST_MAX_SIZE  100
 #define TEX_TABLE_SIZE  30
-#define RENDER_HEIGHT 1
+#define RENDER_HEIGHT 2
 #define FLOOR_HEIGHT 550
 
 

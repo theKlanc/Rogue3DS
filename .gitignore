@@ -172,3 +172,19 @@ $RECYCLE.BIN/
 # Mac desktop service store files
 .DS_Store
 /Rogue3DS.VC.opendb
+/source.7z
+/sfml-window-d-2.dll
+/sfml-window-2.dll
+/sfml-system-d-2.dll
+/sfml-system-2.dll
+/sfml-network-d-2.dll
+/sfml-network-2.dll
+/sfml-graphics-d-2.dll
+/sfml-graphics-2.dll
+/sfml-audio-d-2.dll
+/sfml-audio-2.dll
+/Rogue3DS.7z
+/openal32.dll
+/saves/index.txt
+/saves/default/terrainTable.txt
+/saves/default/general.txt

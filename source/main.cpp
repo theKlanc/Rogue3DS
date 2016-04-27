@@ -8,6 +8,7 @@
 #include <sf2d.h>
 #include <sfil.h>
 #include "graphics3ds.h"
+#include "3ds/thread.h"
 #endif
 #include <string.h>
 #include <stdlib.h>
@@ -32,6 +33,17 @@ void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHei
 	if (player.pos.y > 5) { if (cameraY + 6 > player.pos.y) { cameraY--; } }
 }
 
+struct temp {
+	gameMap* map;
+	point3D* player;
+};
+void chunkLoader(u32 arg) {
+	while (1) {
+		temp *temporal = (temp*)arg;
+		temporal->map->loadNewChunk(*temporal->player);
+	}
+}
+
 class gameMain {
 private:
 #ifdef _WIN32
@@ -46,7 +58,7 @@ private:
 
 	gameMap map;
 	graphics graphicsObj;
-	entity* player;
+
 	bool showGrid = 0;
 
 	long loop = 0;
@@ -54,7 +66,7 @@ private:
 	int jumped = 0;
 	void exitGame() {
 #ifndef _WIN32
-		
+
 		csndExit();
 		sf2d_fini();
 		gfxExit();
@@ -150,7 +162,7 @@ private:
 	}
 	void handleInput() {
 #ifdef _WIN32
-	
+
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
 			exitGame();
 		}
@@ -182,70 +194,75 @@ private:
 		}
 #else
 
-	hidScanInput();
-	kDown = hidKeysDown();
-	kHeld = hidKeysHeld();
-	if (kDown & KEY_START) {
-		exitGame();
-	}
-	if (kDown & KEY_X) {
-		autoJump = !autoJump;
-	}
-	if (kHeld & KEY_SELECT) {
-		showGrid = 1;
-	}
-	else showGrid = 0;
-	if (kHeld & KEY_RIGHT) {
-		moveEntity(*player, RIGHT, autoJump);
-	}
-	if (kHeld & KEY_LEFT) {
-		moveEntity(*player, LEFT, autoJump);
-	}
-	if (kHeld & KEY_UP) {
-		moveEntity(*player, FRONT, autoJump);
-	}
-	if (kHeld & KEY_DOWN) {
-		moveEntity(*player, BACK, autoJump);
-	}
-	if (kHeld & KEY_A) {
-		if (!jumped) {
-			moveEntity(*player, UP, autoJump);
-			moveEntity(*player, UP, autoJump);
-			jumped = 2;
+		hidScanInput();
+		kDown = hidKeysDown();
+		kHeld = hidKeysHeld();
+		if (kDown & KEY_START) {
+			exitGame();
 		}
-	}
+		if (kDown & KEY_X) {
+			autoJump = !autoJump;
+		}
+		if (kHeld & KEY_SELECT) {
+			showGrid = 1;
+		}
+		else showGrid = 0;
+		if (kHeld & KEY_RIGHT) {
+			moveEntity(*player, RIGHT, autoJump);
+		}
+		if (kHeld & KEY_LEFT) {
+			moveEntity(*player, LEFT, autoJump);
+		}
+		if (kHeld & KEY_UP) {
+			moveEntity(*player, FRONT, autoJump);
+		}
+		if (kHeld & KEY_DOWN) {
+			moveEntity(*player, BACK, autoJump);
+		}
+		if (kHeld & KEY_A) {
+			if (!jumped) {
+				moveEntity(*player, UP, autoJump);
+				moveEntity(*player, UP, autoJump);
+				jumped = 2;
+			}
+		}
 #endif
 	}
-void gameLoop() {
-	//cout<< "loop." << loop;
-	if (loop % 10 == 0) {
-		handleInput();
-		updateEntities();
-	}
-	map.loadNewChunk(player->pos);
-	if (jumped > 0) { jumped--; }
+	void gameLoop() {
+		//cout<< "loop." << loop;
+		if (loop % 13 == 0) {
+			handleInput();
+			updateEntities();
+			//cout << "Player height: " << player->pos.z << endl;
+		}
+		/*if (loop % 115 == 0) {
+			map.loadNewChunk(player->pos);
+		}*/
 
-	//cout<< player->posX << ' ' << player->posY << ' ' << player->posZ << endl;
+		if (jumped > 0) { jumped--; }
+
+		//cout<< player->posX << ' ' << player->posY << ' ' << player->posZ << endl;
 #ifdef _WIN32
-	sf::Event event;
-	while (window.pollEvent(event))
-	{
-		if (event.type == sf::Event::Closed)
-			window.close();
-	}
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
+		}
 #else 
-	
-	sf2d_swapbuffers();
+
+		sf2d_swapbuffers();
 #endif
 
 
-	//processar input
-	//refrescar coses carregades
-	//dibuixar
+		//processar input
+		//refrescar coses carregades
+		//dibuixar
 
-	graphicsObj.drawFrame();
-}
+		graphicsObj.drawFrame();
+	}
 public:
+	entity* player;
 	void gameCore() {
 #ifdef _WIN32
 		sf::Music music;
@@ -275,7 +292,7 @@ public:
 
 
 		//overlay = sfil_load_PNG_file("data/sprites/overlay.png", SF2D_PLACE_RAM);
-		
+
 		player = &map.entityList[0];
 		graphicsObj.edit(map, *player);
 		string saveName = "default";
@@ -293,6 +310,11 @@ public:
 		}
 		map.loadTerrainTable();
 		graphicsObj.reloadTextures();
+		static temp temporal;
+		temporal.map = &map;
+		temporal.player = &player->pos;
+
+		threadCreate((ThreadFunc)(void*)chunkLoader, (&temporal), 5000, 0x3F, 0, 1);
 		//audio_load("data/sounds/bgm/wilderness.raw"); //[N3DS] only 
 		while (1) {
 			gameLoop();
@@ -317,14 +339,14 @@ int main()
 	gameMain gameMain1;
 	gameMain1.gameCore();
 #ifndef _WIN32
-	
+
 	csndExit();
 
 
-		// Exit
-		//map.freeAllTextures();
+	// Exit
+	//map.freeAllTextures();
 
-		sf2d_fini();
+	sf2d_fini();
 
 	gfxExit();
 

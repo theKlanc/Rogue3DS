@@ -116,6 +116,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="entityList.cpp" />
+    <ClCompile Include="physics.cpp" />
     <ClCompile Include="source\common.cpp" />
     <ClCompile Include="source\gameMap.cpp" />
     <ClCompile Include="source\graphics3ds.cpp" />
@@ -130,6 +132,8 @@
     <None Include="resources\icon.bin" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="entityList.h" />
+    <ClInclude Include="physics.h" />
     <ClInclude Include="source\common.h" />
     <ClInclude Include="source\gameMap.h" />
     <ClInclude Include="source\graphics3ds.h" />

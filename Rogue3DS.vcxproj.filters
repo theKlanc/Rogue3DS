@@ -30,6 +30,12 @@
     <ClCompile Include="source\graphicsPC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="entityList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="physics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\banner.bin">
@@ -55,6 +61,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\graphicsPC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="entityList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="physics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
