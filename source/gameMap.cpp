@@ -3,6 +3,29 @@
 
 using namespace std;
 
+
+
+point3D gameMap::getChunk(point3D pos)
+{
+	point3D b;
+	b.x = floor(pos.x / CHUNK_SIZE);
+	b.y = floor(pos.y / CHUNK_SIZE);
+	b.z = floor(pos.z / CHUNK_SIZE);
+	return b;
+}
+
+unsigned char* gameMap::getBlock(point3D posBlock) {
+	point3D chunkPos = getChunk(posBlock);
+	int chunkID = getChunkID(chunkPos);
+	return &terrainMap[chunkID][posBlock.x - (chunkPos.x * CHUNK_SIZE)][posBlock.y - (chunkPos.y * CHUNK_SIZE)][posBlock.z - (chunkPos.z * CHUNK_SIZE)];
+}
+
+
+void gameMap::putBlock(int block, point3D posBlock)
+{
+	*getBlock(posBlock) = block;
+}
+
 void gameMap::createMapAndLoad(unsigned char*** map, point3D c) {
 	//cout<< "intento crear un chunk a " << chunkX << chunkY << chunkZ << endl;
 	if (c.z < FLOOR_HEIGHT / CHUNK_SIZE) {
@@ -45,10 +68,10 @@ void gameMap::createMapAndLoad(unsigned char*** map, point3D c) {
 	}
 }
 int gameMap::chunkValue(point3D chunkN, point3D chunkO) {
-	int res = (pow(chunkN.x - chunkO.x, 2) + pow(chunkN.y - chunkO.y, 2) + pow(chunkN.z - chunkO.z, 2));
+	int res = (pow(chunkN.x - chunkO.x, 2) + pow(chunkN.y - chunkO.y, 2) + pow(chunkN.z - chunkO.z, 8));
 	return res;
 }
-int gameMap::freeChunkPos() { //returns the position inside texTable[] of the first free texture space
+int gameMap::freeChunkID() { //returns the position inside texTable[] of the first free texture space
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		if (mapIndex[i].x == -1) {
 			return i;
@@ -57,7 +80,20 @@ int gameMap::freeChunkPos() { //returns the position inside texTable[] of the fi
 	//cout<< "NO FREE SPACE IN MAPINDEX" << endl;
 	return -1;
 }
-int gameMap::getChunkPos(point3D p) { //returns the position inside mapIndex of the aforementioned chunk;
+int gameMap::getChunkID(point3D p) { //returns the position inside mapIndex of the aforementioned chunk;
+	for (int i = 0; i < CHUNK_NUM; i++) {
+		if (p.x == mapIndex[i].x) {
+			if (p.y == mapIndex[i].y) {
+				if (p.z == mapIndex[i].z) {
+					return i;
+				}
+			}
+		}
+	}
+	return -1;
+}
+int gameMap::getBlocksChunkID(point3D b) { //returns the position inside mapIndex of the aforementioned chunk;
+	point3D p = getChunk(b);
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		if (p.x == mapIndex[i].x) {
 			if (p.y == mapIndex[i].y) {
@@ -82,11 +118,11 @@ bool gameMap::isChunkLoaded(point3D p) { // tells if said chunk is loaded in map
 	return 0;
 }
 void gameMap::saveChunk(point3D c) { //unloads a chunk from memory and saves it in its file
-	cout << "SAVING"<<endl;
+	cout << "SAVING" << endl;
 	//cout<< "saving chunk " << chunkX << chunkY << chunkZ << endl;
-	int chunkPos = getChunkPos(c);
+	int chunkPos = getChunkID(c);
 	if (chunkPos == -1) {
-		cout<< "chunk is already unloaded"<<endl;
+		cout << "chunk is already unloaded" << endl;
 		return;
 	}
 	ofstream chunkFile;
@@ -126,30 +162,32 @@ void gameMap::saveChunk(point3D c) { //unloads a chunk from memory and saves it 
 	//cout<< "done saving" << endl;
 }
 void gameMap::freeAChunk(point3D playerPos) {
-	point3D playerChunk;
-	playerChunk.x = playerPos.x / CHUNK_SIZE;
-	playerChunk.y = playerPos.y / CHUNK_SIZE;
-	playerChunk.z = playerPos.z / CHUNK_SIZE;
+	point3D playerChunk = getChunk(playerPos);
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		point3D chunkN = mapIndex[i];
-		if (chunkValue(chunkN, playerChunk) > 2) {
+		if (chunkValue(chunkN, playerChunk) > 5) {
 			saveChunk(chunkN);
 			//cout<< "                 FREE " << (float)(clock() - t) / CLOCKS_PER_SEC * 1000 << endl;
 			return;
 		}
-	}//[DEBUG]
-	 //cout<< "tiu, no se que passa, pero algo va mal";
-	for (int i = 0; i < CHUNK_NUM; i++) {
-		////cout<< chunkValue(mapIndex[i], playerPos) << endl;
 	}
-	//[/DEBUG]
-
 }
+
+void gameMap::freeAllChunks()
+{
+	for (int i = 0; i < CHUNK_NUM; i++) {
+		point3D chunkN = mapIndex[i];
+		if (chunkN.x != -1) {
+			saveChunk(chunkN);
+		}
+	}
+}
+
 void gameMap::loadChunk(point3D c, point3D playerPos) { //Loads a certain chunk inside mapIndex[] and terrainMap[][][][];
-	int chunkPos = freeChunkPos();
+	int chunkPos = freeChunkID();
 	if (chunkPos == -1) {
 		freeAChunk(playerPos);
-		chunkPos = freeChunkPos();
+		chunkPos = freeChunkID();
 	}
 	mapIndex[chunkPos].x = c.x;
 	mapIndex[chunkPos].y = c.y;
@@ -182,7 +220,7 @@ void gameMap::loadChunk(point3D c, point3D playerPos) { //Loads a certain chunk 
 			}
 		}
 	}
-	int emptyChunkPos = freeChunkPos();
+	int emptyChunkPos = freeChunkID();
 	chunkFile.close();
 	ifstream entitiesFile;
 	string entitiesName = ("saves/" + saveName + "/entities." + get_string(c.x) + '.' + get_string(c.y) + '.' + get_string(c.z));
@@ -221,66 +259,52 @@ void gameMap::loadTerrainTable() {
 	terrainTable.close();
 }
 void gameMap::loadNewChunk(point3D playerPos) {
-	point3D playerChunk;
-	playerChunk.x = playerPos.x / CHUNK_SIZE;
-	playerChunk.y = playerPos.y / CHUNK_SIZE;
-	playerChunk.z = playerPos.z / CHUNK_SIZE;
+	point3D playerChunk = getChunk(playerPos);
 
-	for (int i = -1; i < 2; i++)
+	for (int i = -1; i < 5; i++)
 	{
-		for (int j = -1; j < 2; j++)
+		for (int j = -1; j < 5; j++)
 		{
-			for (int k = -1; k < 2; k++)
+			for (int k = -1; k < 5; k++)
 			{
 				point3D chunkPos;
 				chunkPos.x = playerChunk.x + i;
 				chunkPos.y = playerChunk.y + j;
 				chunkPos.z = playerChunk.z + k;
-				if (chunkPos.x >= 0 && chunkPos.y >= 0 && chunkPos.z >= 0)
-					if (chunkValue(chunkPos, playerChunk) <= 2) {
+				if (chunkPos.x >= 0 && chunkPos.y >= 0 && chunkPos.z >= 0) {
+					if (chunkValue(chunkPos, playerChunk) <= 5) {
 						if (isChunkLoaded(chunkPos) == 0) {
 							//cout<< "trying to load chunk " << chunkPos.x << chunkPos.y << chunkPos.z << endl;
-							if (freeChunkPos() == -1) {
+							if (freeChunkID() == -1) {
 								freeAChunk(playerPos);
-								if (freeChunkPos() == -1) {
+								if (freeChunkID() == -1) {
 									return;
 								}
 							}
 							loadChunk(chunkPos, playerPos);
 							return;
 						}
-
 					}
+				}
 			}
 		}
 	}
 }
 bool gameMap::simpleCollision(int posX, int posY, int posZ, mode collisionMode) {	//Tells if terrain at position is occupied
 	point3D b;
-	b.x = floor(posX / CHUNK_SIZE);
-	b.y = floor(posY / CHUNK_SIZE);
-	b.z = floor(posZ / CHUNK_SIZE);
-	int chunkPosition = getChunkPos(b);
-	if (chunkPosition == -1) {
-		return 0;
-	}
+	b.x = posX;
+	b.y = posY;
+	b.z = posZ;
 	//switch case pels tipus de modes
-	if (terrainList[terrainMap[chunkPosition][posX - (b.x * CHUNK_SIZE)][posY - (b.y * CHUNK_SIZE)][posZ - (b.z * CHUNK_SIZE)]].solid == 1) {
+	if (terrainList[*getBlock(b)].solid == 1) {
 		return 1;
 	}
 	return 0;
 }
 bool gameMap::simpleCollision(point3D p, mode collisionMode) {	//Tells if terrain at position is occupied
-	point3D b;
-	b.x = floor(p.x / CHUNK_SIZE);
-	b.y = floor(p.y / CHUNK_SIZE);
-	b.z = floor(p.z / CHUNK_SIZE);
-	int chunkPosition = getChunkPos(b);
-	if (chunkPosition == -1) {
-		return 0;
-	}
+
 	//switch case pels tipus de modes
-	if (terrainList[terrainMap[chunkPosition][p.x - (b.x * CHUNK_SIZE)][p.y - (b.y * CHUNK_SIZE)][p.z - (b.z * CHUNK_SIZE)]].solid == 1) {
+	if (terrainList[*getBlock(p)].solid == 1) {
 		return 1;
 	}
 	return 0;
@@ -304,7 +328,7 @@ bool gameMap::isVisible(point3D p, mode mode_t) { //
 	b.x = floor(p.x / CHUNK_SIZE);
 	b.y = floor(p.y / CHUNK_SIZE);
 	b.z = floor(p.z / CHUNK_SIZE);
-	int chunkPosition = getChunkPos(b);
+	int chunkPosition = getChunkID(b);
 	if (chunkPosition == -1) {
 		return (visibleEntity(p) != -1);
 	}
@@ -336,7 +360,7 @@ int gameMap::getTerrainListPos(point3D p) {
 	b.x = floor(p.x / CHUNK_SIZE);												   //AKESTA FUNCIO ES EL PUTO SIDA, I DEMOSTRA QUE HI HA MOLTA COSA A CANVIAR, MOLTISSIMA
 	b.y = floor(p.y / CHUNK_SIZE);
 	b.z = floor(p.z / CHUNK_SIZE);
-	int chunkPosition = getChunkPos(b);
+	int chunkPosition = getChunkID(b);
 	if (chunkPosition == -1) {
 		cout << "NO S'HA TROBAT EL CHUNK" << endl;
 	}

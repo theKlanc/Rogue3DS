@@ -3,11 +3,9 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
-#ifndef _WIN32
 #include <3ds.h>
 #include <sf2d.h>
 #include <sfil.h>
-#endif
 #include <stdlib.h> 
 #include "common.h"
 
@@ -24,14 +22,19 @@ private:
 	string saveName;
 public:
 	entity entityList[ENTITY_LIST_SIZE]; //Processats individualment cada frame // HAURIA D USAR UN STD::VECTOR PER PODERLOS REORDENAR
-
+	point3D getChunk(point3D pos);
+	unsigned char* getBlock(point3D posBlock);
+	void putBlock(int block, point3D posBlock);
 	void createMapAndLoad(unsigned char*** map, point3D c);
 	int chunkValue(point3D chunkN, point3D chunkO);
-	int freeChunkPos();
-	int getChunkPos(point3D p);
+	int freeChunkID();
+	int getChunkID(point3D p);
+	int getBlocksChunkID(point3D b);
 	bool isChunkLoaded(point3D p);
 	void saveChunk(point3D c);
 	void freeAChunk(point3D playerPos);
+	void freeAllChunks();
+
 	void loadChunk(point3D c, point3D playerPos);
 	void loadTerrainTable();
 	void loadNewChunk(point3D playerPos);

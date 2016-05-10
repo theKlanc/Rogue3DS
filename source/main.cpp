@@ -1,15 +1,20 @@
-#ifdef _WIN32
-#include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
-#include <SFML/Graphics.hpp>
-#include "graphicsPC.h"
-#else
+ /*
+ TODO:eficientitzar la carrega i descarrega de chunks, trobar el tamany òptim i el nombre de chunks òptims
+      vigilar k el thread no intenti currar massa
+	  separar les entities, la entitylist,el gamemain i les fisiques
+	  afegir creacio de directoris quan no els pugui trobar
+	  arreglar les inputs i seprarales
+	  fer menu
+	  afegir UI
+	  ficar mode creatiu
+	  implementar el format .qb 
+ */
 #include <3ds.h>
 #include <sf2d.h>
 #include <sfil.h>
-#include "graphics3ds.h"
+#include "graphics.h"
 #include "3ds/thread.h"
-#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -36,26 +41,27 @@ void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHei
 struct temp {
 	gameMap* map;
 	point3D* player;
+	bool* exit;
 };
 void chunkLoader(u32 arg) {
 	while (1) {
 		temp *temporal = (temp*)arg;
 		temporal->map->loadNewChunk(*temporal->player);
+		if (*temporal->exit == 1) {
+			threadExit(0);
+		}
 	}
 }
 
 class gameMain {
 private:
-#ifdef _WIN32
-	sf::RenderWindow window;
-	sf::Texture overlay;
-#else
+	bool exitBool = 0;
 	u32 kDown;
 	u32 kUp;
 	u32 kHeld;
 	sf2d_texture *overlay;
-#endif
 
+	int block;
 	gameMap map;
 	graphics graphicsObj;
 
@@ -65,15 +71,23 @@ private:
 	bool autoJump = 0;
 	int jumped = 0;
 	void exitGame() {
-#ifndef _WIN32
 
+		exitBool = 1;
+		cout << "exiting..." << endl;
+		point3D temp;
+		temp.x = 9999999;
+		temp.y = 9999999;
+		temp.z = 9999999;
+		svcSleepThread(1000000000);
+		map.freeAllChunks();
+		
 		csndExit();
 		sf2d_fini();
 		gfxExit();
 		hidExit();
 		aptExit();
 		srvExit();
-#endif
+
 
 		exit(1);
 	}
@@ -141,7 +155,7 @@ private:
 	void updateEntity(entity &currentEntity) {
 		point3D c = currentEntity.pos;
 		c.z--;
-		if (map.simpleCollision(c) == 0) {
+		if (map.simpleCollision(c) == 0 && currentEntity.fly == 0) {
 			//cout<< "que es faci la gravetat " << endl;
 			currentEntity.pos.z--;
 			if (currentEntity.pos.z < 0) {
@@ -161,47 +175,23 @@ private:
 		}
 	}
 	void handleInput() {
-#ifdef _WIN32
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
-			exitGame();
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-			autoJump = !autoJump;
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-			showGrid = 1;
-		}
-		else showGrid = 0;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-			moveEntity(*player, RIGHT, autoJump);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-			moveEntity(*player, LEFT, autoJump);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-			moveEntity(*player, FRONT, autoJump);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-			moveEntity(*player, BACK, autoJump);
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-			if (!jumped) {
-				moveEntity(*player, UP, autoJump);
-				moveEntity(*player, UP, autoJump);
-				jumped = 2;
-			}
-		}
-#else
 
-		hidScanInput();
-		kDown = hidKeysDown();
-		kHeld = hidKeysHeld();
+
 		if (kDown & KEY_START) {
 			exitGame();
 		}
 		if (kDown & KEY_X) {
-			autoJump = !autoJump;
+			player->fly = !player->fly;
+		}
+		if (kDown & KEY_R) {
+			block++;
+		}
+		if (kDown & KEY_L) {
+			block--;
+		}
+		if (kHeld & KEY_Y || kDown & KEY_Y) {
+			map.putBlock(block, player->pos);
 		}
 		if (kHeld & KEY_SELECT) {
 			showGrid = 1;
@@ -219,21 +209,35 @@ private:
 		if (kHeld & KEY_DOWN) {
 			moveEntity(*player, BACK, autoJump);
 		}
+		if (kHeld & KEY_B) {
+			if (player->fly) {
+				moveEntity(*player, DOWN, autoJump);
+			}
+		}
 		if (kHeld & KEY_A) {
-			if (!jumped) {
+			if (player->fly) {
+				moveEntity(*player, UP, autoJump);
+			}
+			/*if (!jumped) {
 				moveEntity(*player, UP, autoJump);
 				moveEntity(*player, UP, autoJump);
 				jumped = 2;
-			}
+			}*/
 		}
-#endif
+
 	}
 	void gameLoop() {
 		//cout<< "loop." << loop;
+		
+		
 		if (loop % 13 == 0) {
+			hidScanInput();
+			kDown = hidKeysDown();
+			kHeld = hidKeysHeld();
 			handleInput();
 			updateEntities();
-			//cout << "Player height: " << player->pos.z << endl;
+		}if (loop % 14 == 0) {
+			
 		}
 		/*if (loop % 115 == 0) {
 			map.loadNewChunk(player->pos);
@@ -242,17 +246,9 @@ private:
 		if (jumped > 0) { jumped--; }
 
 		//cout<< player->posX << ' ' << player->posY << ' ' << player->posZ << endl;
-#ifdef _WIN32
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
-#else 
 
 		sf2d_swapbuffers();
-#endif
+
 
 
 		//processar input
@@ -264,11 +260,6 @@ private:
 public:
 	entity* player;
 	void gameCore() {
-#ifdef _WIN32
-		sf::Music music;
-		music.openFromFile("data/sounds/bgm/wilderness.ogg");
-		music.play();
-#endif
 		//gameMap map;
 		// Inits
 
@@ -292,7 +283,7 @@ public:
 
 
 		//overlay = sfil_load_PNG_file("data/sprites/overlay.png", SF2D_PLACE_RAM);
-
+		block = 0;
 		player = &map.entityList[0];
 		graphicsObj.edit(map, *player);
 		string saveName = "default";
@@ -313,7 +304,7 @@ public:
 		static temp temporal;
 		temporal.map = &map;
 		temporal.player = &player->pos;
-
+		temporal.exit = &exitBool;
 		threadCreate((ThreadFunc)(void*)chunkLoader, (&temporal), 5000, 0x3F, 0, 1);
 		//audio_load("data/sounds/bgm/wilderness.raw"); //[N3DS] only 
 		while (1) {

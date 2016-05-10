@@ -1,9 +1,8 @@
-#ifndef _WIN32
 #include <3ds.h>
 #include <sf2d.h>
 #include <sfil.h>
 #include "gameMap.h"
-#include "graphics3ds.h"
+#include "graphics.h"
 
 using namespace std;
 
@@ -85,16 +84,16 @@ void graphics::freeTexture(string fileName) { //frees a texture from texTable[]
 	texTable[textureLocation] = texTable[freeTexLoc - 1];
 	texTable[freeTexLoc - 1] = temp;
 	texTable[freeTexLoc - 1].name = "free";
-#ifndef _WIN32
+
 	sf2d_free_texture(texTable[freeTexLoc - 1].texture);
-#endif
+
 }
 void graphics::freeAllTextures() {	 //frees all textures
 	for (int i = 0; i < TEX_TABLE_SIZE; i++) {
 		texTable[i].name = "free";
-#ifndef _WIN32
+
 		sf2d_free_texture(texTable[i].texture);
-#endif
+
 	}
 }
 
@@ -106,7 +105,7 @@ sf2d_texture* graphics::getTexture(point3D p, mode mode_t) {
 	b.y = floor(p.y / CHUNK_SIZE);
 	b.z = floor(p.z / CHUNK_SIZE);
 
-	int chunkPosition = mapObj->getChunkPos(b);
+	int chunkPosition = mapObj->getChunkID(b);
 	switch (mode_t) {
 	case TRRN:
 		if (chunkPosition == -1) {
@@ -151,4 +150,3 @@ void graphics::reloadTextures() {
 	}
 
 }
-#endif

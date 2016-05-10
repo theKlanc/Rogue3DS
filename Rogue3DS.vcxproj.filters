@@ -21,19 +21,16 @@
     <ClCompile Include="source\gameMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\graphics3ds.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\common.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\graphicsPC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="entityList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="physics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -57,16 +54,13 @@
     <ClInclude Include="source\gameMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\graphics3ds.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\graphicsPC.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="entityList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="physics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
