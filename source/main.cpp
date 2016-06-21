@@ -13,6 +13,7 @@
 #include <sf2d.h>
 #include <sfil.h>
 #include "graphics.h"
+#include "sound.h"
 #include "3ds/thread.h"
 
 #include <string.h>
@@ -50,6 +51,7 @@ void chunkLoader(u32 arg) {
 		if (*temporal->exit == 1) {
 			threadExit(0);
 		}
+		svcSleepThread(50000000);
 	}
 }
 
@@ -64,6 +66,7 @@ private:
 	int block;
 	gameMap map;
 	graphics graphicsObj;
+	sound soundObj;
 
 	bool showGrid = 0;
 
@@ -236,12 +239,10 @@ private:
 			kHeld = hidKeysHeld();
 			handleInput();
 			updateEntities();
-		}if (loop % 14 == 0) {
-			
+		}if (loop % 15 == 0) {
+			soundObj.update();
 		}
-		/*if (loop % 115 == 0) {
-			map.loadNewChunk(player->pos);
-		}*/
+		
 
 		if (jumped > 0) { jumped--; }
 
@@ -305,8 +306,8 @@ public:
 		temporal.map = &map;
 		temporal.player = &player->pos;
 		temporal.exit = &exitBool;
-		threadCreate((ThreadFunc)(void*)chunkLoader, (&temporal), 5000, 0x3F, 0, 1);
-		//audio_load("data/sounds/bgm/wilderness.raw"); //[N3DS] only 
+		soundObj.playFromFile("/mau5.ogg");
+		threadCreate((ThreadFunc)(void*)chunkLoader, (&temporal), 5000, 0x3F, 0, false);
 		while (1) {
 			gameLoop();
 			loop++;
@@ -316,7 +317,7 @@ public:
 
 int main()
 {
-#ifndef _WIN32
+
 	srvInit();
 	aptInit();
 	hidInit();
@@ -325,11 +326,11 @@ int main()
 	consoleInit(GFX_BOTTOM, NULL);
 	csndInit();
 	sf2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
-#endif
+
 	srand(time(NULL));
 	gameMain gameMain1;
 	gameMain1.gameCore();
-#ifndef _WIN32
+
 
 	csndExit();
 
@@ -346,6 +347,6 @@ int main()
 	aptExit();
 
 	srvExit();
-#endif
+
 	return 0;
 }

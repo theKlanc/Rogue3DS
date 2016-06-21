@@ -30,7 +30,7 @@ TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	source
 DATA		:=	data
-INCLUDES	:=	source
+INCLUDES	:=	include
 
 APP_TITLE       := Rogue3DS
 APP_DESCRIPTION := Rogue Development test
@@ -47,7 +47,7 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 
-CXXFLAGS	:= $(CFLAGS)  -fno-exceptions -std=c++1y
+CXXFLAGS	:= $(CFLAGS)  -fno-rtti -fno-exceptions -std=gnu++11
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
@@ -127,6 +127,7 @@ endif
 all: $(BUILD)
 
 $(BUILD):
+	@echo Building ...
 	@[ -d $@ ] || mkdir -p $@
 	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
@@ -135,7 +136,11 @@ clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf
 
-
+#---------------------------------------------------------------------------------
+	
+cia: clean all
+	@arm-none-eabi-strip $(OUTPUT).elf
+	@makerom -f cia -o $(OUTPUT).cia -DAPP_ENCRYPTED=false -rsf $(OUTPUT).rsf -target t -exefslogo -elf $(OUTPUT).elf
 #---------------------------------------------------------------------------------
 else
 
