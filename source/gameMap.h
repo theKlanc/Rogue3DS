@@ -21,6 +21,8 @@ private:
 	
 	string saveName;
 public:
+	static void chunkLoader(u32 arg);
+	void ayy(u32 temp);
 	entity entityList[ENTITY_LIST_SIZE]; //Processats individualment cada frame // HAURIA D USAR UN STD::VECTOR PER PODERLOS REORDENAR
 	point3D getChunk(point3D pos);
 	unsigned char* getBlock(point3D posBlock);
@@ -54,4 +56,9 @@ public:
 	bool getEntityVisible(point3D p);
 	bool getEntitySolid(point3D p);
 	gameMap();
+};
+struct threadArg1 {
+	gameMap* map;
+	point3D* player;
+	bool* exit;
 };

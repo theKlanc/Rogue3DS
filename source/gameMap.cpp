@@ -3,7 +3,22 @@
 
 using namespace std;
 
+void gameMap::chunkLoader(u32 arg)
+{
+	while (1) {
+		threadArg1 *temporal = (threadArg1*)arg;
+		temporal->map->loadNewChunk(*temporal->player);
+		if (*temporal->exit == 1) {
+			threadExit(0);
+		}
+		svcSleepThread(50000000);
+	}
+}
 
+void gameMap::ayy(u32 temp)
+{
+	threadCreate((ThreadFunc)gameMap::chunkLoader,(void*)temp, 5000, 0x3F, 0, false);
+}
 
 point3D gameMap::getChunk(point3D pos)
 {

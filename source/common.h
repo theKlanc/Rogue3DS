@@ -16,8 +16,6 @@ using namespace std;
 #define RENDER_HEIGHT 2
 #define FLOOR_HEIGHT 550
 
-
-
 enum mode {
 	PRRT,
 	TRRN,

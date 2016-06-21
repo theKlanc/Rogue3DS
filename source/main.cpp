@@ -32,28 +32,16 @@
 
 using namespace std;
 
-void cameraOperation(entity player, int &cameraX, int &cameraY, const int mapHeight, const int mapWidth) {
-	if (player.pos.x < mapWidth - 10) { if (cameraX + 14 < player.pos.x) { cameraX++; } }
-	if (player.pos.x > 9) { if (cameraX + 10 > player.pos.x) { cameraX--; } }
-	if (player.pos.y < mapHeight - 6) { if (cameraY + 8 < player.pos.y) { cameraY++; } }
-	if (player.pos.y > 5) { if (cameraY + 6 > player.pos.y) { cameraY--; } }
-}
-
-struct temp {
-	gameMap* map;
-	point3D* player;
-	bool* exit;
-};
-void chunkLoader(u32 arg) {
-	while (1) {
-		temp *temporal = (temp*)arg;
-		temporal->map->loadNewChunk(*temporal->player);
-		if (*temporal->exit == 1) {
-			threadExit(0);
-		}
-		svcSleepThread(50000000);
-	}
-}
+//void chunkLoader(u32 arg) {
+//	while (1) {
+//		threadArg1 *temporal = (threadArg1*)arg;
+//		temporal->map->loadNewChunk(*temporal->player);
+//		if (*temporal->exit == 1) {
+//			threadExit(0);
+//		}
+//		svcSleepThread(50000000);
+//	}
+//}
 
 class gameMain {
 private:
@@ -302,12 +290,14 @@ public:
 		}
 		map.loadTerrainTable();
 		graphicsObj.reloadTextures();
-		static temp temporal;
+		static threadArg1 temporal;
 		temporal.map = &map;
 		temporal.player = &player->pos;
 		temporal.exit = &exitBool;
 		soundObj.playFromFile("/mau5.ogg");
-		threadCreate((ThreadFunc)(void*)chunkLoader, (&temporal), 5000, 0x3F, 0, false);
+		//threadCreate((ThreadFunc)gameMap::chunkLoader, (&temporal), 5000, 0x3F, 0, false);
+		map.ayy((u32)&temporal);
+
 		while (1) {
 			gameLoop();
 			loop++;
