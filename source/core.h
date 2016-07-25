@@ -2,13 +2,16 @@
 
 #include <string.h>
 #include <sstream>
+#include <dirent.h>
+
+#include <fstream>
 
 #include "sf2d.h"
 
 
 using namespace std;
 
-#define CHUNK_SIZE 16
+#define CHUNK_SIZE 64
 #define CHUNK_NUM  75 //( 19 = rubik's sense corners (n=2) - corners, 11 = baldufa(n = 2, però z pondera més) , 7 = rubik's core (n = 1))  la n3ds aguanta almenys 80, la old 26
 #define ENTITY_LIST_SIZE  100
 #define TERRAIN_LIST_MAX_SIZE  100
@@ -65,3 +68,9 @@ struct terrain {
 	bool visible = true;
 	bool solid = true;
 };
+
+bool fsIsDirectory(const std::string path);
+bool fsExists(const std::string path);
+
+
+bool fsCreateDir(const std::string path);

@@ -1,7 +1,7 @@
  #pragma once
 #include <sf2d.h>
 #include "gameMap.h"
-#include "common.h"
+#include "core.h"
 
 class graphics
 {

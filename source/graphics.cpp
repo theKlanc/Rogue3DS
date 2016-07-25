@@ -138,8 +138,10 @@ sf2d_texture* graphics::getTexture(point3D p, mode mode_t) {
 			return texTable[getTexturePos(mapObj->getTerrainName(p))].texture;
 		}
 		break;
+	default1:
+		break;
 	}
-
+	return NULL;
 }
 
 void graphics::reloadTextures() {

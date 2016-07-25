@@ -10,15 +10,13 @@ class sound
 public:
 	sound();
 	void playFromFile(string file);
-	void update();
+	void exit();
 private:
-	//static void audioMainThread(u32 arg);
+	static void audioMainThread(u32 arg);
 	Thread audioThread;
 	u32 *audioBuffer;
-	bool fillBlock;
+	int fillBlock;
 	ndspWaveBuf *waveBuf;
 	stb_vorbis* vorbisFile;
 	u32 Samples;
-	bool temp;
 };
-

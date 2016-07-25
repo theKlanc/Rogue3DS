@@ -1,23 +1,51 @@
 #include "gameMap.h"
-#include "common.h"
+#include "core.h"
 
 using namespace std;
 
+void gameMap::exit()
+{
+	threadCloseRequest = true;
+	while (threadStatus) {
+		svcSleepThread(10000000);
+	}
+	freeAllChunks();
+	for (int i = 0; i < CHUNK_NUM; i++) {
+		for (int j = 0; j < CHUNK_SIZE; j++) {
+			for (int k = 0; k < CHUNK_SIZE; k++) {
+				delete terrainMap[i][j][k];
+			}
+			delete terrainMap[i][j];
+		}
+		delete terrainMap[i];
+	}
+	delete terrainMap;
+}
+
 void gameMap::chunkLoader(u32 arg)
 {
+	threadArg1 *temporal = (threadArg1*)arg;
 	while (1) {
-		threadArg1 *temporal = (threadArg1*)arg;
-		temporal->map->loadNewChunk(*temporal->player);
-		if (*temporal->exit == 1) {
+		if (*temporal->threadExitReq) {
+			*temporal->threadState = false;
 			threadExit(0);
 		}
-		svcSleepThread(50000000);
+		else {
+			temporal->map->loadNewChunk(*temporal->player);
+			svcSleepThread(50000000);
+		}
 	}
 }
 
-void gameMap::ayy(u32 temp)
+void gameMap::startChunkLoader(point3D* temp1)
 {
-	threadCreate((ThreadFunc)gameMap::chunkLoader,(void*)temp, 5000, 0x3F, 0, false);
+	static threadArg1 temp;
+	temp.threadExitReq = &threadCloseRequest;
+	temp.player = temp1;
+	temp.map = this;
+	temp.threadState = &threadStatus;
+	threadHandle = threadCreate((ThreadFunc)gameMap::chunkLoader, (void*)&temp, 5000, 0x3F, 0, false);
+	threadStatus = true;
 }
 
 point3D gameMap::getChunk(point3D pos)
@@ -133,6 +161,7 @@ bool gameMap::isChunkLoaded(point3D p) { // tells if said chunk is loaded in map
 	return 0;
 }
 void gameMap::saveChunk(point3D c) { //unloads a chunk from memory and saves it in its file
+	int ticks = svcGetSystemTick();
 	cout << "SAVING" << endl;
 	//cout<< "saving chunk " << chunkX << chunkY << chunkZ << endl;
 	int chunkPos = getChunkID(c);
@@ -172,7 +201,7 @@ void gameMap::saveChunk(point3D c) { //unloads a chunk from memory and saves it 
 	mapIndex[chunkPos].x = -1;
 	mapIndex[chunkPos].y = -1;
 	mapIndex[chunkPos].z = -1;
-	cout << " END" << endl;
+	cout << "TICKS X BLOK: "<< (svcGetSystemTick()-ticks) / pow(CHUNK_SIZE,3) << endl;
 	//cout<< "                 SAVE " << (float)(clock() - t) / CLOCKS_PER_SEC * 1000 << endl;
 	//cout<< "done saving" << endl;
 }
@@ -199,6 +228,7 @@ void gameMap::freeAllChunks()
 }
 
 void gameMap::loadChunk(point3D c, point3D playerPos) { //Loads a certain chunk inside mapIndex[] and terrainMap[][][][];
+	int ticks = svcGetSystemTick();
 	int chunkPos = freeChunkID();
 	if (chunkPos == -1) {
 		freeAChunk(playerPos);
@@ -254,6 +284,7 @@ void gameMap::loadChunk(point3D c, point3D playerPos) { //Loads a certain chunk 
 		}
 	}
 	cout << " END" << endl;
+	cout << "TICKS X BLOK: " << (svcGetSystemTick() - ticks) / pow(CHUNK_SIZE, 3) << endl;
 	//cout<< "                 LOAD " << (float)(clock() - t) / CLOCKS_PER_SEC * 1000 << endl;
 }
 void gameMap::loadTerrainTable() {
@@ -358,6 +389,9 @@ bool gameMap::isVisible(point3D p, mode mode_t) { //
 	case PRRT:
 		return (isVisible(p, TRRN)) ? 1 : isVisible(p, NTT);
 		break;
+	default:
+		return 0;
+		break;
 	}
 }
 int gameMap::getTerrainListSize() {
@@ -412,9 +446,9 @@ bool gameMap::getEntitySolid(point3D p)
 	return (entityList[visibleEntity(p)].solid);
 }
 
-gameMap::gameMap() {
+gameMap::gameMap(string nameString) {
 	terrainListSize = 0;
-	saveName = "default";
+	saveName = nameString;
 	terrainMap = new unsigned char***[CHUNK_NUM];
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		terrainMap[i] = new unsigned char**[CHUNK_SIZE];
@@ -428,4 +462,6 @@ gameMap::gameMap() {
 			}
 		}
 	}
+	threadStatus = false;
+	threadCloseRequest = false;
 }

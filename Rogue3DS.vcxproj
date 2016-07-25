@@ -51,28 +51,34 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <IncludePath>D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
-    <SourcePath>D:\3DS\CTRhomebrew\Rogue3DS\include;$(SourcePath)</SourcePath>
-    <ReferencePath>D:\3DS\CTRhomebrew\Rogue3DS;$(ReferencePath)</ReferencePath>
+    <SourcePath>D:\devkitPro\devkitARM\arm-none-eabi\include;D:\3DS\CTRhomebrew\Rogue3DS\include;$(SourcePath)</SourcePath>
     <NMakeBuildCommandLine>D:\devkitPro\msys\bin\make.exe</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>D:\devkitPro\msys\bin\make.exe clean</NMakeCleanCommandLine>
     <NMakeIncludeSearchPath>D:\3DS\CTRhomebrew\Rogue3DS\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <IncludePath>D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0\arm-none-eabi;D:\devkitPro\devkitARM\arm-none-eabi\include\rpc;D:\devkitPro\devkitARM\arm-none-eabi\include\machine;D:\devkitPro\devkitARM\arm-none-eabi\include\bits;D:\devkitPro\devkitARM\include;D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0;D:\devkitPro\libctru\include;D:\3DS\CTRhomebrew\Rogue3DS\include;D:\devkitPro\devkitARM\arm-none-eabi\include</IncludePath>
+    <ReferencePath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\lib</ReferencePath>
+    <LibraryPath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\include;D:\devkitPro\devkitARM\arm-none-eabi\lib</LibraryPath>
+    <ExcludePath />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='3DSLink|ARM'">
-    <IncludePath>D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
-    <SourcePath>D:\3DS\CTRhomebrew\Rogue3DS\include;$(SourcePath)</SourcePath>
-    <ReferencePath>D:\3DS\CTRhomebrew\Rogue3DS;$(ReferencePath)</ReferencePath>
+    <SourcePath>D:\devkitPro\devkitARM\arm-none-eabi\include;D:\3DS\CTRhomebrew\Rogue3DS\include;$(SourcePath)</SourcePath>
     <NMakeBuildCommandLine>D:\devkitPro\msys\bin\make.exe &amp; D:\devkitPro\devkitARM\bin\3dslink.exe</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>D:\devkitPro\msys\bin\make.exe clean</NMakeCleanCommandLine>
     <NMakeIncludeSearchPath>D:\3DS\CTRhomebrew\Rogue3DS\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <IncludePath>D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0\arm-none-eabi;D:\devkitPro\devkitARM\arm-none-eabi\include\rpc;D:\devkitPro\devkitARM\arm-none-eabi\include\machine;D:\devkitPro\devkitARM\arm-none-eabi\include\bits;D:\devkitPro\devkitARM\include;D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0;D:\devkitPro\libctru\include;D:\3DS\CTRhomebrew\Rogue3DS\include;D:\devkitPro\devkitARM\arm-none-eabi\include</IncludePath>
+    <ReferencePath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\lib</ReferencePath>
+    <LibraryPath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\include;D:\devkitPro\devkitARM\arm-none-eabi\lib</LibraryPath>
+    <ExcludePath />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Citra|ARM'">
-    <IncludePath>D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
-    <SourcePath>D:\3DS\CTRhomebrew\Rogue3DS\include;$(SourcePath)</SourcePath>
-    <ReferencePath>D:\3DS\CTRhomebrew\Rogue3DS;$(ReferencePath)</ReferencePath>
+    <SourcePath>D:\devkitPro\devkitARM\arm-none-eabi\include;D:\3DS\CTRhomebrew\Rogue3DS\include;$(SourcePath)</SourcePath>
     <NMakeBuildCommandLine>D:\devkitPro\msys\bin\make.exe &amp; D:\3DS\Citra\citra.exe D:\3DS\CTRhomebrew\Rogue3DS\Rogue3DS.3dsx </NMakeBuildCommandLine>
     <NMakeCleanCommandLine>D:\devkitPro\msys\bin\make.exe clean</NMakeCleanCommandLine>
     <NMakeIncludeSearchPath>D:\3DS\CTRhomebrew\Rogue3DS\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <IncludePath>D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0\arm-none-eabi;D:\devkitPro\devkitARM\arm-none-eabi\include\rpc;D:\devkitPro\devkitARM\arm-none-eabi\include\machine;D:\devkitPro\devkitARM\arm-none-eabi\include\bits;D:\devkitPro\devkitARM\include;D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0;D:\devkitPro\libctru\include;D:\3DS\CTRhomebrew\Rogue3DS\include;D:\devkitPro\devkitARM\arm-none-eabi\include</IncludePath>
+    <ReferencePath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\lib</ReferencePath>
+    <LibraryPath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\include;D:\devkitPro\devkitARM\arm-none-eabi\lib</LibraryPath>
+    <ExcludePath />
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
@@ -92,7 +98,8 @@
   <ItemGroup>
     <ClCompile Include="entityList.cpp" />
     <ClCompile Include="physics.cpp" />
-    <ClCompile Include="source\common.cpp" />
+    <ClCompile Include="source\core.cpp" />
+    <ClCompile Include="source\gameCore.cpp" />
     <ClCompile Include="source\gameMap.cpp" />
     <ClCompile Include="source\graphics.cpp" />
     <ClCompile Include="source\main.cpp" />
@@ -106,8 +113,9 @@
     <None Include="resources\icon.bin" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\common.h" />
+    <ClInclude Include="source\core.h" />
     <ClInclude Include="source\entityList.h" />
+    <ClInclude Include="source\gameCore.h" />
     <ClInclude Include="source\gameMap.h" />
     <ClInclude Include="source\graphics.h" />
     <ClInclude Include="source\physics.h" />
