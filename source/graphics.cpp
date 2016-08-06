@@ -8,6 +8,8 @@ using namespace std;
 
 graphics::graphics() {
 	loadTexture("player.png");
+	downTexture = sfil_load_PNG_file("data/sprites/down.png", SF2D_PLACE_RAM);
+	upTexture = sfil_load_PNG_file("data/sprites/up.png", SF2D_PLACE_RAM);	
 }
 graphics::graphics(gameMap &map, entity &playerOrig) {
 	loadTexture("player.png");
@@ -31,6 +33,8 @@ void graphics::drawFrame() {
 				p.z = (player->pos.z - y);
 				if (mapObj->isVisible(p, PRRT)) {
 					sf2d_draw_texture(getTexture(p, PRRT), j * 16, i * 16);
+					if (y > 1) sf2d_draw_texture(downTexture, j * 16, i * 16);
+					else if (y == 0) sf2d_draw_texture(upTexture, j * 16, i * 16);
 				}
 			}
 		}
@@ -68,13 +72,8 @@ void graphics::loadTexture(string fileName) { //load a texture from a file into 
 	int freeTextureLoc = freeTexturePos();
 	texTable[freeTextureLoc].name = fileName;
 	fileName = "data/sprites/" + fileName;
-#ifdef _WIN32
-	texTable[freeTextureLoc].texture.loadFromFile(fileName);
-	texTable[freeTextureLoc].texture.setSmooth(false);
-#else
 	texTable[freeTextureLoc].texture = sfil_load_PNG_file(fileName.c_str(), SF2D_PLACE_RAM);
 	sf2d_texture_tile32(texTable[freeTextureLoc].texture);
-#endif
 
 }
 void graphics::freeTexture(string fileName) { //frees a texture from texTable[]

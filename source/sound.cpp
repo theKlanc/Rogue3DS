@@ -56,66 +56,28 @@ void sound::playFromFile(string file)
 
 	ndspChnWaveBufAdd(0, &waveBuf[0]);
 	ndspChnWaveBufAdd(0, &waveBuf[1]);
-	threadCreate((ThreadFunc)audioMainThread,this, 5900, 0x30, 0, false);
+	threadCreate((ThreadFunc)audioMainThread,this, 5900, 0x30, 0, true);
 }
-
-//void sound::update()
-//{
-//	if (waveBuf[fillBlock].status == NDSP_WBUF_DONE) {
-//
-//		stb_vorbis_get_samples_short_interleaved(vorbisFile, 2, (short*)waveBuf[fillBlock].data_pcm16, Samples * 2);
-//
-//		DSP_FlushDataCache(&waveBuf[fillBlock].data_pcm16, waveBuf[fillBlock].nsamples);
-//
-//
-//		ndspChnWaveBufAdd(0, &waveBuf[fillBlock]);
-//
-//		fillBlock++;
-//		if (fillBlock > 1)fillBlock = 0;
-//	} 
-//}
 
 void sound::exit()
 {
 	delete[] waveBuf;
 }
 
-//void sound::audioMainThread(u32 arg)
-//{
-//	threadArg2 *mainObj = (threadArg2*)arg;
-//	while (1) {
-//		if (mainObj->waveBuf[*mainObj->fillBlock]->status == NDSP_WBUF_DONE) {
-//
-//			u32 *dest = (u32*)mainObj->waveBuf[*mainObj->fillBlock]->data_pcm16;
-//
-//			stb_vorbis_get_samples_short_interleaved(mainObj->vorbisFile, 2, (short*)dest, *mainObj->Samples * 2);
-//
-//			DSP_FlushDataCache(mainObj->waveBuf[*mainObj->fillBlock]->data_pcm16, mainObj->waveBuf[*mainObj->fillBlock]->nsamples);
-//
-//
-//			ndspChnWaveBufAdd(0, mainObj->waveBuf[*mainObj->fillBlock]);
-//
-//			*mainObj->fillBlock = !*mainObj->fillBlock;
-//		}
-//		else  svcSleepThread(50000000);
-//	}
-//}
 void sound::audioMainThread(u32 arg)
 {
 	sound* soundObj = (sound*)arg;
-	while (1) {
+	int samplesLeft = 1;
+	while (samplesLeft) {
 		if (soundObj->waveBuf[soundObj->fillBlock].status == NDSP_WBUF_DONE) {
-
-			stb_vorbis_get_samples_short_interleaved(soundObj->vorbisFile, 2, (short*)soundObj->waveBuf[soundObj->fillBlock].data_pcm16, soundObj->Samples * 2);
-
+			samplesLeft = stb_vorbis_get_samples_short_interleaved(soundObj->vorbisFile, 2, (short*)soundObj->waveBuf[soundObj->fillBlock].data_pcm16, soundObj->Samples * 2);
 			DSP_FlushDataCache(&soundObj->waveBuf[soundObj->fillBlock].data_pcm16, soundObj->waveBuf[soundObj->fillBlock].nsamples);
-
-
 			ndspChnWaveBufAdd(0, &soundObj->waveBuf[soundObj->fillBlock]);
-
 			soundObj->fillBlock++;
 			if (soundObj->fillBlock > 1)soundObj->fillBlock = 0;
 		}
 		svcSleepThread(50000000);
 	}
+	stb_vorbis_close(soundObj->vorbisFile);
+
 }

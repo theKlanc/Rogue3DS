@@ -1,36 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="3DSLink|ARM">
-      <Configuration>3DSLink</Configuration>
-      <Platform>ARM</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Citra|ARM">
-      <Configuration>Citra</Configuration>
-      <Platform>ARM</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|ARM">
+    <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
-      <Platform>ARM</Platform>
+      <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{AE324B8E-EEDB-495C-AA63-50277DB65C30}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectGuid>{77759511-FA13-4DAF-9E8E-E38B3DBA0883}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
-    <ConfigurationType>Makefile</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='3DSLink|ARM'" Label="Configuration">
-    <ConfigurationType>Makefile</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Citra|ARM'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
@@ -40,77 +21,32 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='3DSLink|ARM'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Citra|ARM'" Label="PropertySheets">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <SourcePath>D:\devkitPro\devkitARM\arm-none-eabi\include;D:\3DS\CTRhomebrew\Rogue3DS\include;$(SourcePath)</SourcePath>
-    <NMakeBuildCommandLine>D:\devkitPro\msys\bin\make.exe</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>D:\devkitPro\msys\bin\make.exe clean</NMakeCleanCommandLine>
-    <NMakeIncludeSearchPath>D:\3DS\CTRhomebrew\Rogue3DS\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
-    <IncludePath>D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0\arm-none-eabi;D:\devkitPro\devkitARM\arm-none-eabi\include\rpc;D:\devkitPro\devkitARM\arm-none-eabi\include\machine;D:\devkitPro\devkitARM\arm-none-eabi\include\bits;D:\devkitPro\devkitARM\include;D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0;D:\devkitPro\libctru\include;D:\3DS\CTRhomebrew\Rogue3DS\include;D:\devkitPro\devkitARM\arm-none-eabi\include</IncludePath>
-    <ReferencePath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\lib</ReferencePath>
-    <LibraryPath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\include;D:\devkitPro\devkitARM\arm-none-eabi\lib</LibraryPath>
-    <ExcludePath />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakeBuildCommandLine>make</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <IncludePath>D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\devkitPro\libctru\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='3DSLink|ARM'">
-    <SourcePath>D:\devkitPro\devkitARM\arm-none-eabi\include;D:\3DS\CTRhomebrew\Rogue3DS\include;$(SourcePath)</SourcePath>
-    <NMakeBuildCommandLine>D:\devkitPro\msys\bin\make.exe &amp; D:\devkitPro\devkitARM\bin\3dslink.exe</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>D:\devkitPro\msys\bin\make.exe clean</NMakeCleanCommandLine>
-    <NMakeIncludeSearchPath>D:\3DS\CTRhomebrew\Rogue3DS\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
-    <IncludePath>D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0\arm-none-eabi;D:\devkitPro\devkitARM\arm-none-eabi\include\rpc;D:\devkitPro\devkitARM\arm-none-eabi\include\machine;D:\devkitPro\devkitARM\arm-none-eabi\include\bits;D:\devkitPro\devkitARM\include;D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0;D:\devkitPro\libctru\include;D:\3DS\CTRhomebrew\Rogue3DS\include;D:\devkitPro\devkitARM\arm-none-eabi\include</IncludePath>
-    <ReferencePath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\lib</ReferencePath>
-    <LibraryPath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\include;D:\devkitPro\devkitARM\arm-none-eabi\lib</LibraryPath>
-    <ExcludePath />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Citra|ARM'">
-    <SourcePath>D:\devkitPro\devkitARM\arm-none-eabi\include;D:\3DS\CTRhomebrew\Rogue3DS\include;$(SourcePath)</SourcePath>
-    <NMakeBuildCommandLine>D:\devkitPro\msys\bin\make.exe &amp; D:\3DS\Citra\citra.exe D:\3DS\CTRhomebrew\Rogue3DS\Rogue3DS.3dsx </NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>D:\devkitPro\msys\bin\make.exe clean</NMakeCleanCommandLine>
-    <NMakeIncludeSearchPath>D:\3DS\CTRhomebrew\Rogue3DS\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
-    <IncludePath>D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0\arm-none-eabi;D:\devkitPro\devkitARM\arm-none-eabi\include\rpc;D:\devkitPro\devkitARM\arm-none-eabi\include\machine;D:\devkitPro\devkitARM\arm-none-eabi\include\bits;D:\devkitPro\devkitARM\include;D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\devkitARM\arm-none-eabi\include\c++\5.3.0;D:\devkitPro\libctru\include;D:\3DS\CTRhomebrew\Rogue3DS\include;D:\devkitPro\devkitARM\arm-none-eabi\include</IncludePath>
-    <ReferencePath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\lib</ReferencePath>
-    <LibraryPath>D:\devkitPro\devkitARM\arm-none-eabi\include\sys;D:\devkitPro\libctru\lib;D:\devkitPro\devkitARM\arm-none-eabi\include;D:\devkitPro\devkitARM\arm-none-eabi\lib</LibraryPath>
-    <ExcludePath />
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>D:\3DS\CTRhomebrew\Rogue3DS\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='3DSLink|ARM'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>D:\3DS\CTRhomebrew\Rogue3DS\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Citra|ARM'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>D:\3DS\CTRhomebrew\Rogue3DS\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
+  <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="entityList.cpp" />
-    <ClCompile Include="physics.cpp" />
     <ClCompile Include="source\core.cpp" />
+    <ClCompile Include="source\entityList.cpp" />
     <ClCompile Include="source\gameCore.cpp" />
     <ClCompile Include="source\gameMap.cpp" />
     <ClCompile Include="source\graphics.cpp" />
     <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\physics.cpp" />
+    <ClCompile Include="source\SimplexNoise.cpp" />
     <ClCompile Include="source\sound.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Rogue3DS.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\banner.bin" />
-    <None Include="resources\icon.bin" />
+    <ClCompile Include="source\stb_vorbis.c" />
+    <ClCompile Include="source\UI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\core.h" />
@@ -120,8 +56,14 @@
     <ClInclude Include="source\graphics.h" />
     <ClInclude Include="source\physics.h" />
     <ClInclude Include="source\resource.h" />
+    <ClInclude Include="source\SimplexNoise.h" />
     <ClInclude Include="source\sound.h" />
     <ClInclude Include="source\stb_vorbis.h" />
+    <ClInclude Include="source\UI.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\banner.bin" />
+    <None Include="resources\icon.bin" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

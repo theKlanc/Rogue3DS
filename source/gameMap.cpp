@@ -1,5 +1,6 @@
 #include "gameMap.h"
 #include "core.h"
+#include "SimplexNoise.h"
 
 using namespace std;
 
@@ -44,16 +45,16 @@ void gameMap::startChunkLoader(point3D* temp1)
 	temp.player = temp1;
 	temp.map = this;
 	temp.threadState = &threadStatus;
-	threadHandle = threadCreate((ThreadFunc)gameMap::chunkLoader, (void*)&temp, 5000, 0x3F, 0, false);
+	threadHandle = threadCreate((ThreadFunc)gameMap::chunkLoader, (void*)&temp, 5000, 0x3F, 0, true);
 	threadStatus = true;
 }
 
 point3D gameMap::getChunk(point3D pos)
 {
 	point3D b;
-	b.x = floor(pos.x / CHUNK_SIZE);
-	b.y = floor(pos.y / CHUNK_SIZE);
-	b.z = floor(pos.z / CHUNK_SIZE);
+	b.x = pos.x / CHUNK_SIZE;
+	b.y = pos.y / CHUNK_SIZE;
+	b.z = pos.z / CHUNK_SIZE;
 	return b;
 }
 
@@ -71,47 +72,25 @@ void gameMap::putBlock(int block, point3D posBlock)
 
 void gameMap::createMapAndLoad(unsigned char*** map, point3D c) {
 	//cout<< "intento crear un chunk a " << chunkX << chunkY << chunkZ << endl;
-	if (c.z < FLOOR_HEIGHT / CHUNK_SIZE) {
-		for (int i = 0; i < CHUNK_SIZE; i++) {
-			for (int j = 0; j < CHUNK_SIZE; j++) {
-				for (int k = 0; k < CHUNK_SIZE; k++) {
-					map[i][j][k] = 1;
+	for (int i = 0; i < CHUNK_SIZE; i++) {
+		for (int j = 0; j < CHUNK_SIZE; j++) {
+			int terrainHeight = FLOOR_HEIGHT + 255 * fbmNoise(c.x * CHUNK_SIZE + j, c.y * CHUNK_SIZE + i, 0.001, 5, 2, 0.5);
+			for (int h = 0; h < CHUNK_SIZE; h++) {
+				if (h + c.z*CHUNK_SIZE > terrainHeight) {	//si esta per sobre la terra
+					if (h + c.z * CHUNK_SIZE <= SEA_LEVEL) map[j][i][h] = 3;
+					else map[j][i][h] = 0;
 				}
-			}
-		}
-	}
-	else if (c.z == FLOOR_HEIGHT / CHUNK_SIZE) {
-		for (int n = 0; n < CHUNK_SIZE; n++) {
-			for (int m = 0; m < CHUNK_SIZE; m++) {
-				for (int l = 0; l < CHUNK_SIZE; l++) {
-					if (n < CHUNK_SIZE / 2) {
-						map[l][m][n] = 1;
-					}
-					else if (n == CHUNK_SIZE / 2) {
-						int bloc = rand() % 7;
-						if (bloc == 1) { bloc++; }
-						else bloc = 0;
-						map[l][m][n] = bloc;
-					}
-					else {
-						map[l][m][n] = 0;
-					}
-				}
-			}
-		}
-	}
-	else {
-		for (int i = 0; i < CHUNK_SIZE; i++) {
-			for (int j = 0; j < CHUNK_SIZE; j++) {
-				for (int k = 0; k < CHUNK_SIZE; k++) {
-					map[i][j][k] = 0;
-				}
+				else if (h + c.z*CHUNK_SIZE == terrainHeight) {	 //si es la capa superficial
+					if (terrainHeight <= SEA_LEVEL) map[j][i][h] = 4;
+					else map[j][i][h] = (rand()%15==0?6:1);
+				}	
+				else map[j][i][h] = 2;
 			}
 		}
 	}
 }
 int gameMap::chunkValue(point3D chunkN, point3D chunkO) {
-	int res = (pow(chunkN.x - chunkO.x, 2) + pow(chunkN.y - chunkO.y, 2) + pow(chunkN.z - chunkO.z, 8));
+	int res = (pow(chunkN.x - chunkO.x, 2) + pow(chunkN.y - chunkO.y, 2) + pow(chunkN.z - chunkO.z, 2));
 	return res;
 }
 int gameMap::freeChunkID() { //returns the position inside texTable[] of the first free texture space
@@ -161,8 +140,6 @@ bool gameMap::isChunkLoaded(point3D p) { // tells if said chunk is loaded in map
 	return 0;
 }
 void gameMap::saveChunk(point3D c) { //unloads a chunk from memory and saves it in its file
-	int ticks = svcGetSystemTick();
-	cout << "SAVING" << endl;
 	//cout<< "saving chunk " << chunkX << chunkY << chunkZ << endl;
 	int chunkPos = getChunkID(c);
 	if (chunkPos == -1) {
@@ -201,7 +178,6 @@ void gameMap::saveChunk(point3D c) { //unloads a chunk from memory and saves it 
 	mapIndex[chunkPos].x = -1;
 	mapIndex[chunkPos].y = -1;
 	mapIndex[chunkPos].z = -1;
-	cout << "TICKS X BLOK: "<< (svcGetSystemTick()-ticks) / pow(CHUNK_SIZE,3) << endl;
 	//cout<< "                 SAVE " << (float)(clock() - t) / CLOCKS_PER_SEC * 1000 << endl;
 	//cout<< "done saving" << endl;
 }
@@ -209,7 +185,7 @@ void gameMap::freeAChunk(point3D playerPos) {
 	point3D playerChunk = getChunk(playerPos);
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		point3D chunkN = mapIndex[i];
-		if (chunkValue(chunkN, playerChunk) > 5) {
+		if (chunkValue(chunkN, playerChunk) > 3) {
 			saveChunk(chunkN);
 			//cout<< "                 FREE " << (float)(clock() - t) / CLOCKS_PER_SEC * 1000 << endl;
 			return;
@@ -228,7 +204,6 @@ void gameMap::freeAllChunks()
 }
 
 void gameMap::loadChunk(point3D c, point3D playerPos) { //Loads a certain chunk inside mapIndex[] and terrainMap[][][][];
-	int ticks = svcGetSystemTick();
 	int chunkPos = freeChunkID();
 	if (chunkPos == -1) {
 		freeAChunk(playerPos);
@@ -241,14 +216,11 @@ void gameMap::loadChunk(point3D c, point3D playerPos) { //Loads a certain chunk 
 	string terrainName = ("saves/" + saveName + "/chunks/terrain." + get_string(c.x) + '.' + get_string(c.y) + '.' + get_string(c.z));
 	chunkFile.open(terrainName, ios_base::binary);
 	if (!chunkFile.is_open()) {
-		cout << "CREATING";
 		//cout<< "couldn't open file: " << terrainName << endl;
 		createMapAndLoad(terrainMap[chunkPos], c);
-		cout << " END" << endl;
 		return;
 		//chunkFile.open(terrainName, ios_base::binary);
 	}
-	cout << "LOADING";
 	int currentTerrain;
 	int amountTerrain;
 	stringstream sstream;
@@ -283,8 +255,6 @@ void gameMap::loadChunk(point3D c, point3D playerPos) { //Loads a certain chunk 
 			}
 		}
 	}
-	cout << " END" << endl;
-	cout << "TICKS X BLOK: " << (svcGetSystemTick() - ticks) / pow(CHUNK_SIZE, 3) << endl;
 	//cout<< "                 LOAD " << (float)(clock() - t) / CLOCKS_PER_SEC * 1000 << endl;
 }
 void gameMap::loadTerrainTable() {
@@ -306,24 +276,24 @@ void gameMap::loadTerrainTable() {
 }
 void gameMap::loadNewChunk(point3D playerPos) {
 	point3D playerChunk = getChunk(playerPos);
-
-	for (int i = -1; i < 5; i++)
+	for (int i = -1; i < 2; i++)
 	{
-		for (int j = -1; j < 5; j++)
+		for (int j = -1; j < 2; j++)
 		{
-			for (int k = -1; k < 5; k++)
+			for (int k = -1; k < 2; k++)
 			{
 				point3D chunkPos;
 				chunkPos.x = playerChunk.x + i;
 				chunkPos.y = playerChunk.y + j;
 				chunkPos.z = playerChunk.z + k;
 				if (chunkPos.x >= 0 && chunkPos.y >= 0 && chunkPos.z >= 0) {
-					if (chunkValue(chunkPos, playerChunk) <= 5) {
+					if (chunkValue(chunkPos, playerChunk) <= 3) {
 						if (isChunkLoaded(chunkPos) == 0) {
 							//cout<< "trying to load chunk " << chunkPos.x << chunkPos.y << chunkPos.z << endl;
 							if (freeChunkID() == -1) {
 								freeAChunk(playerPos);
 								if (freeChunkID() == -1) {
+									cout << "no tinc espai tito" << endl;
 									return;
 								}
 							}

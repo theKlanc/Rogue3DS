@@ -1,23 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rogue3DS", "Rogue3DS.vcxproj", "{AE324B8E-EEDB-495C-AA63-50277DB65C30}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rogue3DS", "Rogue3DS.vcxproj", "{77759511-FA13-4DAF-9E8E-E38B3DBA0883}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		3DSLink|ARM = 3DSLink|ARM
-		Citra|ARM = Citra|ARM
-		Release|ARM = Release|ARM
+		Build|3DS = Build|3DS
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AE324B8E-EEDB-495C-AA63-50277DB65C30}.3DSLink|ARM.ActiveCfg = 3DSLink|ARM
-		{AE324B8E-EEDB-495C-AA63-50277DB65C30}.3DSLink|ARM.Build.0 = 3DSLink|ARM
-		{AE324B8E-EEDB-495C-AA63-50277DB65C30}.Citra|ARM.ActiveCfg = Citra|ARM
-		{AE324B8E-EEDB-495C-AA63-50277DB65C30}.Citra|ARM.Build.0 = Citra|ARM
-		{AE324B8E-EEDB-495C-AA63-50277DB65C30}.Release|ARM.ActiveCfg = Release|ARM
-		{AE324B8E-EEDB-495C-AA63-50277DB65C30}.Release|ARM.Build.0 = Release|ARM
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.Build|3DS.ActiveCfg = Release|Win32
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.Build|3DS.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

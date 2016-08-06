@@ -31,12 +31,14 @@ int main()
 	hidInit();
 	ndspInit();
 	sf2d_init();
+	gfxSet3D(true);
 	consoleInit(GFX_BOTTOM, NULL);
 	sf2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
 	srand(time(NULL));
 	
 	gameCore gameCore1;
 	gameCore1.gameMenu();
+	cout << "EXITED, now press and hold L R DOWN B" << endl;
 	ndspExit();
 	// Exit
 	//map.freeAllTextures();

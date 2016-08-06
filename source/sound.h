@@ -1,3 +1,11 @@
+/*
+	TO-DO
+	Afegir SFX
+	Afegir més canals
+	evitar crear dos threads al mateix canal
+	
+*/
+
 #pragma once
 #include <3ds.h>
 #include <string>

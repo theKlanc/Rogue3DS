@@ -31,10 +31,10 @@ bool fsExists(const std::string path)
 }
 
 bool fsCreateDir(const std::string path)
-	{
-		if (fsExists(path)) {
-			errno = EEXIST;
-			return false;
-		}
-		return (mkdir(path.c_str(), 0777) == 0);
+{
+	if (fsExists(path)) {
+		errno = EEXIST;
+		return false;
 	}
+	return (mkdir(path.c_str(), 0777) == 0);
+}

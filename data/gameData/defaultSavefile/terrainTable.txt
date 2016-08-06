@@ -1,7 +1,7 @@
 TNULL 0 0
 grass.png 1 1
-wall.png 1 1
 dirt.png 1 1
-red.png 1 1
-blue.png 1 1
-green.png 1 1
+water.png 1 0
+sand.png 1 1
+wall.png 1 1
+flower.png 1 1

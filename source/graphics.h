@@ -2,6 +2,7 @@
 #include <sf2d.h>
 #include "gameMap.h"
 #include "core.h"
+#include "UI.h"
 
 class graphics
 {
@@ -16,6 +17,8 @@ private:
 	void freeTexture(string fileName);
 	void freeAllTextures();
 	sf2d_texture* getTexture(point3D p, mode mode_t = PRRT);
+	sf2d_texture* upTexture;
+	sf2d_texture* downTexture; 
 public:
 	graphics();
 	graphics(gameMap &map, entity &playerOrig);

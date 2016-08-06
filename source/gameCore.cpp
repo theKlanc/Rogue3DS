@@ -67,7 +67,8 @@ void gameCore::updateEntities()
 
 void gameCore::handleInput()
 {
-	if (kDown & KEY_START) {
+	if (kHeld & KEY_START) {
+		cout << "EXITING..." << endl;
 		exitBool = true;
 	}
 	if (kHeld & KEY_RIGHT) {
@@ -82,6 +83,10 @@ void gameCore::handleInput()
 	if (kHeld & KEY_DOWN) {
 		moveEntity(*player, BACK);
 	}
+	if (kHeld & KEY_A) {
+		moveEntity(*player, UP);
+		moveEntity(*player, UP);
+	}
 }
 
 void gameCore::gameLoop()
@@ -90,14 +95,12 @@ void gameCore::gameLoop()
 	kDown = kDown | hidKeysDown();
 	kHeld = kHeld | hidKeysHeld();
 	kUp = kUp | hidKeysUp();
-	if (tick % 13 == 0) {
-		
+	if (tick % 10 == 0) {
 		handleInput();
 		updateEntities();
-
-
 	}
-	if (tick % 14 == 0) {
+	if (tick % 11 == 0) {
+		cout << player->pos.z<<endl;
 		kDown = hidKeysDown();
 		kHeld = hidKeysHeld();
 		kUp = hidKeysUp();
@@ -147,7 +150,7 @@ void gameCore::gameLaunch()
 	ifstream general;
 	general.open("saves/" + saveName + "/general.txt");
 	if (!general.is_open()) {
-		cout<< "couldn't open file: " << ("saves/" + saveName + "/general.txt") << endl;
+		cout << "couldn't open file: " << ("saves/" + saveName + "/general.txt") << endl;
 	}
 	string playerSprite = "player.png", playerName;
 	general >> playerName >> player->pos.x >> player->pos.y >> player->pos.z;
@@ -159,7 +162,7 @@ void gameCore::gameLaunch()
 	}
 	map->loadTerrainTable();
 	graphicsObj.reloadTextures();
-	soundObj.playFromFile("data/sounds/bgm/wilderness.ogg");
+	soundObj.playFromFile("data/sounds/bgm/strobe.ogg");
 	map->startChunkLoader(&player->pos);
 	while (aptMainLoop() && !exitBool) {
 		gameLoop();
@@ -201,7 +204,31 @@ gameCore::gameCore()
 
 void gameCore::gameMenu()
 {
+	/*
+	<Create save>
+	<Load save>
+	<Options>
+	<Quit>
+	*/
 	createSavefile("default");
 	loadSavefile("default");
+	//int option = 0;
+	//sf2d_texture*  unpressedButton = sfil_load_PNG_file("data/sprites/unpressed_button.png", SF2D_PLACE_RAM);
+	//sf2d_texture*  pressedButton = sfil_load_PNG_file("data/sprites/pressed_button.png", SF2D_PLACE_RAM);
+
+	//while (aptMainLoop()) {
+	//	hidScanInput();
+	//	kDown = hidKeysDown();
+	//	kHeld = hidKeysHeld();
+	//	kUp = hidKeysUp();
+
+	//	sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
+
+	//	sf2d_draw_texture(unpressedButton, j * 16, i * 16);
+
+	//	sf2d_end_frame();
+
+	//}
+
 	gameLaunch();
 }

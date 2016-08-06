@@ -15,46 +15,48 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\gameMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="entityList.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\graphics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\sound.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\entityList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="source\gameCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\gameMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\graphics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\physics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SimplexNoise.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sound.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\UI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\stb_vorbis.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\banner.bin">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="resources\icon.bin">
-      <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Rogue3DS.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="source\core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="source\entityList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gameCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\gameMap.h">
@@ -69,17 +71,25 @@
     <ClInclude Include="source\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\SimplexNoise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="source\sound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\stb_vorbis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\core.h">
+    <ClInclude Include="source\UI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\gameCore.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\banner.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="resources\icon.bin">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
