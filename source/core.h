@@ -18,7 +18,7 @@ using namespace std;
 #define TEX_TABLE_SIZE  30
 #define RENDER_HEIGHT 3
 #define FLOOR_HEIGHT 100
-#define SEA_LEVEL 200
+#define SEA_LEVEL 150
 
 #define TICKS_PER_SEC (268123480)
 #define TICKS_PER_FRAME (4468724)

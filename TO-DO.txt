@@ -1,5 +1,8 @@
 Acabar de decouplejar coses
+Evitar les strings al renderitzar
+Usar un sol spritesheet
 afegir menu i creador de personatge
+ECS
 carregar textures i entities B
 descarregar textures
 guardar entities i posicions

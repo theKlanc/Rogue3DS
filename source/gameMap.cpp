@@ -74,7 +74,7 @@ void gameMap::createMapAndLoad(unsigned char*** map, point3D c) {
 	//cout<< "intento crear un chunk a " << chunkX << chunkY << chunkZ << endl;
 	for (int i = 0; i < CHUNK_SIZE; i++) {
 		for (int j = 0; j < CHUNK_SIZE; j++) {
-			int terrainHeight = FLOOR_HEIGHT + 255 * fbmNoise(c.x * CHUNK_SIZE + j, c.y * CHUNK_SIZE + i, 0.001, 5, 2, 0.5);
+			int terrainHeight = FLOOR_HEIGHT + 100 * fbmNoise(c.x * CHUNK_SIZE + j, c.y * CHUNK_SIZE + i, 0.003, 5, 2, 0.5);
 			for (int h = 0; h < CHUNK_SIZE; h++) {
 				if (h + c.z*CHUNK_SIZE > terrainHeight) {	//si esta per sobre la terra
 					if (h + c.z * CHUNK_SIZE <= SEA_LEVEL) map[j][i][h] = 3;
@@ -89,6 +89,7 @@ void gameMap::createMapAndLoad(unsigned char*** map, point3D c) {
 		}
 	}
 }
+
 int gameMap::chunkValue(point3D chunkN, point3D chunkO) {
 	int res = (pow(chunkN.x - chunkO.x, 2) + pow(chunkN.y - chunkO.y, 2) + pow(chunkN.z - chunkO.z, 2));
 	return res;
