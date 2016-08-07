@@ -95,20 +95,22 @@ void gameCore::gameLoop()
 	kDown = kDown | hidKeysDown();
 	kHeld = kHeld | hidKeysHeld();
 	kUp = kUp | hidKeysUp();
-	if (tick % 10 == 0) {
+	if ((svcGetSystemTick() - tick) >= (TICKS_PER_FRAME*10)) {
+		tick = svcGetSystemTick();
 		handleInput();
 		updateEntities();
-	}
-	if (tick % 11 == 0) {
-		cout << player->pos.z<<endl;
+
+		sf2d_swapbuffers();
+		graphicsObj.drawFrame();
+		cout << player->pos.z << endl;
 		kDown = hidKeysDown();
 		kHeld = hidKeysHeld();
 		kUp = hidKeysUp();
 	}
+	else svcSleepThread(((TICKS_PER_FRAME * 10) - (svcGetSystemTick() - tick)) / TICKS_PER_SEC / 1000000000);
 
 	//cout<< player->posX << ' ' << player->posY << ' ' << player->posZ << endl;
 
-	sf2d_swapbuffers();
 
 
 
@@ -116,7 +118,7 @@ void gameCore::gameLoop()
 	//refrescar coses carregades
 	//dibuixar
 
-	graphicsObj.drawFrame();
+
 }
 
 void gameCore::gameLaunch()
@@ -145,7 +147,6 @@ void gameCore::gameLaunch()
 
 	//overlay = sfil_load_PNG_file("data/sprites/overlay.png", SF2D_PLACE_RAM);
 	player = &(map->entityList[0]);
-	cout << player->pos.x << endl;
 	graphicsObj.edit(*map, *player);
 	ifstream general;
 	general.open("saves/" + saveName + "/general.txt");
@@ -164,9 +165,9 @@ void gameCore::gameLaunch()
 	graphicsObj.reloadTextures();
 	soundObj.playFromFile("data/sounds/bgm/wilderness.ogg");
 	map->startChunkLoader(&player->pos);
+	tick = svcGetSystemTick();
 	while (aptMainLoop() && !exitBool) {
 		gameLoop();
-		tick++;
 	}
 	map->exit();
 	soundObj.exit();

@@ -26,7 +26,7 @@ private:
 	graphics graphicsObj;
 	sound soundObj;
 	entity* player;
-	long tick;
+	long long tick;
 	void createSavefile(string saveName);
 	void loadSavefile(string saveName);
 	void gameLaunch();
