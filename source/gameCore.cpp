@@ -95,19 +95,18 @@ void gameCore::gameLoop()
 	kDown = kDown | hidKeysDown();
 	kHeld = kHeld | hidKeysHeld();
 	kUp = kUp | hidKeysUp();
-	if ((svcGetSystemTick() - tick) >= (TICKS_PER_FRAME*10)) {
-		tick = svcGetSystemTick();
+	if(tick%12 == 0){
 		handleInput();
 		updateEntities();
 
-		sf2d_swapbuffers();
 		graphicsObj.drawFrame();
+		sf2d_swapbuffers();
 		cout << player->pos.z << endl;
 		kDown = hidKeysDown();
 		kHeld = hidKeysHeld();
 		kUp = hidKeysUp();
 	}
-	else svcSleepThread(((TICKS_PER_FRAME * 10) - (svcGetSystemTick() - tick)) / TICKS_PER_SEC / 1000000000);
+	else gspWaitForVBlank();
 
 	//cout<< player->posX << ' ' << player->posY << ' ' << player->posZ << endl;
 
@@ -163,11 +162,12 @@ void gameCore::gameLaunch()
 	}
 	map->loadTerrainTable();
 	graphicsObj.reloadTextures();
-	soundObj.playFromFile("data/sounds/bgm/wilderness.ogg");
+	soundObj.playFromFile("data/sounds/bgm/strobe.ogg");
 	map->startChunkLoader(&player->pos);
-	tick = svcGetSystemTick();
+	tick = 0;
 	while (aptMainLoop() && !exitBool) {
 		gameLoop();
+		tick++;
 	}
 	map->exit();
 	soundObj.exit();
