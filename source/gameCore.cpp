@@ -170,6 +170,9 @@ void gameCore::gameLaunch()
 	player->spriteName = playerSprite;
 	//cout<< playerName << endl;
 	//loadmap
+	for (int i = 0; i < CHUNK_NUM; i++) {
+		map->loadNewChunk(player->pos);
+	}
 	map->loadTerrainTable();
 	graphicsObj.edit(*map, *player);
 	graphicsObj.reloadTextures();
