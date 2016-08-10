@@ -30,7 +30,7 @@
     <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <IncludePath>D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
+    <IncludePath>D:\3DS\CTRhomebrew\Rogue3DS\source;D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\devkitPro\libctru\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>

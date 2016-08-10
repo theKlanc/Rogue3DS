@@ -20,12 +20,13 @@
 #include "core.h"
 #include "gameMap.h"
 #include <dirent.h>
+#include "entityx.h"
 
 using namespace std;
 
 int main()
 {
-
+	//entityx::EntityX* world = new entityx::EntityX;
 	srvInit();
 	aptInit();
 	hidInit();
@@ -35,7 +36,6 @@ int main()
 	consoleInit(GFX_BOTTOM, NULL);
 	sf2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
 	srand(time(NULL));
-	
 	gameCore gameCore1;
 	gameCore1.gameMenu();
 	cout << "EXITED, now press and hold L R DOWN B" << endl;

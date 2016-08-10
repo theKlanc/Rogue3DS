@@ -24,14 +24,12 @@ private:
 	volatile bool threadStatus;
 	volatile bool threadCloseRequest;
 	static void chunkLoader(u32 arg);
-	point3D getChunk(point3D pos);
 	unsigned char* getBlock(point3D posBlock);
 	void putBlock(int block, point3D posBlock);
 	void createMapAndLoad(unsigned char*** map, point3D c);
 	int chunkValue(point3D chunkN, point3D chunkO);
 	int freeChunkID();
 	int getBlocksChunkID(point3D b);
-	bool isChunkLoaded(point3D p);
 	void saveChunk(point3D c);
 	void freeAChunk(point3D playerPos);
 	void freeAllChunks();
@@ -46,6 +44,9 @@ private:
 	bool getEntitySolid(point3D p);
 public:
 
+	bool isChunkLoaded(point3D p);
+	point3D getChunk(point3D pos);
+	point3D getChunk(int x, int y, int z);
 	int getChunkID(point3D p);
 	string getEntityName(point3D p);
 	string getTerrainName(point3D p);

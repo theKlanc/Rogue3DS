@@ -9,41 +9,56 @@ using namespace std;
 void gameCore::moveEntity(entity &currentEntity, direction dir) {
 	switch (dir) {
 	case DOWN:
-		if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1) == 0) {
+		if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1) == 0 && map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1))) {
 			currentEntity.pos.z--;
 		}
 		break;
 	case UP:
-		if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0) {
+		if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0 && map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z -1)==1 && map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1))) {
 			currentEntity.pos.z++;
 		}
 		break;
 	case FRONT:
-		if (currentEntity.pos.y > 8) {
-			if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y - 1, currentEntity.pos.z) == 0) {
-				currentEntity.pos.y--;
-			}
+		if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y - 1, currentEntity.pos.z) == 0 && map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y-1, currentEntity.pos.z))) {
+			currentEntity.pos.y--;
+		}
+		else if ((map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) | map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y - 1, currentEntity.pos.z + 1)) == 0 && map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y-1, currentEntity.pos.z + 1))) {
+			currentEntity.pos.y--;
+			currentEntity.pos.z++;
 		}
 		break;
 	case BACK:
-		if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y + 1, currentEntity.pos.z) == 0) {
+		if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y + 1, currentEntity.pos.z) == 0 && map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y+1, currentEntity.pos.z))) {
 			currentEntity.pos.y++;
+		}
+		else if ((map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) | map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y + 1, currentEntity.pos.z + 1)) == 0 && map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y+1, currentEntity.pos.z + 1))) {
+			currentEntity.pos.y++;
+			currentEntity.pos.z++;
 		}
 		break;
 	case LEFT:
-		if (currentEntity.pos.x > 16) {
-			if (map->simpleCollision(currentEntity.pos.x - 1, currentEntity.pos.y, currentEntity.pos.z) == 0) {
-				currentEntity.pos.x--;
-			}
-			break;
-	case RIGHT:
-		if (map->simpleCollision(currentEntity.pos.x + 1, currentEntity.pos.y, currentEntity.pos.z) == 0) {
-			currentEntity.pos.x++;
+		if (map->simpleCollision(currentEntity.pos.x - 1, currentEntity.pos.y, currentEntity.pos.z) == 0 && map->isChunkLoaded(map->getChunk(currentEntity.pos.x-1, currentEntity.pos.y, currentEntity.pos.z))) {
+			currentEntity.pos.x--;
+		}
+		else if ((map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) | map->simpleCollision(currentEntity.pos.x - 1, currentEntity.pos.y, currentEntity.pos.z + 1)) == 0 && map->isChunkLoaded(map->getChunk(currentEntity.pos.x-1, currentEntity.pos.y, currentEntity.pos.z + 1))) {
+			currentEntity.pos.x--;
+			currentEntity.pos.z++;
 		}
 		break;
+	case RIGHT:
+		if (map->simpleCollision(currentEntity.pos.x + 1, currentEntity.pos.y, currentEntity.pos.z) == 0 && map->isChunkLoaded(map->getChunk(currentEntity.pos.x+1, currentEntity.pos.y, currentEntity.pos.z))) {
+			currentEntity.pos.x++;
 		}
+		else if ((map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) | map->simpleCollision(currentEntity.pos.x + 1, currentEntity.pos.y, currentEntity.pos.z + 1)) == 0 && map->isChunkLoaded(map->getChunk(currentEntity.pos.x+1, currentEntity.pos.y, currentEntity.pos.z + 1))) {
+			currentEntity.pos.x++;
+			currentEntity.pos.z++;
+		}
+		break;
+	default:
+		break;
 	}
 }
+
 void gameCore::updateEntity(entity &currentEntity)
 {
 	point3D c = currentEntity.pos;
@@ -85,7 +100,6 @@ void gameCore::handleInput()
 	}
 	if (kHeld & KEY_A) {
 		moveEntity(*player, UP);
-		moveEntity(*player, UP);
 	}
 }
 
@@ -95,10 +109,9 @@ void gameCore::gameLoop()
 	kDown = kDown | hidKeysDown();
 	kHeld = kHeld | hidKeysHeld();
 	kUp = kUp | hidKeysUp();
-	if(tick%12 == 0){
-		handleInput();
+	if (tick % 12 == 0) {
 		updateEntities();
-
+		handleInput();
 		graphicsObj.drawFrame();
 		sf2d_swapbuffers();
 		cout << player->pos.z << endl;
@@ -146,7 +159,6 @@ void gameCore::gameLaunch()
 
 	//overlay = sfil_load_PNG_file("data/sprites/overlay.png", SF2D_PLACE_RAM);
 	player = &(map->entityList[0]);
-	graphicsObj.edit(*map, *player);
 	ifstream general;
 	general.open("saves/" + saveName + "/general.txt");
 	if (!general.is_open()) {
@@ -154,6 +166,7 @@ void gameCore::gameLaunch()
 	}
 	string playerSprite = "player.png", playerName;
 	general >> playerName >> player->pos.x >> player->pos.y >> player->pos.z;
+	general.close();
 	player->spriteName = playerSprite;
 	//cout<< playerName << endl;
 	//loadmap
@@ -161,6 +174,7 @@ void gameCore::gameLaunch()
 		map->loadNewChunk(player->pos);
 	}
 	map->loadTerrainTable();
+	graphicsObj.edit(*map, *player);
 	graphicsObj.reloadTextures();
 	soundObj.playFromFile("data/sounds/bgm/strobe.ogg");
 	map->startChunkLoader(&player->pos);
@@ -171,6 +185,11 @@ void gameCore::gameLaunch()
 	}
 	map->exit();
 	soundObj.exit();
+	string generalFile = "saves/" + saveName + "/general.txt";
+	std::remove(generalFile.c_str());
+	ofstream generalO(generalFile);
+	generalO << playerName << endl << player->pos.x << endl << player->pos.y << endl << player->pos.z << endl;
+	generalO.close();
 }
 
 void gameCore::createSavefile(string saveName)

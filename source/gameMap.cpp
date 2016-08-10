@@ -58,6 +58,15 @@ point3D gameMap::getChunk(point3D pos)
 	return b;
 }
 
+point3D gameMap::getChunk(int x, int y, int z)
+{
+	point3D b;
+	b.x = x / CHUNK_SIZE;
+	b.y = y / CHUNK_SIZE;
+	b.z = z / CHUNK_SIZE;
+	return b;
+}
+
 unsigned char* gameMap::getBlock(point3D posBlock) {
 	point3D chunkPos = getChunk(posBlock);
 	int chunkID = getChunkID(chunkPos);
@@ -210,15 +219,15 @@ void gameMap::loadChunk(point3D c, point3D playerPos) { //Loads a certain chunk 
 		freeAChunk(playerPos);
 		chunkPos = freeChunkID();
 	}
-	mapIndex[chunkPos].x = c.x;
-	mapIndex[chunkPos].y = c.y;
-	mapIndex[chunkPos].z = c.z;
 	ifstream chunkFile;
 	string terrainName = ("saves/" + saveName + "/chunks/terrain." + get_string(c.x) + '.' + get_string(c.y) + '.' + get_string(c.z));
 	chunkFile.open(terrainName, ios_base::binary);
 	if (!chunkFile.is_open()) {
 		//cout<< "couldn't open file: " << terrainName << endl;
 		createMapAndLoad(terrainMap[chunkPos], c);
+		mapIndex[chunkPos].x = c.x;
+		mapIndex[chunkPos].y = c.y;
+		mapIndex[chunkPos].z = c.z;
 		return;
 		//chunkFile.open(terrainName, ios_base::binary);
 	}
@@ -240,6 +249,9 @@ void gameMap::loadChunk(point3D c, point3D playerPos) { //Loads a certain chunk 
 	}
 	int emptyChunkPos = freeChunkID();
 	chunkFile.close();
+	mapIndex[chunkPos].x = c.x;
+	mapIndex[chunkPos].y = c.y;
+	mapIndex[chunkPos].z = c.z;
 	ifstream entitiesFile;
 	string entitiesName = ("saves/" + saveName + "/entities." + get_string(c.x) + '.' + get_string(c.y) + '.' + get_string(c.z));
 	entitiesFile.open(entitiesName);
@@ -322,9 +334,9 @@ bool gameMap::simpleCollision(point3D p, mode collisionMode) {	//Tells if terrai
 
 	//switch case pels tipus de modes
 	if (terrainList[*getBlock(p)].solid == 1) {
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 }
 int gameMap::visibleEntity(point3D p) { // returns the position inside entityList if the entered 3d position contains a visible entity
 	for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].pos.x != -1; i++) {

@@ -27,9 +27,11 @@ void sound::playFromFile(string file)
 
 	stb_vorbis_info info;
 	int error;
-
-
 	vorbisFile = stb_vorbis_open_filename(file.c_str(), &error, NULL);
+	if (vorbisFile == NULL) {
+		cout << "Failed to open sound file" << endl;
+		return;
+	}
 	info = stb_vorbis_get_info(vorbisFile);
 	Samples = info.sample_rate;
 

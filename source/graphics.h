@@ -16,9 +16,11 @@ private:
 	void loadTexture(string fileName);
 	void freeTexture(string fileName);
 	void freeAllTextures();
+	void cameraUpdate();
 	sf2d_texture* getTexture(point3D p, mode mode_t = PRRT);
 	sf2d_texture* upTexture;
 	sf2d_texture* downTexture; 
+	point3D cameraPos;
 public:
 	graphics();
 	graphics(gameMap &map, entity &playerOrig);

@@ -15,22 +15,25 @@ graphics::graphics(gameMap &map, entity &playerOrig) {
 	loadTexture("player.png");
 	mapObj = &map;
 	player = &playerOrig;
+	cameraPos = player->pos;
 }
 
 void graphics::edit(gameMap &map, entity &playerOrig) {
 	mapObj = &map;
 	player = &playerOrig;
+	cameraPos = player->pos;
 }
 
 void graphics::drawFrame() {
+	cameraUpdate();
 	sf2d_start_frame(GFX_TOP, GFX_LEFT);
 	point3D p;
 	for (int i = 0; i != 15; i++) {
 		for (int j = 0; j != 25; j++) {
 			for (int y = RENDER_HEIGHT; y >= 0; y--) {
-				p.x = (player->pos.x + j) - 12;
-				p.y = (player->pos.y + i) - 7;
-				p.z = (player->pos.z - y);
+				p.x = (cameraPos.x + j) - 12;
+				p.y = (cameraPos.y + i) - 7;
+				p.z = (cameraPos.z - y);
 				if (mapObj->isVisible(p, PRRT)) {
 					sf2d_draw_texture(getTexture(p, PRRT), j * 16, i * 16);
 					if (y > 1) sf2d_draw_texture(downTexture, j * 16, i * 16);
@@ -97,6 +100,15 @@ void graphics::freeAllTextures() {	 //frees all textures
 }
 
 
+void graphics::cameraUpdate()
+{
+		if (cameraPos.x - 5 < player->pos.x) { cameraPos.x++; }
+		if (cameraPos.x + 4 > player->pos.x) { cameraPos.x--; }
+		if (cameraPos.y - 4 < player->pos.y) { cameraPos.y++; } 
+		if (cameraPos.y + 3 > player->pos.y) { cameraPos.y--; } 
+		cameraPos.z = player->pos.z;
+}
+
 sf2d_texture* graphics::getTexture(point3D p, mode mode_t) {
 
 	point3D b;
@@ -137,7 +149,7 @@ sf2d_texture* graphics::getTexture(point3D p, mode mode_t) {
 			return texTable[getTexturePos(mapObj->getTerrainName(p))].texture;
 		}
 		break;
-	default1:
+	default:
 		break;
 	}
 	return NULL;
