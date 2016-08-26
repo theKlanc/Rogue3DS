@@ -52,7 +52,7 @@ CXXFLAGS	:= $(CFLAGS)  -fno-rtti -fno-exceptions -std=c++14
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lsfil -lpng -ljpeg -lz -lsf2d -lcitro3d -lctru -lm
+LIBS	:= -lsftd -lfreetype -lsfil -lpng -ljpeg -lz -lsf2d -lcitro3d -lctru -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -161,6 +161,12 @@ $(OUTPUT).elf	:	$(OFILES)
 # you need a rule like this for each extension you use as binary data
 #---------------------------------------------------------------------------------
 %.bin.o	:	%.bin
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	@$(bin2o)
+
+#---------------------------------------------------------------------------------
+%.ttf.o	:	%.ttf
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
 	@$(bin2o)

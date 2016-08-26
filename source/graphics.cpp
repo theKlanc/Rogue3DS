@@ -11,8 +11,11 @@ graphics::graphics() {
 	downTexture = sfil_load_PNG_file("data/sprites/down.png", SF2D_PLACE_RAM);
 	upTexture = sfil_load_PNG_file("data/sprites/up.png", SF2D_PLACE_RAM);
 }
+
 graphics::graphics(gameMap &map, entity &playerOrig) {
 	loadTexture("player.png");
+	downTexture = sfil_load_PNG_file("data/sprites/down.png", SF2D_PLACE_RAM);
+	upTexture = sfil_load_PNG_file("data/sprites/up.png", SF2D_PLACE_RAM);
 	mapObj = &map;
 	player = &playerOrig;
 	cameraPos = player->pos;
@@ -26,6 +29,8 @@ void graphics::edit(gameMap &map, entity &playerOrig) {
 
 void graphics::drawFrame() {
 	cameraUpdate();
+	sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
+	sf2d_end_frame();
 	sf2d_start_frame(GFX_TOP, GFX_LEFT);
 	point3D p;
 	for (int i = 0; i != 15; i++) {
@@ -45,15 +50,17 @@ void graphics::drawFrame() {
 	sf2d_end_frame();
 }
 
-bool graphics::isTextureLoaded(string textureFile) { // tells if a texture with said name is present on texTable
+bool graphics::isTextureLoaded(string textureFile) const
+{ // tells if a texture with said name is present on texTable
 	for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != ""; i++) {
 		if (texTable[i].name == textureFile) {
-			return 1;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
-int graphics::freeTexturePos() { //returns the position inside texTable[] of the first free texture space
+int graphics::freeTexturePos() const
+{ //returns the position inside texTable[] of the first free texture space
 	for (int i = 0; i < TEX_TABLE_SIZE; i++) {
 		if (texTable[i].name == "") {
 			return i;
@@ -62,7 +69,8 @@ int graphics::freeTexturePos() { //returns the position inside texTable[] of the
 	//cout<< "NO FREE SPACE IN TEXTABLE" << endl;
 	return -1;
 }
-int graphics::getTexturePos(string fileName) { //returns the position inside texTable[] of the texture with said filename
+int graphics::getTexturePos(string fileName) const
+{ //returns the position inside texTable[] of the texture with said filename
 	for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != ""; i++) {
 		if (texTable[i].name == fileName) {
 			return i;
@@ -109,10 +117,11 @@ void graphics::cameraUpdate()
 	cameraPos.z = player->pos.z;
 }
 
-sf2d_texture* graphics::getTexture(point3D p, mode mode_t) {
+sf2d_texture* graphics::getTexture(point3D p, mode mode_t) const
+{
 
 	point3D b;
-	b.x = floor(p.x / CHUNK_SIZE);												   //AKESTA FUNCIO ES EL PUTO SIDA, I DEMOSTRA QUE HI HA MOLTA COSA A CANVIAR, MOLTISSIMA
+	b.x = floor(p.x / CHUNK_SIZE);
 	b.y = floor(p.y / CHUNK_SIZE);
 	b.z = floor(p.z / CHUNK_SIZE);
 
@@ -152,7 +161,7 @@ sf2d_texture* graphics::getTexture(point3D p, mode mode_t) {
 	default:
 		break;
 	}
-	return NULL;
+	return nullptr;
 }
 
 void graphics::reloadTextures() {

@@ -3,6 +3,11 @@
 #include <fstream>
 #include "gameCore.h"
 #include "core.h"
+#include "3ds.h"
+#include "sf2d.h"
+#include "sfil.h"
+#include "sftd.h"
+#include "FreeSans_ttf.h"
 
 using namespace std;
 
@@ -129,8 +134,7 @@ void gameCore::gameLoop()
 		kHeld = hidKeysHeld();
 		kUp = hidKeysUp();
 	}
-	else gspWaitForVBlank();
-
+	else  gspWaitForVBlank();
 	//cout<< player->posX << ' ' << player->posY << ' ' << player->posZ << endl;
 
 
@@ -166,7 +170,7 @@ void gameCore::gameLaunch()
 	saveName = selected;
 	*/
 
-
+	sf2d_set_clear_color(RGBA8(0, 0, 0, 0));
 	player = map->entityList;
 	ifstream general;
 	general.open("saves/" + saveName + "/general.txt");
@@ -190,18 +194,18 @@ void gameCore::gameLaunch()
 		gameLoop();
 		tick++;
 	}
-	
+
 	string generalFile = "saves/" + saveName + "/general.txt";
 	std::remove(generalFile.c_str());
 	ofstream generalO(generalFile);
 	generalO << playerName << endl << player->pos.x << endl << player->pos.y << endl << player->pos.z << endl;
 	generalO.close();
-	
+
 	map->exit();
 	soundObj.exit();
 	graphicsObj.freeAllTextures();
 
-	delete map;
+
 }
 
 void gameCore::createSavefile(string saveName)
@@ -241,35 +245,134 @@ gameCore::gameCore()
 
 gameCore::~gameCore()
 {
+	delete map;
 }
 
 void gameCore::gameMenu()
 {
+	struct button
+	{
+		sf2d_texture* pressed;
+		sf2d_texture* free;
+		int sizeX;
+		int sizeY;
+		int posX;
+		int posY;
+		bool state;
+		button()
+		{
+			pressed = nullptr;
+			free = nullptr;
+			sizeX = 0;
+			sizeY = 0;
+			posX = 0;
+			posY = 0;
+			state = false;
+		}
+		void update(touchPosition touch, u32 kDown, u32 kHeld)
+		{
+			if ((kDown | kHeld) & KEY_TOUCH)
+			{
+				if (touch.px >= posX && touch.px <= posX + sizeX && touch.py >= posY && touch.py <= posY + sizeY)
+				{
+					state = true;
+				}
+				else state = false;
+			}
+			else state = false;
+		}
+		sf2d_texture* getTexture()
+		{
+			if (state) return pressed;
+			else return free;
+		}
+	};
 	/*
 	<Create save>
 	<Load save>
 	<Options>
 	<Quit>
 	*/
-	createSavefile("default");
-	loadSavefile("default");
-	//int option = 0;
-	//sf2d_texture*  unpressedButton = sfil_load_PNG_file("data/sprites/unpressed_button.png", SF2D_PLACE_RAM);
-	//sf2d_texture*  pressedButton = sfil_load_PNG_file("data/sprites/pressed_button.png", SF2D_PLACE_RAM);
+	sf2d_set_clear_color(RGBA8(53, 159, 35, 0xFF));
+	sf2d_texture* topImage = sfil_load_PNG_file("data/sprites/menu_top.png", SF2D_PLACE_RAM);
+	sf2d_start_frame(GFX_TOP, GFX_LEFT);
+	sf2d_draw_texture(topImage, 0, 0);
+	sf2d_end_frame();
+	sf2d_swapbuffers();
 
-	//while (aptMainLoop()) {
-	//	hidScanInput();
-	//	kDown = hidKeysDown();
-	//	kHeld = hidKeysHeld();
-	//	kUp = hidKeysUp();
+	sf2d_texture*  unpressedButton = sfil_load_PNG_file("data/sprites/unpressed_button.png", SF2D_PLACE_RAM);
+	sf2d_texture*  pressedButton = sfil_load_PNG_file("data/sprites/pressed_button.png", SF2D_PLACE_RAM);
 
-	//	sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
+	button newGame;
+	newGame.posX = 85;
+	newGame.posY = 60;
+	newGame.sizeX = 150;
+	newGame.sizeY = 40;
+	newGame.pressed = pressedButton;
+	newGame.free = unpressedButton;
+	newGame.state = false;
 
-	//	sf2d_draw_texture(unpressedButton, j * 16, i * 16);
+	button loadGame;
+	loadGame.posX = 85;
+	loadGame.posY = 140;
+	loadGame.sizeX = 150;
+	loadGame.sizeY = 40;
+	loadGame.pressed = pressedButton;
+	loadGame.free = unpressedButton;
+	loadGame.state = false;
 
-	//	sf2d_end_frame();
+	touchPosition touch;
+	sftd_font *font = sftd_load_font_mem(FreeSans_ttf, FreeSans_ttf_size);
 
-	//}
+	while (aptMainLoop()) {
+		hidScanInput();
 
-	gameLaunch();
+		hidTouchRead(&touch);
+		kDown = hidKeysDown();
+		kHeld = hidKeysHeld();
+		kUp = hidKeysUp();
+
+		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
+		
+		sf2d_draw_texture(newGame.getTexture(), newGame.posX, newGame.posY);
+		sf2d_draw_texture(loadGame.getTexture(), loadGame.posX, loadGame.posY);
+
+		sftd_draw_textf(font, 145, 70, RGBA8(0, 0, 0, 255), 10, "NEW");
+		sftd_draw_textf(font, 145, 150, RGBA8(0, 0,0, 255), 10, "LOAD");
+
+		sf2d_end_frame();
+		sf2d_start_frame(GFX_TOP, GFX_LEFT);
+		sf2d_draw_texture(topImage, 0, 0);
+		sf2d_end_frame();
+
+		sf2d_swapbuffers();
+		if (kDown&KEY_START)return;
+		
+		if (newGame.state && (kUp & KEY_TOUCH))
+		{
+			createSavefile("default");
+			loadSavefile("default");
+			gameLaunch();
+			sf2d_free_texture(topImage);
+			sf2d_free_texture(newGame.getTexture());
+			sf2d_free_texture(loadGame.getTexture());
+			return;
+		}
+		if (loadGame.state && (kUp & KEY_TOUCH))
+		{
+			loadSavefile("default");
+			gameLaunch();
+			sf2d_free_texture(topImage);
+			sf2d_free_texture(newGame.getTexture());
+			sf2d_free_texture(loadGame.getTexture());
+			return;
+		}
+
+		loadGame.update(touch, kDown, kHeld);
+		newGame.update(touch, kDown, kHeld);
+
+	}
+	sf2d_free_texture(topImage);
+	sf2d_free_texture(newGame.getTexture());
+	sf2d_free_texture(loadGame.getTexture());
 }

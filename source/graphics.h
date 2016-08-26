@@ -10,15 +10,16 @@ private:
 	entity* player;
 	gameMap* mapObj;
 	textureName texTable[TEX_TABLE_SIZE];
-	bool isTextureLoaded(string textureFile);
-	int freeTexturePos();
-	int getTexturePos(string fileName);
+	bool isTextureLoaded(string textureFile) const;
+	int freeTexturePos() const;
+	int getTexturePos(string fileName) const;
 	void loadTexture(string fileName);
 	void freeTexture(string fileName);
 	void cameraUpdate();
-	sf2d_texture* getTexture(point3D p, mode mode_t = PRRT);
+	sf2d_texture* getTexture(point3D p, mode mode_t = PRRT) const;
 	sf2d_texture* upTexture;
-	sf2d_texture* downTexture; 
+	sf2d_texture* downTexture;
+
 	point3D cameraPos;
 public:
 	graphics();

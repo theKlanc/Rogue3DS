@@ -56,11 +56,11 @@ struct point3D {
 };
 struct entity {
 	string spriteName = "ENULL";
-	bool visible = 1;
-	bool solid = 1;
+	bool visible = true;
+	bool solid = true;
 	point3D pos;
 	nttype type = NPC;
-	bool fly = 0;
+	bool fly = false;
 };
 
 string get_string(int number);

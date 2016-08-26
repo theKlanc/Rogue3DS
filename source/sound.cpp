@@ -15,6 +15,7 @@ sound::sound()
 	threadStatus = false;
 	exitRequest = false;
 	waveBuf = new ndspWaveBuf[2];
+	memset(waveBuf, 0, 2 * sizeof(ndspWaveBuf));
 
 	ndspSetOutputMode(NDSP_OUTPUT_STEREO);
 
@@ -33,8 +34,8 @@ void sound::playFromFile(string file)
 
 	stb_vorbis_info info;
 	int error;
-	vorbisFile = stb_vorbis_open_filename(file.c_str(), &error, NULL);
-	if (vorbisFile == NULL) {
+	vorbisFile = stb_vorbis_open_filename(file.c_str(), &error, nullptr);
+	if (vorbisFile == nullptr) {
 		cout << "Failed to open sound file" << endl;
 		return;
 	}

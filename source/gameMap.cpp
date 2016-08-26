@@ -57,7 +57,8 @@ point3D gameMap::getChunk(int x, int y, int z)
 	return b;
 }
 
-unsigned char* gameMap::getBlock(point3D posBlock) {
+unsigned char* gameMap::getBlock(point3D posBlock) const
+{
 	point3D chunkPos = getChunk(posBlock);
 	int chunkID = getChunkID(chunkPos);
 	return &terrainMap[chunkID][posBlock.x - (chunkPos.x * CHUNK_SIZE)][posBlock.y - (chunkPos.y * CHUNK_SIZE)][posBlock.z - (chunkPos.z * CHUNK_SIZE)];
@@ -89,11 +90,12 @@ void gameMap::createMapAndLoad(unsigned char*** map, point3D c) {
 	}
 }
 
-int gameMap::chunkValue(point3D chunkN, point3D chunkO) {
-	int res = (pow(chunkN.x - chunkO.x, 2) + pow(chunkN.y - chunkO.y, 2) + pow(chunkN.z - chunkO.z, 2));
-	return res;
+int gameMap::chunkValue(point3D chunkN, point3D chunkO) const
+{
+	return (pow(chunkN.x - chunkO.x, 2) + pow(chunkN.y - chunkO.y, 2) + pow(chunkN.z - chunkO.z, 2));
 }
-int gameMap::freeChunkID() { //returns the position inside texTable[] of the first free texture space
+int gameMap::freeChunkID() const
+{ //returns the position inside texTable[] of the first free texture space
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		if (mapIndex[i].x == -1) {
 			return i;
@@ -102,7 +104,8 @@ int gameMap::freeChunkID() { //returns the position inside texTable[] of the fir
 	//cout<< "NO FREE SPACE IN MAPINDEX" << endl;
 	return -1;
 }
-int gameMap::getChunkID(point3D p) { //returns the position inside mapIndex of the aforementioned chunk;
+int gameMap::getChunkID(point3D p) const
+{ //returns the position inside mapIndex of the aforementioned chunk;
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		if (p.x == mapIndex[i].x) {
 			if (p.y == mapIndex[i].y) {
@@ -114,7 +117,8 @@ int gameMap::getChunkID(point3D p) { //returns the position inside mapIndex of t
 	}
 	return -1;
 }
-int gameMap::getBlocksChunkID(point3D b) { //returns the position inside mapIndex of the aforementioned chunk;
+int gameMap::getBlocksChunkID(point3D b) const
+{ //returns the position inside mapIndex of the aforementioned chunk;
 	point3D p = getChunk(b);
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		if (p.x == mapIndex[i].x) {
@@ -127,17 +131,18 @@ int gameMap::getBlocksChunkID(point3D b) { //returns the position inside mapInde
 	}
 	return -1;
 }
-bool gameMap::isChunkLoaded(point3D p) { // tells if said chunk is loaded in mapIndex[]
+bool gameMap::isChunkLoaded(point3D p) const
+{ // tells if said chunk is loaded in mapIndex[]
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		if (mapIndex[i].z == p.z) {
 			if (mapIndex[i].x == p.x) {
 				if (mapIndex[i].y == p.y) {
-					return 1;
+					return true;
 				}
 			}
 		}
 	}
-	return 0;
+	return false;
 }
 void gameMap::saveChunk(point3D c) { //unloads a chunk from memory and saves it in its file
 	//cout<< "saving chunk " << chunkX << chunkY << chunkZ << endl;
@@ -309,18 +314,20 @@ void gameMap::loadNewChunk(point3D playerPos) {
 		}
 	}
 }
-bool gameMap::simpleCollision(int posX, int posY, int posZ, mode collisionMode) {	//Tells if terrain at position is occupied
+bool gameMap::simpleCollision(int posX, int posY, int posZ, mode collisionMode) const
+{	//Tells if terrain at position is occupied
 	point3D b;
 	b.x = posX;
 	b.y = posY;
 	b.z = posZ;
 	//switch case pels tipus de modes
 	if (terrainList[*getBlock(b)].solid == 1) {
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 }
-bool gameMap::simpleCollision(point3D p, mode collisionMode) {	//Tells if terrain at position is occupied
+bool gameMap::simpleCollision(point3D p, mode collisionMode) const
+{	//Tells if terrain at position is occupied
 
 	//switch case pels tipus de modes
 	if (terrainList[*getBlock(p)].solid == 1) {
@@ -328,7 +335,8 @@ bool gameMap::simpleCollision(point3D p, mode collisionMode) {	//Tells if terrai
 	}
 	return false;
 }
-int gameMap::visibleEntity(point3D p) { // returns the position inside entityList if the entered 3d position contains a visible entity
+int gameMap::visibleEntity(point3D p) const
+{ // returns the position inside entityList if the entered 3d position contains a visible entity
 	for (int i = 0; i < ENTITY_LIST_SIZE && entityList[i].pos.x != -1; i++) {
 		if (entityList[i].visible) {
 			if (entityList[i].pos.x == p.x) {
@@ -342,7 +350,8 @@ int gameMap::visibleEntity(point3D p) { // returns the position inside entityLis
 	}
 	return -1;
 }
-bool gameMap::isVisible(point3D p, mode mode_t) { //
+bool gameMap::isVisible(point3D p, mode mode_t) const
+{ //
 	point3D b;
 	b.x = floor(p.x / CHUNK_SIZE);
 	b.y = floor(p.y / CHUNK_SIZE);
@@ -363,21 +372,25 @@ bool gameMap::isVisible(point3D p, mode mode_t) { //
 		return (isVisible(p, TRRN)) ? 1 : isVisible(p, NTT);
 		break;
 	default:
-		return 0;
+		return false;
 		break;
 	}
 }
-int gameMap::getTerrainListSize() {
+int gameMap::getTerrainListSize() const
+{
 	return terrainListSize;
 }
-bool gameMap::isVisible(int n) {
+bool gameMap::isVisible(int n) const
+{
 	return terrainList[n].visible;
 }
-string gameMap::getTextureName(int n) {
+string gameMap::getTextureName(int n) const
+{
 	return terrainList[n].textureFile;
 }
 
-int gameMap::getTerrainListPos(point3D p) {
+int gameMap::getTerrainListPos(point3D p) const
+{
 	point3D b;
 	b.x = floor(p.x / CHUNK_SIZE);												   //AKESTA FUNCIO ES EL PUTO SIDA, I DEMOSTRA QUE HI HA MOLTA COSA A CANVIAR, MOLTISSIMA
 	b.y = floor(p.y / CHUNK_SIZE);
@@ -389,38 +402,39 @@ int gameMap::getTerrainListPos(point3D p) {
 	return terrainMap[chunkPosition][p.x - b.x * CHUNK_SIZE][p.y - b.y * CHUNK_SIZE][p.z - b.z * CHUNK_SIZE];
 }
 
-string gameMap::getTerrainName(point3D p)
+string gameMap::getTerrainName(point3D p) const
 {
 	return terrainList[getTerrainListPos(p)].textureFile;
 }
 
-bool gameMap::getTerrainVisible(point3D p)
+bool gameMap::getTerrainVisible(point3D p) const
 {
 	return terrainList[getTerrainListPos(p)].visible;
 }
 
-bool gameMap::getTerrainSolid(point3D p)
+bool gameMap::getTerrainSolid(point3D p) const
 {
 	return terrainList[getTerrainListPos(p)].solid;
 }
 
-std::string gameMap::getEntityName(point3D p)
+std::string gameMap::getEntityName(point3D p) const
 {
 	return (entityList[visibleEntity(p)].spriteName);
 }
 
-bool gameMap::getEntityVisible(point3D p)
+bool gameMap::getEntityVisible(point3D p) const
 {
 	return (entityList[visibleEntity(p)].visible);
 }
 
-bool gameMap::getEntitySolid(point3D p)
+bool gameMap::getEntitySolid(point3D p) const
 {
 	return (entityList[visibleEntity(p)].solid);
 }
 
 gameMap::gameMap(string nameString) {
 	terrainListSize = 0;
+	threadHandle = nullptr;
 	saveName = nameString;
 	terrainMap = new unsigned char***[CHUNK_NUM];
 	for (int i = 0; i < CHUNK_NUM; i++) {
