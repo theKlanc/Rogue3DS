@@ -20,6 +20,8 @@ using namespace std;
 #define FLOOR_HEIGHT 100
 #define SEA_LEVEL 150
 
+#define PI		3.14159265358979323846
+
 #define TICKS_PER_SEC (268123480)
 #define TICKS_PER_FRAME (4468724)
 

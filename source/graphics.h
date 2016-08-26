@@ -3,6 +3,7 @@
 #include "gameMap.h"
 #include "core.h"
 #include "UI.h"
+#include "sftd.h"
 
 class graphics
 {
@@ -17,8 +18,7 @@ private:
 	void freeTexture(string fileName);
 	void cameraUpdate();
 	sf2d_texture* getTexture(point3D p, mode mode_t = PRRT) const;
-	sf2d_texture* upTexture;
-	sf2d_texture* downTexture;
+	sf2d_texture* arrowTexture;
 
 	point3D cameraPos;
 public:
@@ -27,7 +27,7 @@ public:
 	void edit(gameMap &map, entity &playerOrig);
 
 	void freeAllTextures();
-	void drawFrame();
+	void drawFrame(sftd_font* font);
 	void reloadTextures();
 
 };

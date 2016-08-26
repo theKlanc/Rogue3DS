@@ -92,6 +92,7 @@ void gameMap::createMapAndLoad(unsigned char*** map, point3D c) {
 
 int gameMap::chunkValue(point3D chunkN, point3D chunkO) const
 {
+	if (chunkN.x < 0 || chunkN.y < 0 || chunkN.z < 0) return 32;
 	return (pow(chunkN.x - chunkO.x, 2) + pow(chunkN.y - chunkO.y, 2) + pow(chunkN.z - chunkO.z, 2));
 }
 int gameMap::freeChunkID() const
@@ -106,11 +107,13 @@ int gameMap::freeChunkID() const
 }
 int gameMap::getChunkID(point3D p) const
 { //returns the position inside mapIndex of the aforementioned chunk;
-	for (int i = 0; i < CHUNK_NUM; i++) {
-		if (p.x == mapIndex[i].x) {
-			if (p.y == mapIndex[i].y) {
-				if (p.z == mapIndex[i].z) {
-					return i;
+	if (p.x >= 0 && p.y >= 0 && p.z >= 0) {
+		for (int i = 0; i < CHUNK_NUM; i++) {
+			if (p.x == mapIndex[i].x) {
+				if (p.y == mapIndex[i].y) {
+					if (p.z == mapIndex[i].z) {
+						return i;
+					}
 				}
 			}
 		}
@@ -320,6 +323,7 @@ bool gameMap::simpleCollision(int posX, int posY, int posZ, mode collisionMode) 
 	b.x = posX;
 	b.y = posY;
 	b.z = posZ;
+	if (posX < 0 || posY < 0 || posZ < 0) return true;
 	//switch case pels tipus de modes
 	if (terrainList[*getBlock(b)].solid == 1) {
 		return true;
@@ -330,6 +334,7 @@ bool gameMap::simpleCollision(point3D p, mode collisionMode) const
 {	//Tells if terrain at position is occupied
 
 	//switch case pels tipus de modes
+	if (p.x < 0 || p.y < 0 || p.z < 0) return true;
 	if (terrainList[*getBlock(p)].solid == 1) {
 		return true;
 	}
@@ -360,6 +365,7 @@ bool gameMap::isVisible(point3D p, mode mode_t) const
 	if (chunkPosition == -1) {
 		return (visibleEntity(p) != -1);
 	}
+	cout << chunkPosition;
 
 	switch (mode_t) {
 	case TRRN:

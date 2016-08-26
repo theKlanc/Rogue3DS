@@ -20,13 +20,19 @@ void gameCore::moveEntity(entity &currentEntity, direction dir) const
 {
 	switch (dir) {
 	case DOWN:
-		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1)) && map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1) == 0) {
-			currentEntity.pos.z--;
+		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1))) {
+			if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1) == 0) {
+				currentEntity.pos.z--;
+			}
 		}
 		break;
 	case UP:
-		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1)) && map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0 && map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1) == 1) {
-			currentEntity.pos.z++;
+		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1))) {
+			if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0) {
+				if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1) == 1) {
+					currentEntity.pos.z++;
+				}
+			}
 		}
 		break;
 	case FRONT:
@@ -94,14 +100,9 @@ void gameCore::updateEntities()
 void gameCore::handleInput()
 {
 	if (kHeld & KEY_START) {
-		cout << "EXITING..." << endl;
 		exitBool = true;
 	}
-	if (!(kHeld & KEY_RIGHT))
-	{
-	}
-	else
-	{
+	if (kHeld & KEY_RIGHT) {
 		moveEntity(*player, RIGHT);
 	}
 	if (kHeld & KEY_LEFT) {
@@ -127,14 +128,21 @@ void gameCore::gameLoop()
 	if (tick % 12 == 0) {
 		updateEntities();
 		handleInput();
-		graphicsObj.drawFrame();
-		sf2d_swapbuffers();
-		cout << player->pos.z << endl;
+		graphicsObj.drawFrame(font);
 		kDown = hidKeysDown();
 		kHeld = hidKeysHeld();
 		kUp = hidKeysUp();
 	}
 	else  gspWaitForVBlank();
+	if (exitBool)
+	{
+		sf2d_start_frame(GFX_TOP, GFX_LEFT);
+		sf2d_draw_rectangle(0, 0, 400, 240, RGBA8(0, 0, 0, 255));
+		sftd_draw_text(font, 40, 40, RGBA8(255, 255, 255, 255), 30, "EXITING...");
+		sf2d_end_frame();
+		sf2d_swapbuffers();
+	}
+
 	//cout<< player->posX << ' ' << player->posY << ' ' << player->posZ << endl;
 
 
@@ -281,7 +289,7 @@ void gameCore::gameMenu()
 			}
 			else state = false;
 		}
-		sf2d_texture* getTexture()
+		sf2d_texture* getTexture() const
 		{
 			if (state) return pressed;
 			else return free;
@@ -322,7 +330,7 @@ void gameCore::gameMenu()
 	loadGame.state = false;
 
 	touchPosition touch;
-	sftd_font *font = sftd_load_font_mem(FreeSans_ttf, FreeSans_ttf_size);
+	font = sftd_load_font_mem(FreeSans_ttf, FreeSans_ttf_size);
 
 	while (aptMainLoop()) {
 		hidScanInput();
@@ -333,12 +341,12 @@ void gameCore::gameMenu()
 		kUp = hidKeysUp();
 
 		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
-		
+
 		sf2d_draw_texture(newGame.getTexture(), newGame.posX, newGame.posY);
 		sf2d_draw_texture(loadGame.getTexture(), loadGame.posX, loadGame.posY);
 
 		sftd_draw_textf(font, 145, 70, RGBA8(0, 0, 0, 255), 10, "NEW");
-		sftd_draw_textf(font, 145, 150, RGBA8(0, 0,0, 255), 10, "LOAD");
+		sftd_draw_textf(font, 145, 150, RGBA8(0, 0, 0, 255), 10, "LOAD");
 
 		sf2d_end_frame();
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
@@ -347,7 +355,7 @@ void gameCore::gameMenu()
 
 		sf2d_swapbuffers();
 		if (kDown&KEY_START)return;
-		
+
 		if (newGame.state && (kUp & KEY_TOUCH))
 		{
 			createSavefile("default");

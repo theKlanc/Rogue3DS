@@ -3,19 +3,18 @@
 #include <sfil.h>
 #include "gameMap.h"
 #include "graphics.h"
+#include <sftd.h>
 
 using namespace std;
 
 graphics::graphics() {
 	loadTexture("player.png");
-	downTexture = sfil_load_PNG_file("data/sprites/down.png", SF2D_PLACE_RAM);
-	upTexture = sfil_load_PNG_file("data/sprites/up.png", SF2D_PLACE_RAM);
+	arrowTexture = sfil_load_PNG_file("data/sprites/arrow.png", SF2D_PLACE_RAM);
 }
 
 graphics::graphics(gameMap &map, entity &playerOrig) {
 	loadTexture("player.png");
-	downTexture = sfil_load_PNG_file("data/sprites/down.png", SF2D_PLACE_RAM);
-	upTexture = sfil_load_PNG_file("data/sprites/up.png", SF2D_PLACE_RAM);
+	arrowTexture = sfil_load_PNG_file("data/sprites/arrow.png", SF2D_PLACE_RAM);
 	mapObj = &map;
 	player = &playerOrig;
 	cameraPos = player->pos;
@@ -27,9 +26,13 @@ void graphics::edit(gameMap &map, entity &playerOrig) {
 	cameraPos = player->pos;
 }
 
-void graphics::drawFrame() {
+void graphics::drawFrame(sftd_font* font) {
 	cameraUpdate();
 	sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
+	sftd_draw_textf(font, 0, 0, RGBA8(255, 255, 255, 255), 10, "%i", mapObj->entityList->pos.x);
+	sftd_draw_textf(font, 0, 10, RGBA8(255, 255, 255, 255), 10, "%i", mapObj->entityList->pos.y);
+	sftd_draw_textf(font, 0, 20, RGBA8(255, 255, 255, 255), 10, "%i", mapObj->entityList->pos.z);
+
 	sf2d_end_frame();
 	sf2d_start_frame(GFX_TOP, GFX_LEFT);
 	point3D p;
@@ -39,15 +42,17 @@ void graphics::drawFrame() {
 				p.x = (cameraPos.x + j) - 12;
 				p.y = (cameraPos.y + i) - 7;
 				p.z = (cameraPos.z - y);
-				if (mapObj->isVisible(p, PRRT)) {
+				if (p.x >= 0 && p.y >= 0 && p.z >= 0 && mapObj->isVisible(p, PRRT)) {
 					sf2d_draw_texture(getTexture(p, PRRT), j * 16, i * 16);
-					if (y > 1) sf2d_draw_texture(downTexture, j * 16, i * 16);
-					else if (y == 0) sf2d_draw_texture(upTexture, j * 16, i * 16);
+					if (y > 1) sf2d_draw_texture_rotate(arrowTexture, j * 16 + 8, i * 16 + 8, PI);
+					else if (y == 0) sf2d_draw_texture(arrowTexture, j * 16, i * 16);
 				}
 			}
 		}
 	}
 	sf2d_end_frame();
+
+	sf2d_swapbuffers();
 }
 
 bool graphics::isTextureLoaded(string textureFile) const

@@ -4,6 +4,7 @@
 #include "graphics.h"
 #include "sound.h"
 #include "gameMap.h"
+#include <sftd.h>
 
 class gameCore {
 private:
@@ -69,6 +70,7 @@ public:
 	/**
 	 * \brief Game menu
 	 */
+	sftd_font *font;
 	void gameMenu();
 
 	
