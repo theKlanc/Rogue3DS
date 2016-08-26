@@ -30,8 +30,9 @@
     <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <IncludePath>D:\3DS\CTRhomebrew\Rogue3DS\source;D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\devkitPro\libctru\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\devkitPro\devkitARM\arm-none-eabi\include;D:\3DS\CTRhomebrew\Rogue3DS\source;D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\devkitPro\devkitARM\arm-none-eabi\lib;D:\devkitPro\libctru\lib;$(LibraryPath)</LibraryPath>
+    <ReferencePath>D:\devkitPro\devkitARM\arm-none-eabi\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
@@ -62,6 +63,7 @@
     <ClInclude Include="source\UI.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
     <None Include="resources\banner.bin" />
     <None Include="resources\icon.bin" />
   </ItemGroup>

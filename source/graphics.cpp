@@ -9,7 +9,7 @@ using namespace std;
 graphics::graphics() {
 	loadTexture("player.png");
 	downTexture = sfil_load_PNG_file("data/sprites/down.png", SF2D_PLACE_RAM);
-	upTexture = sfil_load_PNG_file("data/sprites/up.png", SF2D_PLACE_RAM);	
+	upTexture = sfil_load_PNG_file("data/sprites/up.png", SF2D_PLACE_RAM);
 }
 graphics::graphics(gameMap &map, entity &playerOrig) {
 	loadTexture("player.png");
@@ -46,7 +46,7 @@ void graphics::drawFrame() {
 }
 
 bool graphics::isTextureLoaded(string textureFile) { // tells if a texture with said name is present on texTable
-	for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != "free"; i++) {
+	for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != ""; i++) {
 		if (texTable[i].name == textureFile) {
 			return 1;
 		}
@@ -55,7 +55,7 @@ bool graphics::isTextureLoaded(string textureFile) { // tells if a texture with 
 }
 int graphics::freeTexturePos() { //returns the position inside texTable[] of the first free texture space
 	for (int i = 0; i < TEX_TABLE_SIZE; i++) {
-		if (texTable[i].name == "free") {
+		if (texTable[i].name == "") {
 			return i;
 		}
 	}
@@ -63,7 +63,7 @@ int graphics::freeTexturePos() { //returns the position inside texTable[] of the
 	return -1;
 }
 int graphics::getTexturePos(string fileName) { //returns the position inside texTable[] of the texture with said filename
-	for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != "free"; i++) {
+	for (int i = 0; i < TEX_TABLE_SIZE && texTable[i].name != ""; i++) {
 		if (texTable[i].name == fileName) {
 			return i;
 		}
@@ -85,28 +85,28 @@ void graphics::freeTexture(string fileName) { //frees a texture from texTable[]
 	textureName temp = texTable[textureLocation];
 	texTable[textureLocation] = texTable[freeTexLoc - 1];
 	texTable[freeTexLoc - 1] = temp;
-	texTable[freeTexLoc - 1].name = "free";
+	texTable[freeTexLoc - 1].name = "";
 
 	sf2d_free_texture(texTable[freeTexLoc - 1].texture);
 
 }
 void graphics::freeAllTextures() {	 //frees all textures
 	for (int i = 0; i < TEX_TABLE_SIZE; i++) {
-		texTable[i].name = "free";
-
-		sf2d_free_texture(texTable[i].texture);
-
+		if (texTable[i].name != "") {
+			texTable[i].name = "";
+			sf2d_free_texture(texTable[i].texture);
+		}
 	}
 }
 
 
 void graphics::cameraUpdate()
 {
-		if (cameraPos.x - 5 < player->pos.x) { cameraPos.x++; }
-		if (cameraPos.x + 4 > player->pos.x) { cameraPos.x--; }
-		if (cameraPos.y - 4 < player->pos.y) { cameraPos.y++; } 
-		if (cameraPos.y + 3 > player->pos.y) { cameraPos.y--; } 
-		cameraPos.z = player->pos.z;
+	if (cameraPos.x - 5 < player->pos.x) { cameraPos.x++; }
+	if (cameraPos.x + 4 > player->pos.x) { cameraPos.x--; }
+	if (cameraPos.y - 4 < player->pos.y) { cameraPos.y++; }
+	if (cameraPos.y + 3 > player->pos.y) { cameraPos.y--; }
+	cameraPos.z = player->pos.z;
 }
 
 sf2d_texture* graphics::getTexture(point3D p, mode mode_t) {

@@ -12,7 +12,6 @@ resources/
 /Rogue3DS.3dsx
 /build.bat
 /clean.bat
-/icon.png
 
 # User-specific files
 *.suo
@@ -191,3 +190,7 @@ $RECYCLE.BIN/
 /Makefilekne
 /Rogue3DS.zip
 *.lnk
+/FakeSeveralDeer-mobile.mp4
+/icon - copia.png
+/RaggedMeanBudgie.webm
+/ClassDiagram1.cd

@@ -69,7 +69,7 @@ struct textureName {
 
 	sf2d_texture* texture;
 
-	string name = "free";
+	string name = "";
 };
 
 struct terrain {

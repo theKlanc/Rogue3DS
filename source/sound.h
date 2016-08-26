@@ -17,6 +17,7 @@ class sound
 {
 public:
 	sound();
+	~sound();
 	void playFromFile(string file);
 	void exit();
 private:

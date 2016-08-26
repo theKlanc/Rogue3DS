@@ -45,7 +45,7 @@ void gameMap::startChunkLoader(point3D* temp1)
 	temp.player = temp1;
 	temp.map = this;
 	temp.threadState = &threadStatus;
-	threadHandle = threadCreate((ThreadFunc)gameMap::chunkLoader, (void*)&temp, 5000, 0x3F, 0, true);
+	threadHandle = threadCreate(ThreadFunc(gameMap::chunkLoader), (void*)&temp, 5000, 0x3F, 0, true);
 	threadStatus = true;
 }
 

@@ -13,13 +13,17 @@ using namespace std;
 sound::sound()
 {
 	waveBuf = new ndspWaveBuf[2];
-	ndspInit();
 
 	ndspSetOutputMode(NDSP_OUTPUT_STEREO);
 
 	ndspChnSetInterp(0, NDSP_INTERP_LINEAR);
 
 	ndspChnSetFormat(0, NDSP_FORMAT_STEREO_PCM16);		
+}
+
+sound::~sound()
+{
+	delete[] waveBuf;
 }
 
 void sound::playFromFile(string file)

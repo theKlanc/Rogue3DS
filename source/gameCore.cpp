@@ -6,7 +6,13 @@
 
 using namespace std;
 
-void gameCore::moveEntity(entity &currentEntity, direction dir) {
+/**
+ * \brief Moves currentEntity in the dir direction, if possible
+ * \param currentEntity Entity that will be moved
+ * \param dir Direction to move the entity
+ */
+void gameCore::moveEntity(entity &currentEntity, direction dir) const
+{
 	switch (dir) {
 	case DOWN:
 		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1)) && map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1) == 0) {
@@ -14,7 +20,7 @@ void gameCore::moveEntity(entity &currentEntity, direction dir) {
 		}
 		break;
 	case UP:
-		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1)) && map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0 && map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z -1)==1) {
+		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1)) && map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0 && map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1) == 1) {
 			currentEntity.pos.z++;
 		}
 		break;
@@ -86,7 +92,11 @@ void gameCore::handleInput()
 		cout << "EXITING..." << endl;
 		exitBool = true;
 	}
-	if (kHeld & KEY_RIGHT) {
+	if (!(kHeld & KEY_RIGHT))
+	{
+	}
+	else
+	{
 		moveEntity(*player, RIGHT);
 	}
 	if (kHeld & KEY_LEFT) {
@@ -157,8 +167,7 @@ void gameCore::gameLaunch()
 	*/
 
 
-	//overlay = sfil_load_PNG_file("data/sprites/overlay.png", SF2D_PLACE_RAM);
-	player = &(map->entityList[0]);
+	player = map->entityList;
 	ifstream general;
 	general.open("saves/" + saveName + "/general.txt");
 	if (!general.is_open()) {
@@ -168,28 +177,31 @@ void gameCore::gameLaunch()
 	general >> playerName >> player->pos.x >> player->pos.y >> player->pos.z;
 	general.close();
 	player->spriteName = playerSprite;
-	//cout<< playerName << endl;
-	//loadmap
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		map->loadNewChunk(player->pos);
 	}
 	map->loadTerrainTable();
 	graphicsObj.edit(*map, *player);
 	graphicsObj.reloadTextures();
-	soundObj.playFromFile("data/sounds/bgm/wilderness.ogg");
+	//soundObj.playFromFile("data/sounds/bgm/wilderness.ogg");
 	map->startChunkLoader(&player->pos);
 	tick = 0;
 	while (aptMainLoop() && !exitBool) {
 		gameLoop();
 		tick++;
 	}
-	map->exit();
-	soundObj.exit();
+	
 	string generalFile = "saves/" + saveName + "/general.txt";
 	std::remove(generalFile.c_str());
 	ofstream generalO(generalFile);
 	generalO << playerName << endl << player->pos.x << endl << player->pos.y << endl << player->pos.z << endl;
 	generalO.close();
+	
+	map->exit();
+	soundObj.exit();
+	graphicsObj.freeAllTextures();
+
+	delete map;
 }
 
 void gameCore::createSavefile(string saveName)
@@ -218,8 +230,17 @@ void gameCore::loadSavefile(string saveID)
 
 gameCore::gameCore()
 {
+	kDown = 0;
+	kUp = 0;
+	kHeld = 0;
+	player = nullptr;
+	map = nullptr;
 	exitBool = false;
 	tick = 0;
+}
+
+gameCore::~gameCore()
+{
 }
 
 void gameCore::gameMenu()
