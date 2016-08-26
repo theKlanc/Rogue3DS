@@ -25,28 +25,18 @@ void gameMap::exit()
 
 void gameMap::chunkLoader(u32 arg)
 {
-	threadArg1 *temporal = (threadArg1*)arg;
-	while (1) {
-		if (*temporal->threadExitReq) {
-			*temporal->threadState = false;
-			threadExit(0);
-		}
-		else {
-			temporal->map->loadNewChunk(*temporal->player);
-			svcSleepThread(50000000);
-		}
+	gameMap* gameObj = (gameMap*)arg;
+	while (!gameObj->threadCloseRequest) {
+		gameObj->loadNewChunk(gameObj->entityList->pos);
+		svcSleepThread(50000000);
 	}
+	gameObj->threadStatus = false;
 }
 
 void gameMap::startChunkLoader(point3D* temp1)
 {
-	static threadArg1 temp;
-	temp.threadExitReq = &threadCloseRequest;
-	temp.player = temp1;
-	temp.map = this;
-	temp.threadState = &threadStatus;
-	threadHandle = threadCreate(ThreadFunc(gameMap::chunkLoader), (void*)&temp, 5000, 0x3F, 0, true);
 	threadStatus = true;
+	threadHandle = threadCreate(ThreadFunc(gameMap::chunkLoader), this, 5000, 0x3F, 0, true);
 }
 
 point3D gameMap::getChunk(point3D pos)
@@ -91,8 +81,8 @@ void gameMap::createMapAndLoad(unsigned char*** map, point3D c) {
 				}
 				else if (h + c.z*CHUNK_SIZE == terrainHeight) {	 //si es la capa superficial
 					if (terrainHeight <= SEA_LEVEL) map[j][i][h] = 4;
-					else map[j][i][h] = (rand()%15==0?6:1);
-				}	
+					else map[j][i][h] = (rand() % 15 == 0 ? 6 : 1);
+				}
 				else map[j][i][h] = 2;
 			}
 		}

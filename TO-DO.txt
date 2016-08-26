@@ -1,20 +1,16 @@
-Tancar thread del so be
 afegir menu i creador de personatge
 implementar entities
 Evitar les strings al renderitzar
 Usar un sol spritesheet
 ajuntar chunks en un sol arxiu
-+ECS
 carregar textures i entities B
 descarregar textures
 guardar entities i posicions
 basar tot en temps, i no pas en ticks
-+eficientitzar la carrega i descarrega de chunks, trobar el tamany òptim i el nombre de chunks òptims
-+fer ECS (i arreglar inputs)
 afegir UI
 mode creatiu
 implementar format .qb
-+generació de mapa + interessant (fusionar amb el mapTest)
+millorar generacio de terreny
 afegir events
 afegir combat
 millorar el so i afegir sfx

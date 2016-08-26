@@ -18,11 +18,11 @@ private:
 	terrain terrainList[TERRAIN_LIST_MAX_SIZE]; //Llista de tipus de terrenys diferents, aqui és on es mirarà a partir del terrainMap
 	int terrainListSize;
 	point3D mapIndex[CHUNK_NUM]; //indica quin bloc de terreny hi ha a cada posició		
-	
+
 	string saveName;
 	Thread threadHandle;
-	volatile bool threadStatus;
-	volatile bool threadCloseRequest;
+	bool threadStatus;
+	bool threadCloseRequest;
 	static void chunkLoader(u32 arg);
 	unsigned char* getBlock(point3D posBlock);
 	void putBlock(int block, point3D posBlock);
@@ -62,10 +62,4 @@ public:
 	bool simpleCollision(point3D p, mode collisionMode = TRRN);
 	bool simpleCollision(int posX, int posY, int posZ, mode collisionMode = TRRN);
 	gameMap(string nameString);
-};
-struct threadArg1 {
-	gameMap* map;
-	point3D* player;
-	volatile bool* threadExitReq;
-	volatile bool* threadState;
 };
