@@ -183,7 +183,7 @@ void gameCore::gameLaunch()
 	map->loadTerrainTable();
 	graphicsObj.edit(*map, *player);
 	graphicsObj.reloadTextures();
-	//soundObj.playFromFile("data/sounds/bgm/wilderness.ogg");
+	soundObj.playFromFile("data/sounds/bgm/wilderness.ogg");
 	map->startChunkLoader(&player->pos);
 	tick = 0;
 	while (aptMainLoop() && !exitBool) {

@@ -12,6 +12,8 @@ using namespace std;
 
 sound::sound()
 {
+	threadStatus = false;
+	exitRequest = false;
 	waveBuf = new ndspWaveBuf[2];
 
 	ndspSetOutputMode(NDSP_OUTPUT_STEREO);
@@ -23,7 +25,7 @@ sound::sound()
 
 sound::~sound()
 {
-	delete[] waveBuf;
+	exit();
 }
 
 void sound::playFromFile(string file)
@@ -67,14 +69,20 @@ void sound::playFromFile(string file)
 
 void sound::exit()
 {
+	exitRequest = true;
+	while(threadStatus==true)
+	{
+		svcSleepThread(10000000);
+	}
 	delete[] waveBuf;
 }
 
 void sound::audioMainThread(u32 arg)
 {
-	sound* soundObj = (sound*)arg;
+	sound* soundObj = (sound*)arg; 
+	soundObj->threadStatus = true;
 	int samplesLeft = 1;
-	while (samplesLeft) {
+	while (samplesLeft && !soundObj->exitRequest) {
 		if (soundObj->waveBuf[soundObj->fillBlock].status == NDSP_WBUF_DONE) {
 			samplesLeft = stb_vorbis_get_samples_short_interleaved(soundObj->vorbisFile, 2, (short*)soundObj->waveBuf[soundObj->fillBlock].data_pcm16, soundObj->Samples * 2);
 			DSP_FlushDataCache(&soundObj->waveBuf[soundObj->fillBlock].data_pcm16, soundObj->waveBuf[soundObj->fillBlock].nsamples);
@@ -84,6 +92,7 @@ void sound::audioMainThread(u32 arg)
 		}
 		svcSleepThread(50000000);
 	}
+	soundObj->threadStatus = false;
 	stb_vorbis_close(soundObj->vorbisFile);
 
 }

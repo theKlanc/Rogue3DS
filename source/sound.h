@@ -3,7 +3,7 @@
 	Afegir SFX
 	Afegir més canals
 	evitar crear dos threads al mateix canal
-	
+
 */
 
 #pragma once
@@ -21,6 +21,8 @@ public:
 	void playFromFile(string file);
 	void exit();
 private:
+	bool exitRequest;
+	bool threadStatus;
 	static void audioMainThread(u32 arg);
 	Thread audioThread;
 	u32 *audioBuffer;
