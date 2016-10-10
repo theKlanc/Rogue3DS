@@ -5,3 +5,4 @@ water.png 1 0
 sand.png 1 1
 wall.png 1 1
 flower.png 1 1
+flower2.png 1 1
