@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Citra|Win32">
-      <Configuration>Citra</Configuration>
+    <ProjectConfiguration Include="3DS|Win32">
+      <Configuration>3DS</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
+    <ProjectConfiguration Include="Vita|Win32">
+      <Configuration>Vita</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -15,12 +15,12 @@
     <Keyword>MakeFileProj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='3DS|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Citra|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vita|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
@@ -30,64 +30,72 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='3DS|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Citra|Win32'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Vita|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <NMakeBuildCommandLine>make</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
-    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='3DS|Win32'">
+    <NMakeBuildCommandLine>make --file=3dsmakefile.mk</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>make --file=3dsmakefile.mk clean</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make --file=3dsmakefile.mk</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>NDEBUG;_3DS;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <IncludePath>D:\devkitPro\devkitARM\arm-none-eabi\include;D:\3DS\CTRhomebrew\Rogue3DS\source;D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\devkitPro\devkitARM\arm-none-eabi\lib;D:\devkitPro\libctru\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>D:\devkitPro\devkitARM\arm-none-eabi\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Citra|Win32'">
-    <NMakeBuildCommandLine>make
-D:\3DS\Citra\citra-qt.exe $(ProjectDir)$(ProjectName).3dsx</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
-    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <IncludePath>D:\devkitPro\devkitARM\arm-none-eabi\include;D:\3DS\CTRhomebrew\Rogue3DS\source;D:\devkitPro\libctru\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\devkitPro\devkitARM\arm-none-eabi\lib;D:\devkitPro\libctru\lib;$(LibraryPath)</LibraryPath>
-    <ReferencePath>D:\devkitPro\devkitARM\arm-none-eabi\lib;$(ReferencePath)</ReferencePath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Vita|Win32'">
+    <NMakeBuildCommandLine>make --f=vitamakefile.mk</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>make --f=vitamakefile.mk clean</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make --f=vitamakefile.mk</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>NDEBUG;_VITA;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <IncludePath>C:\msys64\usr\local\vitasdk\lib\gcc\arm-vita-eabi\4.9.3\include;C:\msys64\usr\local\vitasdk\arm-vita-eabi\include;D:\3DS\CTRhomebrew\Rogue3DS\source;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\msys64\usr\local\vitasdk\arm-vita-eabi\lib;$(LibraryPath)</LibraryPath>
+    <ReferencePath>C:\msys64\usr\local\vitasdk\arm-vita-eabi\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\AISystem.cpp" />
     <ClCompile Include="source\core.cpp" />
-    <ClCompile Include="source\entityList.cpp" />
     <ClCompile Include="source\gameCore.cpp" />
     <ClCompile Include="source\gameMap.cpp" />
-    <ClCompile Include="source\graphics.cpp" />
+    <ClCompile Include="source\graphicsSystem.cpp" />
+    <ClCompile Include="source\HardwareInterface3DS.cpp" />
+    <ClCompile Include="source\HardwareInterfaceVita.cpp" />
+    <ClCompile Include="source\inputSystem.cpp" />
     <ClCompile Include="source\main.cpp" />
-    <ClCompile Include="source\physics.cpp" />
+    <ClCompile Include="source\movementSystem.cpp" />
     <ClCompile Include="source\SimplexNoise.cpp" />
     <ClCompile Include="source\sound.cpp" />
     <ClCompile Include="source\stb_vorbis.c" />
     <ClCompile Include="source\UI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\core.h" />
-    <ClInclude Include="source\entityList.h" />
-    <ClInclude Include="source\gameCore.h" />
-    <ClInclude Include="source\gameMap.h" />
-    <ClInclude Include="source\graphics.h" />
-    <ClInclude Include="source\physics.h" />
-    <ClInclude Include="source\resource.h" />
-    <ClInclude Include="source\SimplexNoise.h" />
-    <ClInclude Include="source\sound.h" />
-    <ClInclude Include="source\stb_vorbis.h" />
-    <ClInclude Include="source\UI.h" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="3dsmakefile.mk" />
     <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram11.cd" />
     <None Include="resources\banner.bin" />
     <None Include="resources\icon.bin" />
+    <None Include="vitamakefile.mk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\AISystem.h" />
+    <ClInclude Include="include\components.h" />
+    <ClInclude Include="include\core.h" />
+    <ClInclude Include="include\gameCore.h" />
+    <ClInclude Include="include\gameMap.h" />
+    <ClInclude Include="include\graphicsSystem.h" />
+    <ClInclude Include="include\HardwareInterface.h" />
+    <ClInclude Include="include\inputSystem.h" />
+    <ClInclude Include="include\movementSystem.h" />
+    <ClInclude Include="include\resource.h" />
+    <ClInclude Include="include\SimplexNoise.h" />
+    <ClInclude Include="include\sound.h" />
+    <ClInclude Include="include\stb_vorbis.h" />
+    <ClInclude Include="include\UI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

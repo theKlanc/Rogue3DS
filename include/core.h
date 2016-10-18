@@ -2,12 +2,8 @@
 
 #include <string.h>
 #include <sstream>
-#include <dirent.h>
-
 #include <fstream>
-
-#include "sf2d.h"
-
+#include <cmath>
 
 using namespace std;
 
@@ -52,10 +48,21 @@ enum gameState {
 	STATE_WORLD,
 };
 struct point3D {
+	point3D(int x, int y, int z) : x(x),y(y),z(z){}
+	point3D(){}
 	int x = -1;
 	int y = -1;
 	int z = -1;
+	bool inRange(point3D p, int dist)
+	{
+		return (abs(p.x - x) < dist && abs(p.y - y) < dist && abs(p.y - y) < dist);
+	}
 };
+struct point2D {
+	int x = -1;
+	int y = -1;
+};
+
 struct entity {
 	string spriteName = "ENULL";
 	bool visible = true;
@@ -67,17 +74,11 @@ struct entity {
 
 string get_string(int number);
 
-struct textureName {
-
-	sf2d_texture* texture;
-
-	string name = "";
-};
-
 struct terrain {
 	string textureFile = "TNULL";
 	bool visible = true;
 	bool solid = true;
+	int texturePos = -1;
 };
 
 bool fsIsDirectory(const std::string path);
