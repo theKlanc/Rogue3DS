@@ -7,14 +7,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rogue3DS", "Rogue3DS.vcxpro
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		3DS|ARM = 3DS|ARM
-		Vita|ARM = Vita|ARM
+		Build|3DS = Build|3DS
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.3DS|ARM.ActiveCfg = 3DS|Win32
-		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.3DS|ARM.Build.0 = 3DS|Win32
-		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.Vita|ARM.ActiveCfg = Vita|Win32
-		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.Vita|ARM.Build.0 = Vita|Win32
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.Build|3DS.ActiveCfg = Release|Win32
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.Build|3DS.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

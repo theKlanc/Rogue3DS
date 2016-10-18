@@ -28,7 +28,7 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source source/entityx source/entityx/help
+SOURCES		:=	source
 DATA		:=	data
 INCLUDES	:=	include
 
@@ -47,7 +47,7 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 
-CXXFLAGS	:= $(CFLAGS)  -fno-rtti -std=c++14 -fno-exceptions -mapcs-frame 
+CXXFLAGS	:= $(CFLAGS)  -fno-rtti -fno-exceptions -std=c++14
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
@@ -129,7 +129,7 @@ all: $(BUILD)
 $(BUILD):
 	@echo Building ...
 	@[ -d $@ ] || mkdir -p $@
-	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/3dsmakefile.mk
+	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 #---------------------------------------------------------------------------------
 clean:
@@ -166,10 +166,10 @@ $(OUTPUT).elf	:	$(OFILES)
 	@$(bin2o)
 
 #---------------------------------------------------------------------------------
-##%.ttf.o	:	%.ttf
+%.ttf.o	:	%.ttf
 #---------------------------------------------------------------------------------
-	#@echo $(notdir $<)
-	#@$(bin2o)
+	@echo $(notdir $<)
+	@$(bin2o)
 
 # WARNING: This is not the right way to do this! TODO: Do it right!
 #---------------------------------------------------------------------------------

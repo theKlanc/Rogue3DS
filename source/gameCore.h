@@ -1,11 +1,10 @@
+#include <3ds.h>
 #include <string>
 #include "core.h"
-#include "graphicsSystem.h"
+#include "graphics.h"
 #include "sound.h"
 #include "gameMap.h"
-#include "entityx/entityx.h"
-
-namespace ex = entityx;
+#include <sftd.h>
 
 class gameCore {
 private:
@@ -38,15 +37,15 @@ private:
 	void gameLoop();
 
 	bool exitBool;
-	int kDown;
-	int kUp;
-	int kHeld;
+	u32 kDown;
+	u32 kUp;
+	u32 kHeld;
 
-	ex::EntityX* EntityWorld;
 	gameMap* map;
+	graphics graphicsObj;
 	sound soundObj;
+	entity* player;
 	long long tick;
-	point3D* playerPos;
 	/**
 	 * \brief Creates a new save file
 	 * \param saveName Name of the savefile to be created
@@ -71,7 +70,7 @@ public:
 	/**
 	 * \brief Game menu
 	 */
-	void exit();
+	sftd_font *font;
 	void gameMenu();
 
 	

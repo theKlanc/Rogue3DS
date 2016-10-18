@@ -1,34 +1,148 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "../include/core.h"
-#include "../include/entityx/entityx.h"
-#include "../include/inputSystem.h"
-#include "../include/movementSystem.h"
-#include "../include/components.h"
-#include "../include/gameCore.h"
-#include "../include/AISystem.h"
+#include "gameCore.h"
+#include "core.h"
+#include "3ds.h"
+#include "sf2d.h"
+#include "sfil.h"
+#include "sftd.h"
+#include "FreeSans_ttf.h"
 
 using namespace std;
-namespace ex = entityx;
+
+/**
+ * \brief Moves currentEntity in the dir direction, if possible
+ * \param currentEntity Entity that will be moved
+ * \param dir Direction to move the entity
+ */
+void gameCore::moveEntity(entity &currentEntity, direction dir) const
+{
+	switch (dir) {
+	case DOWN:
+		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1))) {
+			if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1) == 0) {
+				currentEntity.pos.z--;
+			}
+		}
+		break;
+	case UP:
+		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1))) {
+			if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) == 0) {
+				if (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z - 1) == 1) {
+					currentEntity.pos.z++;
+				}
+			}
+		}
+		break;
+	case FRONT:
+		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y - 1, currentEntity.pos.z)) && map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y - 1, currentEntity.pos.z) == 0) {
+			currentEntity.pos.y--;
+		}
+		else if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y - 1, currentEntity.pos.z + 1)) && (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) | map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y - 1, currentEntity.pos.z + 1)) == 0) {
+			currentEntity.pos.y--;
+			currentEntity.pos.z++;
+		}
+		break;
+	case BACK:
+		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y + 1, currentEntity.pos.z)) && map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y + 1, currentEntity.pos.z) == 0) {
+			currentEntity.pos.y++;
+		}
+		else if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x, currentEntity.pos.y + 1, currentEntity.pos.z + 1)) && (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) | map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y + 1, currentEntity.pos.z + 1)) == 0) {
+			currentEntity.pos.y++;
+			currentEntity.pos.z++;
+		}
+		break;
+	case LEFT:
+		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x - 1, currentEntity.pos.y, currentEntity.pos.z)) && map->simpleCollision(currentEntity.pos.x - 1, currentEntity.pos.y, currentEntity.pos.z) == 0) {
+			currentEntity.pos.x--;
+		}
+		else if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x - 1, currentEntity.pos.y, currentEntity.pos.z + 1)) && (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) | map->simpleCollision(currentEntity.pos.x - 1, currentEntity.pos.y, currentEntity.pos.z + 1)) == 0) {
+			currentEntity.pos.x--;
+			currentEntity.pos.z++;
+		}
+		break;
+	case RIGHT:
+		if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x + 1, currentEntity.pos.y, currentEntity.pos.z)) && map->simpleCollision(currentEntity.pos.x + 1, currentEntity.pos.y, currentEntity.pos.z) == 0) {
+			currentEntity.pos.x++;
+		}
+		else if (map->isChunkLoaded(map->getChunk(currentEntity.pos.x + 1, currentEntity.pos.y, currentEntity.pos.z + 1)) && (map->simpleCollision(currentEntity.pos.x, currentEntity.pos.y, currentEntity.pos.z + 1) | map->simpleCollision(currentEntity.pos.x + 1, currentEntity.pos.y, currentEntity.pos.z + 1)) == 0) {
+			currentEntity.pos.x++;
+			currentEntity.pos.z++;
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void gameCore::updateEntity(entity &currentEntity)
+{
+	point3D c = currentEntity.pos;
+	c.z--;
+	if (map->simpleCollision(c) == 0 && currentEntity.fly == 0) {
+		//cout<< "que es faci la gravetat " << endl;
+		currentEntity.pos.z--;
+		if (currentEntity.pos.z < 0) {
+			cout << "has caigut del mon, capoll" << endl;
+		}
+	}
+}
+
+void gameCore::updateEntities()
+{
+	for (int i = 0; i < ENTITY_LIST_SIZE && map->entityList[i].pos.x >= 0; i++)
+	{
+		updateEntity(map->entityList[i]);
+	}
+}
+
+void gameCore::handleInput()
+{
+	if (kHeld & KEY_START) {
+		exitBool = true;
+	}
+	if (kHeld & KEY_RIGHT) {
+		moveEntity(*player, RIGHT);
+	}
+	if (kHeld & KEY_LEFT) {
+		moveEntity(*player, LEFT);
+	}
+	if (kHeld & KEY_UP) {
+		moveEntity(*player, FRONT);
+	}
+	if (kHeld & KEY_DOWN) {
+		moveEntity(*player, BACK);
+	}
+	if (kHeld & KEY_A) {
+		moveEntity(*player, UP);
+	}
+}
 
 void gameCore::gameLoop()
 {
-	HI::updateHID();
-	kDown = kDown | HI::getKeysDown();
-	kHeld = kHeld | HI::getKeysHeld();
-	kUp = kUp | HI::getKeysUp();
-	
+	hidScanInput();
+	kDown = kDown | hidKeysDown();
+	kHeld = kHeld | hidKeysHeld();
+	kUp = kUp | hidKeysUp();
 	if (tick % 12 == 0) {
-		EntityWorld->systems.update_all(0);
-		kDown = HI::getKeysDown();
-		kHeld = HI::getKeysHeld();
-		kUp = HI::getKeysUp();
+		updateEntities();
+		handleInput();
+		graphicsObj.drawFrame(font);
+		kDown = hidKeysDown();
+		kHeld = hidKeysHeld();
+		kUp = hidKeysUp();
 	}
-	else  HI::waitForVBlank();
-	if (kDown & HI::HI_KEY_START) {
-		exitBool = true;
+	else  gspWaitForVBlank();
+	if (exitBool)
+	{
+		sf2d_start_frame(GFX_TOP, GFX_LEFT);
+		sf2d_draw_rectangle(0, 0, 400, 240, RGBA8(0, 0, 0, 255));
+		sftd_draw_text(font, 40, 40, RGBA8(255, 255, 255, 255), 30, "EXITING...");
+		sf2d_end_frame();
+		sf2d_swapbuffers();
 	}
+
 	//cout<< player->posX << ' ' << player->posY << ' ' << player->posZ << endl;
 
 
@@ -63,66 +177,61 @@ void gameCore::gameLaunch()
 	//select which one
 	saveName = selected;
 	*/
-	
-	HI::setBackgroundColor(RGBA8(0, 0, 0, 0));
+
+	sf2d_set_clear_color(RGBA8(0, 0, 0, 0));
+	player = map->entityList;
 	ifstream general;
-	general.open(HI::getSavesPath() + saveName + "/general.txt");
+	general.open("saves/" + saveName + "/general.txt");
 	if (!general.is_open()) {
-		cout << "couldn't open file: " << (HI::getSavesPath()+ saveName + "/general.txt") << endl;
+		cout << "couldn't open file: " << ("saves/" + saveName + "/general.txt") << endl;
 	}
 	string playerSprite = "player.png", playerName;
-	string cacota;
-	general >> cacota >> playerPos->x >> playerPos->y >> playerPos->z;
+	general >> playerName >> player->pos.x >> player->pos.y >> player->pos.z;
 	general.close();
-	map->addPlayer(playerPos);
+	player->spriteName = playerSprite;
 	for (int i = 0; i < CHUNK_NUM; i++) {
-		map->loadNewChunk();
+		map->loadNewChunk(player->pos);
 	}
 	map->loadTerrainTable();
-	EntityWorld->systems.add<inputSystem>(&kDown,&kUp,&kHeld);
-	EntityWorld->systems.add<movementSystem>(map);
-	EntityWorld->systems.add<graphicsSystem>(map, playerPos);
-	EntityWorld->systems.add<AISystem>();
-	EntityWorld->systems.configure();
-	entityx::Entity test = EntityWorld->entities.create();
-	test.assign<Position>(*playerPos);
-	point3D caca;
-	caca.x++;
-	caca.y++;
-	caca.z++;
-	test.assign<Velocity>(caca);
-	test.assign<Player>(playerPos);
-	test.assign<FixedSprite>("player.png");
-	point3D dogPos = *playerPos;
-	dogPos.x++;
-	entityx::Entity doggo = EntityWorld->entities.create();
-	doggo.assign<AIFollower>(playerPos,3);
-	doggo.assign<Velocity>(caca);
-	doggo.assign<Position>(dogPos);
-	doggo.assign<FixedSprite>("doggo.png");	
-	//soundObj.playFromFile(HI::getDataPath()+"sounds/bgm/wilderness.ogg");
-	map->startChunkLoader(playerPos);
+	graphicsObj.edit(*map, *player);
+	graphicsObj.reloadTextures();
+	soundObj.playFromFile("data/sounds/bgm/wilderness.ogg");
+	map->startChunkLoader(&player->pos);
 	tick = 0;
-	while (HI::aptMainLoop() && !exitBool) {
+	while (aptMainLoop() && !exitBool) {
 		gameLoop();
 		tick++;
 	}
 
-	string generalFile = HI::getSavesPath() + saveName + "/general.txt";
+	string generalFile = "saves/" + saveName + "/general.txt";
 	std::remove(generalFile.c_str());
-	
 	ofstream generalO(generalFile);
-	generalO << playerName << endl << playerPos->x << endl << playerPos->y << endl << playerPos->z << endl;
+	generalO << playerName << endl << player->pos.x << endl << player->pos.y << endl << player->pos.z << endl;
 	generalO.close();
+
 	map->exit();
+	soundObj.exit();
+	graphicsObj.freeAllTextures();
+
+
 }
 
 void gameCore::createSavefile(string saveName)
 {
-	HI::createDir(HI::getSavesPath() + saveName + "/");
-	HI::createDir(HI::getSavesPath() + saveName + "/chunks/");
-	HI::copyFile(HI::getDataPath() + "gameData/defaultSavefile/general.txt", HI::getSavesPath() + saveName + "/general.txt");
-	HI::copyFile(HI::getDataPath() + "gameData/defaultSavefile/terrainTable.txt", HI::getSavesPath() + saveName + "/terrainTable.txt");	  
+
+	fsCreateDir("saves/" + saveName + "/");
+	fsCreateDir("saves/" + saveName + "/chunks/");
+	std::ifstream  iFile1("data/gameData/defaultSavefile/general.txt", std::ios::binary);
+	std::ofstream  oFile1("saves/" + saveName + "/general.txt", std::ios::binary);
+	oFile1 << iFile1.rdbuf();
+	std::ifstream  iFile2("data/gameData/defaultSavefile/terrainTable.txt", std::ios::binary);
+	std::ofstream  oFile2("saves/" + saveName + "/terrainTable.txt", std::ios::binary);
+	oFile2 << iFile2.rdbuf();
+	iFile1.close();
+	iFile2.close();
+	oFile1.close();
+	oFile2.close();
+
 }
 
 void gameCore::loadSavefile(string saveID)
@@ -133,11 +242,10 @@ void gameCore::loadSavefile(string saveID)
 
 gameCore::gameCore()
 {
-	EntityWorld = new ex::EntityX();
 	kDown = 0;
 	kUp = 0;
 	kHeld = 0;
-	playerPos = new point3D;
+	player = nullptr;
 	map = nullptr;
 	exitBool = false;
 	tick = 0;
@@ -145,21 +253,15 @@ gameCore::gameCore()
 
 gameCore::~gameCore()
 {
-}
-
-void gameCore::exit()
-{
 	delete map;
-	delete EntityWorld;
-	delete playerPos;
 }
 
 void gameCore::gameMenu()
 {
 	struct button
 	{
-		HI::HITexture pressed;
-		HI::HITexture free;
+		sf2d_texture* pressed;
+		sf2d_texture* free;
 		int sizeX;
 		int sizeY;
 		int posX;
@@ -175,11 +277,11 @@ void gameCore::gameMenu()
 			posY = 0;
 			state = false;
 		}
-		void update(point2D touch, unsigned int kDown, unsigned int kHeld)
+		void update(touchPosition touch, u32 kDown, u32 kHeld)
 		{
-			if ((kDown | kHeld) & HI::HI_KEY_TOUCH)
+			if ((kDown | kHeld) & KEY_TOUCH)
 			{
-				if (touch.x >= posX && touch.x <= posX + sizeX && touch.y >= posY && touch.y <= posY + sizeY)
+				if (touch.px >= posX && touch.px <= posX + sizeX && touch.py >= posY && touch.py <= posY + sizeY)
 				{
 					state = true;
 				}
@@ -187,7 +289,7 @@ void gameCore::gameMenu()
 			}
 			else state = false;
 		}
-		HI::HITexture getTexture() const
+		sf2d_texture* getTexture() const
 		{
 			if (state) return pressed;
 			else return free;
@@ -199,15 +301,15 @@ void gameCore::gameMenu()
 	<Options>
 	<Quit>
 	*/
-	HI::setBackgroundColor(RGBA8(53, 159, 35, 0xFF));
-	HI::HITexture topImage = HI::loadPngFile(HI::getDataPath()+"sprites/menu_top.png");
-	HI::startFrame(HardwareInterface::SCREEN_TOP);
-	HI::drawTexture(topImage, 0, 0);
-	HI::endFrame();
-	HI::swapBuffers();
+	sf2d_set_clear_color(RGBA8(53, 159, 35, 0xFF));
+	sf2d_texture* topImage = sfil_load_PNG_file("data/sprites/menu_top.png", SF2D_PLACE_RAM);
+	sf2d_start_frame(GFX_TOP, GFX_LEFT);
+	sf2d_draw_texture(topImage, 0, 0);
+	sf2d_end_frame();
+	sf2d_swapbuffers();
 
-	HI::HITexture unpressedButton = HI::loadPngFile(HI::getDataPath()+"sprites/unpressed_button.png");
-	HI::HITexture  pressedButton = HI::loadPngFile(HI::getDataPath()+"sprites/pressed_button.png");
+	sf2d_texture*  unpressedButton = sfil_load_PNG_file("data/sprites/unpressed_button.png", SF2D_PLACE_RAM);
+	sf2d_texture*  pressedButton = sfil_load_PNG_file("data/sprites/pressed_button.png", SF2D_PLACE_RAM);
 
 	button newGame;
 	newGame.posX = 85;
@@ -227,45 +329,50 @@ void gameCore::gameMenu()
 	loadGame.free = unpressedButton;
 	loadGame.state = false;
 
-	point2D touch;
+	touchPosition touch;
+	font = sftd_load_font_mem(FreeSans_ttf, FreeSans_ttf_size);
 
-	while (HI::aptMainLoop()) {
-		HI::updateHID();
+	while (aptMainLoop()) {
+		hidScanInput();
 
-		HI::updateTouch(touch);
-		kDown = HI::getKeysDown();
-		kHeld = HI::getKeysHeld();
-		kUp = HI::getKeysUp();
-		HI::startFrame(HardwareInterface::SCREEN_BOT);
+		hidTouchRead(&touch);
+		kDown = hidKeysDown();
+		kHeld = hidKeysHeld();
+		kUp = hidKeysUp();
 
-		HI::drawTexture(newGame.getTexture(), newGame.posX, newGame.posY);
-		HI::drawTexture(loadGame.getTexture(), loadGame.posX, loadGame.posY);
+		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
 
-		HI::endFrame();
-		HI::startFrame(HardwareInterface::SCREEN_TOP);
-		HI::drawTexture(topImage, 0, 0);
-		HI::endFrame();
+		sf2d_draw_texture(newGame.getTexture(), newGame.posX, newGame.posY);
+		sf2d_draw_texture(loadGame.getTexture(), loadGame.posX, loadGame.posY);
 
-		HI::swapBuffers();
-		if (kDown& HI::HI_KEY_START)return;
+		sftd_draw_textf(font, 145, 70, RGBA8(0, 0, 0, 255), 10, "NEW");
+		sftd_draw_textf(font, 145, 150, RGBA8(0, 0, 0, 255), 10, "LOAD");
 
-		if (newGame.state && (kUp & HI::HI_KEY_TOUCH))
+		sf2d_end_frame();
+		sf2d_start_frame(GFX_TOP, GFX_LEFT);
+		sf2d_draw_texture(topImage, 0, 0);
+		sf2d_end_frame();
+
+		sf2d_swapbuffers();
+		if (kDown&KEY_START)return;
+
+		if (newGame.state && (kUp & KEY_TOUCH))
 		{
 			createSavefile("default");
 			loadSavefile("default");
 			gameLaunch();
-			HI::freeTexture(topImage);
-			HI::freeTexture(newGame.getTexture());
-			HI::freeTexture(loadGame.getTexture());
+			sf2d_free_texture(topImage);
+			sf2d_free_texture(newGame.getTexture());
+			sf2d_free_texture(loadGame.getTexture());
 			return;
 		}
-		if (loadGame.state && (kUp & HI::HI_KEY_TOUCH))
+		if (loadGame.state && (kUp & KEY_TOUCH))
 		{
 			loadSavefile("default");
 			gameLaunch();
-			HI::freeTexture(topImage);
-			HI::freeTexture(newGame.getTexture());
-			HI::freeTexture(loadGame.getTexture());
+			sf2d_free_texture(topImage);
+			sf2d_free_texture(newGame.getTexture());
+			sf2d_free_texture(loadGame.getTexture());
 			return;
 		}
 
@@ -273,7 +380,7 @@ void gameCore::gameMenu()
 		newGame.update(touch, kDown, kHeld);
 
 	}
-	HI::freeTexture(topImage);
-	HI::freeTexture(newGame.getTexture());
-	HI::freeTexture(loadGame.getTexture());
+	sf2d_free_texture(topImage);
+	sf2d_free_texture(newGame.getTexture());
+	sf2d_free_texture(loadGame.getTexture());
 }

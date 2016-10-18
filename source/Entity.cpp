@@ -9,7 +9,7 @@
  */
 
 #include <algorithm>
-#include "../../include/entityx/Entity.h"
+#include "Entity.h"
 
 namespace entityx {
 

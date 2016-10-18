@@ -7,9 +7,9 @@
 */
 
 #pragma once
+#include <3ds.h>
 #include <string>
 #include "stb_vorbis.h"
-#include "HardwareInterface.h"
 
 using namespace std;
 
@@ -21,14 +21,13 @@ public:
 	void playFromFile(string file);
 	void exit();
 private:
-	short assignChannel();
-	bool channelStatus[8];
 	bool exitRequest;
 	bool threadStatus;
-	static void audioMainThread(unsigned int arg);
-	int *audioBuffer;
+	static void audioMainThread(u32 arg);
+	Thread audioThread;
+	u32 *audioBuffer;
 	int fillBlock;
-	HI::dspWaveBuf *waveBuf;
+	ndspWaveBuf *waveBuf;
 	stb_vorbis* vorbisFile;
-	int Samples;
+	u32 Samples;
 };
