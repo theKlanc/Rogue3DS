@@ -1,3 +1,4 @@
+#include <iostream>
 #ifdef _3DS
 #include <3ds.h>
 #include <sf2d.h>
@@ -7,6 +8,8 @@
 #include "../include/HardwareInterface.h"
 #include <dirent.h>
 
+#define DEBUG_PRIORITY 3
+
 void HI::systemInit()
 {
 	srvInit();
@@ -15,6 +18,7 @@ void HI::systemInit()
 	ndspInit();
 	sf2d_init();
 	sftd_init();
+	HI::consoleInit();
 }
 
 void HI::systemFini()
@@ -181,7 +185,7 @@ HardwareInterface::HI_CONSOLE HI::getConsole()
 	return CONSOLE_NINTENDO3DS;
 }
 
-void HI::createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached)
+void HI::createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size)
 {
 	threadCreate((ThreadFunc)entrypoint, arg, stack_size, prio, affinity, detached);
 }
@@ -260,6 +264,16 @@ void HI::dspChnWaveBufAdd(int id, HI::dspWaveBuf* buf)
 void HI::DSP_FlushDataCache(const void* address, unsigned int size)
 {
 	::DSP_FlushDataCache(address, size);
+}
+
+void HardwareInterface::debugPrint(string s)
+{
+	cout << s;
+}
+
+void HardwareInterface::debugPrint(string s, int priority)
+{
+	if (priority >= DEBUG_PRIORITY) cout << s;
 }
 
 void HI::gspWaitForEvent(HardwareInterface::GSPGPU_Event id, bool nextEvent)

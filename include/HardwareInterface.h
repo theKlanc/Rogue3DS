@@ -133,7 +133,7 @@ namespace HardwareInterface
 													DSP_FRONT_BYPASS = BIT(4), ///< Front bypass.
 													DSP_3D_SURROUND_PREPROCESSED = BIT(6), ///< (?) Unknown, under research
 	};
-
+	typedef unsigned int HISize;
 	//System
 	void systemInit();
 	void systemFini();
@@ -197,7 +197,7 @@ namespace HardwareInterface
 
 	//DEBUGGING
 	void debugPrint(string s);
-
+	void debugPrint(string s, int priority);
 
 	//GSP
 	enum  GSPGPU_Event
@@ -215,7 +215,7 @@ namespace HardwareInterface
 	void gspWaitForEvent(HardwareInterface::GSPGPU_Event id, bool nextEvent);
 	void waitForVBlank();
 	//threads
-	void createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached);
+	void createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size);
 }
 namespace HI = HardwareInterface;
 struct textureName {

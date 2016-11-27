@@ -6,6 +6,8 @@
 #include <stdlib.h> 
 #include "core.h"
 #include "entityx/entityx.h"
+#include "FastNoise.h"
+#include "HardwareInterface.h"
 
 using namespace std;
 
@@ -21,10 +23,11 @@ private:
 	//Thread threadHandle;
 	bool threadStatus;
 	bool threadCloseRequest;
-	static void chunkLoader(unsigned int arg);
+	static void chunkLoader(HI::HISize temp,void* arg);
+	static void chunkLoader(void* arg);
 	unsigned char* getBlock(point3D posBlock) const;
 	void putBlock(int block, point3D posBlock);
-	static void createMapAndLoad(unsigned char*** map, point3D c);
+	static void createMapAndLoad(unsigned char*** map, point3D c, FastNoise noiseObj);
 	int chunkValue(point3D chunkN, point3D chunkO) const;
 	int freeChunkID() const;
 	int getBlocksChunkID(point3D b) const;
@@ -55,10 +58,12 @@ public:
 	bool isVisible(point3D p) const;
 	bool isVisible(int n) const;
 	void exit();
-	void startChunkLoader(point3D* temp1);
+	void startChunkLoader();
 	void loadTerrainTable();
 	void loadNewChunk();
 	bool simpleCollision(point3D p) const;
 	bool simpleCollision(int posX, int posY, int posZ) const;
 	gameMap(string nameString);
+
+	FastNoise noiseObj;
 };

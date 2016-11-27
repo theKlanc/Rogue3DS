@@ -69,7 +69,7 @@ void sound::playFromFile(string file)
 
 	HI::dspChnWaveBufAdd(0, &waveBuf[0]);
 	HI::dspChnWaveBufAdd(0, &waveBuf[1]);
-	HI::createThread((void*)audioMainThread, this, 5900, 0x30, 0, true);
+	HI::createThread((void*)audioMainThread, this, 5900, 0x30, 0, true, sizeof(this));
 }
 
 void sound::exit()
@@ -101,7 +101,7 @@ void sound::audioMainThread(unsigned int arg)
 	int samplesLeft = 1;
 	while (samplesLeft && !soundObj->exitRequest) {
 		if (soundObj->waveBuf[soundObj->fillBlock].status == HI::DSP_WBUF_DONE) {
-			//samplesLeft = stb_vorbis_get_samples_short_interleaved(soundObj->vorbisFile, 2, (short*)soundObj->waveBuf[soundObj->fillBlock].data_pcm16, soundObj->Samples * 2);
+			samplesLeft = stb_vorbis_get_samples_short_interleaved(soundObj->vorbisFile, 2, (short*)soundObj->waveBuf[soundObj->fillBlock].data_pcm16, soundObj->Samples * 2);
 			HI::DSP_FlushDataCache(&soundObj->waveBuf[soundObj->fillBlock].data_pcm16, soundObj->waveBuf[soundObj->fillBlock].nsamples);
 			HI::dspChnWaveBufAdd(0, &soundObj->waveBuf[soundObj->fillBlock]);
 			soundObj->fillBlock++;

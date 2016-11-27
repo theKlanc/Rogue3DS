@@ -51,15 +51,16 @@
     <NMakeCleanCommandLine>make --f=vitamakefile.mk clean</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>make --f=vitamakefile.mk</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>NDEBUG;_VITA;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <IncludePath>C:\msys64\usr\local\vitasdk\lib\gcc\arm-vita-eabi\4.9.3\include;C:\msys64\usr\local\vitasdk\arm-vita-eabi\include;D:\3DS\CTRhomebrew\Rogue3DS\source;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\msys64\usr\local\vitasdk\arm-vita-eabi\lib;$(LibraryPath)</LibraryPath>
-    <ReferencePath>C:\msys64\usr\local\vitasdk\arm-vita-eabi\lib;$(ReferencePath)</ReferencePath>
+    <IncludePath>D:\devkitPro\libvita\lib\gcc\arm-vita-eabi\4.9.3\include;D:\devkitPro\libvita\arm-vita-eabi\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\devkitPro\libvita\arm-vita-eabi\lib;$(LibraryPath)</LibraryPath>
+    <ReferencePath>D:\devkitPro\libvita\arm-vita-eabi\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\AISystem.cpp" />
     <ClCompile Include="source\core.cpp" />
+    <ClCompile Include="source\FastNoise.cpp" />
     <ClCompile Include="source\gameCore.cpp" />
     <ClCompile Include="source\gameMap.cpp" />
     <ClCompile Include="source\graphicsSystem.cpp" />
@@ -68,7 +69,6 @@
     <ClCompile Include="source\inputSystem.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\movementSystem.cpp" />
-    <ClCompile Include="source\SimplexNoise.cpp" />
     <ClCompile Include="source\sound.cpp" />
     <ClCompile Include="source\stb_vorbis.c" />
     <ClCompile Include="source\UI.cpp" />
@@ -85,6 +85,7 @@
     <ClInclude Include="include\AISystem.h" />
     <ClInclude Include="include\components.h" />
     <ClInclude Include="include\core.h" />
+    <ClInclude Include="include\FastNoise.h" />
     <ClInclude Include="include\gameCore.h" />
     <ClInclude Include="include\gameMap.h" />
     <ClInclude Include="include\graphicsSystem.h" />
@@ -92,7 +93,6 @@
     <ClInclude Include="include\inputSystem.h" />
     <ClInclude Include="include\movementSystem.h" />
     <ClInclude Include="include\resource.h" />
-    <ClInclude Include="include\SimplexNoise.h" />
     <ClInclude Include="include\sound.h" />
     <ClInclude Include="include\stb_vorbis.h" />
     <ClInclude Include="include\UI.h" />

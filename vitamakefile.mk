@@ -1,7 +1,9 @@
 TITLE_ID = ROGUEVITA
 TARGET   = rogueVita
 SOURCES = $(wildcard source/*.cpp) $(wildcard source/*.c) $(wildcard source/entityx/*.cpp) $(wildcard source/entityx/*.c) $(wildcard source/entityx/help/*.cpp) $(wildcard source/entityx/help/*.c) 
-OBJS     = $(SOURCES)
+OBJECTS = $(SOURCES:*.cpp=*.o) 
+OBJECTS += $(SOURCES:*.c=*.o)
+
 
 LIBS = -lvita2d -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub \
 	-lSceSysmodule_stub -lSceCtrl_stub -lScePgf_stub \
@@ -11,7 +13,7 @@ LIBS = -lvita2d -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub \
 
 PREFIX  = arm-vita-eabi
 CC      = $(PREFIX)-g++
-CFLAGS  = -Wl,-q -Wall -O3 -std=gnu++11 -D_VITA
+CFLAGS  = -Wl,-q -std=gnu++11 -D_VITA
 ASFLAGS = $(CFLAGS)
 
 all: $(TARGET).vpk
@@ -34,20 +36,19 @@ eboot.bin: $(TARGET).velf
 %.velf: %.elf
 	vita-elf-create $< $@
 
-$(TARGET).elf: $(OBJS)
+$(TARGET).elf: $(OBJECTS)
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
 %.o: %.png
 	$(PREFIX)-ld -r -b binary -o $@ $^
 
+%*.o: %*.cpp
+	$(CC) $(CFLAGS) -c -o $@ $<
+	
+%*.o: %*.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+	
 clean:
 	@rm -rf $(TARGET).vpk $(TARGET).velf $(TARGET).elf \
 		eboot.bin param.sfo
-
-vpksend: $(TARGET).vpk
-	curl -T $(TARGET).vpk ftp://$(PSVITAIP):1337/ux0:/
-	@echo "Sent."
-
-send: eboot.bin
-	curl -T eboot.bin ftp://$(PSVITAIP):1337/ux0:/app/$(TITLE_ID)/
-	@echo "Sent."

@@ -19,7 +19,6 @@ void gameCore::gameLoop()
 	kDown = kDown | HI::getKeysDown();
 	kHeld = kHeld | HI::getKeysHeld();
 	kUp = kUp | HI::getKeysUp();
-	
 	if (tick % 12 == 0) {
 		EntityWorld->systems.update_all(0);
 		kDown = HI::getKeysDown();
@@ -75,6 +74,7 @@ void gameCore::gameLaunch()
 	string cacota;
 	general >> cacota >> playerPos->x >> playerPos->y >> playerPos->z;
 	general.close();
+	playerPos->z =1 + FLOOR_HEIGHT + 100 * (1+ map->noiseObj.GetNoise(playerPos->x, playerPos->y)/2);
 	puts("LMAOOOO");
 	map->addPlayer(playerPos);
 	for (int i = 0; i < CHUNK_NUM; i++) {
@@ -105,7 +105,7 @@ void gameCore::gameLaunch()
 	doggo.assign<Position>(dogPos);
 	doggo.assign<FixedSprite>("doggo.png");	
 	//soundObj.playFromFile(HI::getDataPath()+"sounds/bgm/wilderness.ogg");
-	map->startChunkLoader(playerPos);
+	map->startChunkLoader();
 	tick = 0;
 	while (HI::aptMainLoop() && !exitBool) {
 		gameLoop();
@@ -252,8 +252,8 @@ void gameCore::gameMenu()
 
 		HI::swapBuffers();
 		if (kDown& HI::HI_KEY_START)return;
-
-		if (true || newGame.state && (kUp & HI::HI_KEY_TOUCH))
+		
+		if (HI::getConsole() == HI::CONSOLE_PSVITA || newGame.state && (kUp & HI::HI_KEY_TOUCH))
 		{
 			createSavefile("default");
 			loadSavefile("default");
@@ -263,7 +263,7 @@ void gameCore::gameMenu()
 			HI::freeTexture(loadGame.getTexture());
 			return;
 		}
-		if (false && loadGame.state && (kUp & HI::HI_KEY_TOUCH))
+		if (loadGame.state && (kUp & HI::HI_KEY_TOUCH))
 		{
 			loadSavefile("default");
 			gameLaunch();

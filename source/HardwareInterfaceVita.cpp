@@ -7,8 +7,9 @@
 #include <psp2/display.h>
 #include <psp2shell.h>
 
-#define SCALE 1
-//#include <pthread.h>
+#define SCALE 2
+#define DEBUG_PRIORITY 4
+
 void HI::systemInit() {
 	vita2d_init();
 	psp2shell_init(3333, 0);
@@ -99,8 +100,32 @@ std::string HI::getSavesPath() {
 }
 
 bool HardwareInterface::createDir(std::string path) {  		  //BORKEN
+	//if (HI::fsExists(path)) {
+	//	errno = EEXIST;
+	//	return false;
+	//}
+	//return (mkdir(path.c_str(), 0777) == 0);
 	return false;
 }
+//
+//bool HardwareInterface::fsExists(std::string path) {
+//	FILE* fd = fopen(path.c_str(), "r");
+//	if (fd) {
+//		fclose(fd);
+//		return true;
+//	}
+//	return fsIsDirectory(path);
+//}
+//bool HI::fsIsDirectory(const std::string path) {
+//	DIR* dir = opendir(path.c_str());
+//	if (dir) {
+//		closedir(dir);
+//		return true;
+//	}
+//	return false;
+//}
+
+
 bool HardwareInterface::copyFile(std::string input, std::string output) { 		  //DIRTY BUT NOT BORKEN
 	std::ifstream  iFile(input, std::ios::binary);
 	std::ofstream  oFile(output, std::ios::binary);
@@ -121,8 +146,9 @@ HardwareInterface::HI_CONSOLE HI::getConsole() {
 	return CONSOLE_PSVITA;
 }
 
-void HI::createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached) {			  //SUPA BORKEN
-	//sceKernelCreateThread("test", (SceKernelThreadEntry)entrypoint, 0x00000100, stack_size,(SceUInt)arg, 0, NULL);
+void HI::createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size) {			  //SUPA BORKEN
+	SceUID thread =	sceKernelCreateThread("test", (SceKernelThreadEntry)entrypoint, 0x40, stack_size,0, 0, NULL);
+	sceKernelStartThread(thread,arg_size, arg);
 }
 
 void HI::updateTouch(point2D &touch) {			  //BORKEN
@@ -158,11 +184,12 @@ void HI::getCirclePadPos(point2D &circle, HI_CIRCLEPAD circlePadID) { 		  //BORK
 }
 
 void HI::sleepThread(unsigned long ns) {		  //BORKEN
+	sceKernelDelayThread(ns*1000);
 }
 
 
 void* HI::linearAllocator(size_t size) {		  //BORKEN
-	return (void*)&size;
+	return new char[size];
 }
 
 //Sound
@@ -184,8 +211,12 @@ void HI::DSP_FlushDataCache(const void* address, unsigned int size) {			  //BORK
 }
 
 void HardwareInterface::debugPrint(string s) {
-	psp2shell_print(s.c_str());
+	HI::debugPrint(s, 1);
 }
+void HardwareInterface::debugPrint(string s, int p) {
+	if (p>=DEBUG_PRIORITY)psp2shell_print(s.c_str());
+}
+
 
 void HI::gspWaitForEvent(HardwareInterface::GSPGPU_Event id, bool nextEvent) {	  		  //BORKEN
 }
