@@ -18,7 +18,7 @@ void HI::systemInit()
 	ndspInit();
 	sf2d_init();
 	sftd_init();
-	HI::consoleInit();
+	//HI::consoleInit();
 }
 
 void HI::systemFini()
@@ -79,17 +79,17 @@ HI::HITexture HI::loadBmpFile(std::string path)
 
 void HI::drawTexture(HI::HITexture texture, int posX, int posY)
 {
-	sf2d_draw_texture((sf2d_texture*)texture, posX, posY);
+	if (texture != nullptr) sf2d_draw_texture((sf2d_texture*)texture, posX, posY);
 }
 
 void HI::drawTextureRotate(HI::HITexture texture, int posX, int posY, float angle)
 {
-	sf2d_draw_texture_rotate((sf2d_texture*)texture, posX, posY, angle);
+	if (texture != nullptr) sf2d_draw_texture_rotate((sf2d_texture*)texture, posX, posY, angle);
 }
 
 void HI::drawTexturePart(HI::HITexture texture, int startX, int startY, int posX, int posY, int sizeX, int sizeY)
 {
-	sf2d_draw_texture_part((sf2d_texture*)texture, posX, posY, startX, startY, sizeX, sizeY);
+	if (texture != nullptr) sf2d_draw_texture_part((sf2d_texture*)texture, posX, posY, startX, startY, sizeX, sizeY);
 }
 
 void HI::mergeTextures(HITexture origin, HITexture destination, short posX, short posY)			   ////////AIXO NO FUNCA K B I NO SE NI VEIG PK FIRE
@@ -180,9 +180,9 @@ int HI::getScreenWidth()
 	return 400;
 }
 
-HardwareInterface::HI_CONSOLE HI::getConsole()
+HardwareInterface::HI_PLATFORM HI::getPlatform()
 {
-	return CONSOLE_NINTENDO3DS;
+	return PLATFORM_NINTENDO3DS;
 }
 
 void HI::createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size)

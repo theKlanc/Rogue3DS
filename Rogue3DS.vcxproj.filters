@@ -16,6 +16,9 @@
     <Filter Include="Makefiles">
       <UniqueIdentifier>{d15f1e94-9055-4fac-b56e-8ba19d7be986}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Deps">
+      <UniqueIdentifier>{bd99ebe4-17fa-4491-b29e-38139e5ba24e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\core.cpp">
@@ -36,9 +39,6 @@
     <ClCompile Include="source\UI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\stb_vorbis.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\graphicsSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -57,8 +57,29 @@
     <ClCompile Include="source\AISystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\FastNoise.cpp">
+    <ClCompile Include="source\HardwareInterfacePC.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\stb_vorbis.c">
+      <Filter>Deps</Filter>
+    </ClCompile>
+    <ClCompile Include="source\FastNoise.cpp">
+      <Filter>Deps</Filter>
+    </ClCompile>
+    <ClCompile Include="source\entityx\Entity.cpp">
+      <Filter>Deps</Filter>
+    </ClCompile>
+    <ClCompile Include="source\entityx\Event.cpp">
+      <Filter>Deps</Filter>
+    </ClCompile>
+    <ClCompile Include="source\entityx\System.cpp">
+      <Filter>Deps</Filter>
+    </ClCompile>
+    <ClCompile Include="source\entityx\help\Timer.cpp">
+      <Filter>Deps</Filter>
+    </ClCompile>
+    <ClCompile Include="source\entityx\help\Pool.cpp">
+      <Filter>Deps</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

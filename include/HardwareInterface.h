@@ -9,10 +9,10 @@ namespace HardwareInterface
 {
 	typedef void* HITexture;
 	typedef int HIColor;
-	enum HI_CONSOLE
-	{
-		CONSOLE_PSVITA,
-		CONSOLE_NINTENDO3DS
+	enum HI_PLATFORM {
+		PLATFORM_PSVITA,
+		PLATFORM_NINTENDO3DS,
+		PLATFORM_PC,
 	};
 	enum HI_SCREEN
 	{
@@ -182,7 +182,7 @@ namespace HardwareInterface
 	//HardwareInfo
 	int getScreenHeight();
 	int getScreenWidth();
-	HI_CONSOLE getConsole();
+	HI_PLATFORM getPlatform();
 
 	//Sound
 	void dspSetOutputMode(dspOutputMode mode);
@@ -216,8 +216,11 @@ namespace HardwareInterface
 	void waitForVBlank();
 	//threads
 	void createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size);
+
+	//static vars
 }
 namespace HI = HardwareInterface;
+
 struct textureName {
 	HI::HITexture texture  = NULL;
 	string name = "";

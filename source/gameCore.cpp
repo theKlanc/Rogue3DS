@@ -253,7 +253,7 @@ void gameCore::gameMenu()
 		HI::swapBuffers();
 		if (kDown& HI::HI_KEY_START)return;
 		
-		if (HI::getConsole() == HI::CONSOLE_PSVITA || newGame.state && (kUp & HI::HI_KEY_TOUCH))
+		if (HI::getPlatform() == HI::PLATFORM_PC || HI::getPlatform() == HI::PLATFORM_PSVITA || newGame.state && (kUp & HI::HI_KEY_TOUCH))
 		{
 			createSavefile("default");
 			loadSavefile("default");

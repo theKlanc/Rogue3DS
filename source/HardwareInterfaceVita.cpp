@@ -6,6 +6,7 @@
 #include <psp2/ctrl.h>
 #include <psp2/display.h>
 #include <psp2shell.h>
+#include <pthread.h>
 
 #define SCALE 2
 #define DEBUG_PRIORITY 4
@@ -142,8 +143,8 @@ int HI::getScreenWidth() {
 	return 960 / SCALE;
 }
 
-HardwareInterface::HI_CONSOLE HI::getConsole() {
-	return CONSOLE_PSVITA;
+HardwareInterface::HI_PLATFORM HI::getPlatform() {
+	return PLATFORM_PSVITA;
 }
 
 void HI::createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size) {			  //SUPA BORKEN

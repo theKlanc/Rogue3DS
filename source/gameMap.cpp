@@ -2,6 +2,7 @@
 #include "../include/core.h"
 #include "../include/FastNoise.h"
 #include "../include/HardwareInterface.h"
+#include <thread>
 
 using namespace std;
 
@@ -28,34 +29,38 @@ void gameMap::chunkLoader(HI::HISize temp, void* arg) {
 }
 
 void gameMap::chunkLoader(void* arg) {
-	HI::debugPrint("SOC AL THREAD \n", 5);
+	HI::debugPrint("SOC AL THREAD \n", 6);
 	gameMap* gameObj = (gameMap*)arg;
 	while (!gameObj->threadCloseRequest) {
-		HI::debugPrint("SOC AL BUCLE DEL THREAD \n",5);
+		//HI::debugPrint("SOC AL BUCLE DEL THREAD \n",6);
 		gameObj->loadNewChunk();
-		HI::sleepThread(50000000);
+		//HI::sleepThread(50000000);
 	}
 	gameObj->threadStatus = false;
 }
 
 void gameMap::startChunkLoader() {
 	threadStatus = true;
-	if (HI::getConsole() == HI::CONSOLE_PSVITA) {
-		HI::createThread((void*)static_cast<void(*)(HI::HISize, void*)>(chunkLoader), this, 50000, 0x3F, 0, true, sizeof(*this));
+	if (HI::getPlatform() == HI::PLATFORM_PSVITA) {
+		HI::createThread((void*)static_cast<void(*)(void*)>(chunkLoader), this, 5000, 0x3F, 0, true, sizeof(*this));
+		//HI::createThread((void*)static_cast<void(*)(HI::HISize, void*)>(chunkLoader), this, 5000, 0x3F, 0, true, sizeof(*this));
 	}
-	else if(HI::getConsole() == HI::CONSOLE_NINTENDO3DS)
+	else if(HI::getPlatform() == HI::PLATFORM_NINTENDO3DS)
 	{
 		HI::createThread((void*)static_cast<void(*)(void*)>(chunkLoader), this, 5000, 0x3F, 0, true, sizeof(*this));
+	}
+	else if(HI::getPlatform() == HI::PLATFORM_PC)
+	{
+		thread newThread(static_cast<void(*)(void*)>(chunkLoader),(void*)this);
+		newThread.detach();
 	}
 }
 
 point3D gameMap::getChunk(point3D pos) {
-	HI::debugPrint("LoadNewChunk231 \n", 5);
 	point3D b;
 	b.x = pos.x / CHUNK_SIZE;
 	b.y = pos.y / CHUNK_SIZE;
 	b.z = pos.z / CHUNK_SIZE;
-	HI::debugPrint("LoadNewChunk123 \n", 5);
 	return b;
 }
 

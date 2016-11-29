@@ -7,14 +7,20 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rogue3DS", "Rogue3DS.vcxpro
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		3DS|ARM = 3DS|ARM
-		Vita|ARM = Vita|ARM
+		3DS|ARM-x86 = 3DS|ARM-x86
+		PC-Debug|ARM-x86 = PC-Debug|ARM-x86
+		PC-Release|ARM-x86 = PC-Release|ARM-x86
+		Vita|ARM-x86 = Vita|ARM-x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.3DS|ARM.ActiveCfg = 3DS|Win32
-		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.3DS|ARM.Build.0 = 3DS|Win32
-		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.Vita|ARM.ActiveCfg = Vita|Win32
-		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.Vita|ARM.Build.0 = Vita|Win32
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.3DS|ARM-x86.ActiveCfg = 3DS|Win32
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.3DS|ARM-x86.Build.0 = 3DS|Win32
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.PC-Debug|ARM-x86.ActiveCfg = PC-Debug|Win32
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.PC-Debug|ARM-x86.Build.0 = PC-Debug|Win32
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.PC-Release|ARM-x86.ActiveCfg = PC|Win32
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.PC-Release|ARM-x86.Build.0 = PC|Win32
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.Vita|ARM-x86.ActiveCfg = Vita|Win32
+		{77759511-FA13-4DAF-9E8E-E38B3DBA0883}.Vita|ARM-x86.Build.0 = Vita|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

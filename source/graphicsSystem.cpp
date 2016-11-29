@@ -147,7 +147,7 @@ HI::HITexture graphicsSystem::getTexture(point3D p) const {
 	b.z = floor(p.z / CHUNK_SIZE);
 
 	int chunkPosition = mapObj->getChunkID(b);
-	if (chunkPosition != -1) {
+	if (chunkPosition != -1 && b.x>=0 && b.y >=0 && b.z >=0) {
 		if (mapObj->isVisible(p)) {
 			return texTable[getTexturePos(mapObj->getTerrainName(p))].texture;
 		}

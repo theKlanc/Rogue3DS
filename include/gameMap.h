@@ -1,9 +1,4 @@
 #pragma once
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <math.h>
-#include <stdlib.h> 
 #include "core.h"
 #include "entityx/entityx.h"
 #include "FastNoise.h"
@@ -36,13 +31,9 @@ private:
 	void freeAllChunks();
 
 	void loadChunk(point3D c);
-	int visibleEntity(point3D p) const;
 	int getTerrainListPos(point3D p) const;
 	bool getTerrainVisible(point3D p) const;
 	bool getTerrainSolid(point3D p) const;
-
-	bool getEntityVisible(point3D p) const;
-	bool getEntitySolid(point3D p) const;
 	point3D* playerPos;
 public:
 	terrain getTerrain(point3D pos);
@@ -51,7 +42,6 @@ public:
 	static point3D getChunk(point3D pos);
 	static point3D getChunk(int x, int y, int z);
 	int getChunkID(point3D p) const;
-	string getEntityName(point3D p) const;
 	string getTerrainName(point3D p) const;
 	int getTerrainListSize() const;
 	string getTextureName(int n) const;

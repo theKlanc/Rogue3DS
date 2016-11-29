@@ -5,7 +5,7 @@ OBJECTS = $(SOURCES:*.cpp=*.o)
 OBJECTS += $(SOURCES:*.c=*.o)
 
 
-LIBS = -lvita2d -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub \
+LIBS = -lpthread -lvita2d -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub \
 	-lSceSysmodule_stub -lSceCtrl_stub -lScePgf_stub \
 	-lSceCommonDialog_stub -lfreetype -lpng -ljpeg -lz -lm -lc \
 	-lpsp2shell -lSceSysmodule_stub -lSceNet_stub \

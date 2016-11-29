@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
 	HI::systemInit();
-	//HI::consoleInit();
+	HI::consoleInit();
 	HI::setBackgroundColor(RGBA8(0x00, 0x00, 0x00, 0xFF));
 	srand(time(nullptr));
 	gameCore gameCore1;

@@ -5,6 +5,14 @@
       <Configuration>3DS</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="PC-Debug|Win32">
+      <Configuration>PC-Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="PC|Win32">
+      <Configuration>PC</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Vita|Win32">
       <Configuration>Vita</Configuration>
       <Platform>Win32</Platform>
@@ -13,6 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{77759511-FA13-4DAF-9E8E-E38B3DBA0883}</ProjectGuid>
     <Keyword>MakeFileProj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='3DS|Win32'" Label="Configuration">
@@ -24,6 +33,13 @@
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='PC|Win32'">
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PC-Debug|Win32'" Label="Configuration">
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -55,16 +71,47 @@
     <LibraryPath>D:\devkitPro\libvita\arm-vita-eabi\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>D:\devkitPro\libvita\arm-vita-eabi\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
-  <ItemDefinitionGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PC-Debug|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PC|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\SFML\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\SFML\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-system.lib;sfml-window.lib;sfml-graphics.lib;sfml-network.lib;sfml-audio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PC-Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\SFML\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\SFML\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-system-d.lib;sfml-window-d.lib;sfml-graphics-d.lib;sfml-network-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\AISystem.cpp" />
     <ClCompile Include="source\core.cpp" />
+    <ClCompile Include="source\entityx\Entity.cpp" />
+    <ClCompile Include="source\entityx\Event.cpp" />
+    <ClCompile Include="source\entityx\help\Pool.cpp" />
+    <ClCompile Include="source\entityx\help\Timer.cpp" />
+    <ClCompile Include="source\entityx\System.cpp" />
     <ClCompile Include="source\FastNoise.cpp" />
     <ClCompile Include="source\gameCore.cpp" />
     <ClCompile Include="source\gameMap.cpp" />
     <ClCompile Include="source\graphicsSystem.cpp" />
     <ClCompile Include="source\HardwareInterface3DS.cpp" />
+    <ClCompile Include="source\HardwareInterfacePC.cpp" />
     <ClCompile Include="source\HardwareInterfaceVita.cpp" />
     <ClCompile Include="source\inputSystem.cpp" />
     <ClCompile Include="source\main.cpp" />
