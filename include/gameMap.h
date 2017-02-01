@@ -18,10 +18,9 @@ private:
 	//Thread threadHandle;
 	bool threadStatus;
 	bool threadCloseRequest;
-	static void chunkLoader(HI::HISize temp,void* arg);
 	static void chunkLoader(void* arg);
 	unsigned char* getBlock(point3D posBlock) const;
-	void putBlock(int block, point3D posBlock);
+	void putBlock(int block, point3D posBlock) const;
 	static void createMapAndLoad(unsigned char*** map, point3D c, FastNoise noiseObj);
 	int chunkValue(point3D chunkN, point3D chunkO) const;
 	int freeChunkID() const;

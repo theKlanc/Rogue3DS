@@ -1,3 +1,4 @@
+#include <future>
 #ifdef WIN32
 #include <iostream>
 #include "../include/core.h"
@@ -6,6 +7,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 #include <thread>
+#include <functional>
 
 #define DEBUG_PRIORITY 6
 
@@ -153,8 +155,8 @@ HardwareInterface::HI_PLATFORM HI::getPlatform() {
 	return PLATFORM_PC;
 }
 
-void HI::createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size) {
-	std::thread newThread(static_cast<void(*)(void*)>(entrypoint), arg);
+void HI::createThread(void* entrypoint, std::reference_wrapper<void(void*)> entrypoint2,void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size) {
+	std::thread newThread(entrypoint2.get(), arg);
 	newThread.detach();
 }
 
@@ -186,7 +188,7 @@ void HI::getCirclePadPos(point2D &circle, HI_CIRCLEPAD circlePadID) { //WIP
 }
 
 void HI::sleepThread(unsigned long ns) {	 //WIP
-	//std::this_thread::sleep_for(std::chrono::nanoseconds(ns));
+	std::this_thread::sleep_for(std::chrono::nanoseconds(ns));
 }
 
 
@@ -224,6 +226,7 @@ void HI::gspWaitForEvent(HardwareInterface::GSPGPU_Event id, bool nextEvent) {
 }
 
 void HI::waitForVBlank() {
+	std::this_thread::sleep_for(16666ns);
 }
 
 bool HI::aptMainLoop() {

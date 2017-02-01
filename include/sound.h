@@ -25,7 +25,7 @@ private:
 	bool channelStatus[8];
 	bool exitRequest;
 	bool threadStatus;
-	static void audioMainThread(unsigned int arg);
+	static void audioMainThread(void* arg);
 	int *audioBuffer;
 	int fillBlock;
 	HI::dspWaveBuf *waveBuf;

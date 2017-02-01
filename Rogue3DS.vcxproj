@@ -88,17 +88,22 @@
     <ClCompile>
       <AdditionalIncludeDirectories>C:\SFML\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32</PreprocessorDefinitions>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\SFML\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-system-d.lib;sfml-window-d.lib;sfml-graphics-d.lib;sfml-network-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="include\HardwareInterface.cpp" />
     <ClCompile Include="source\AISystem.cpp" />
     <ClCompile Include="source\core.cpp" />
     <ClCompile Include="source\entityx\Entity.cpp" />
@@ -117,13 +122,12 @@
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\movementSystem.cpp" />
     <ClCompile Include="source\sound.cpp" />
+    <ClCompile Include="source\states\state_base.cpp" />
     <ClCompile Include="source\stb_vorbis.c" />
     <ClCompile Include="source\UI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="3dsmakefile.mk" />
-    <None Include="ClassDiagram1.cd" />
-    <None Include="ClassDiagram11.cd" />
     <None Include="resources\banner.bin" />
     <None Include="resources\icon.bin" />
     <None Include="vitamakefile.mk" />
@@ -141,6 +145,7 @@
     <ClInclude Include="include\movementSystem.h" />
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\sound.h" />
+    <ClInclude Include="include\states\state_base.h" />
     <ClInclude Include="include\stb_vorbis.h" />
     <ClInclude Include="include\UI.h" />
   </ItemGroup>

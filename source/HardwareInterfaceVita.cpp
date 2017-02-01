@@ -7,6 +7,7 @@
 #include <psp2/display.h>
 #include <psp2shell.h>
 #include <pthread.h>
+#include <functional>
 
 #define SCALE 2
 #define DEBUG_PRIORITY 4
@@ -146,10 +147,16 @@ int HI::getScreenWidth() {
 HardwareInterface::HI_PLATFORM HI::getPlatform() {
 	return PLATFORM_PSVITA;
 }
+std::string to_string(int i) {
+	std::stringstream ss;
+	ss << i;
+	return ss.str();
+}
 
-void HI::createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size) {			  //SUPA BORKEN
-	SceUID thread =	sceKernelCreateThread("test", (SceKernelThreadEntry)entrypoint, 0x40, stack_size,0, 0, NULL);
-	sceKernelStartThread(thread,arg_size, arg);
+void HI::createThread(void* entrypoint, std::reference_wrapper<void(void*)>entrypoint2, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size) {
+	pthread_t thread0;
+	pthread_create(&thread0, NULL, (void*(*)(void*))entrypoint, arg);
+	pthread_detach(thread0);
 }
 
 void HI::updateTouch(point2D &touch) {			  //BORKEN

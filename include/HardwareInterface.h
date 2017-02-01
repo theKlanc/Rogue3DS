@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include "core.h"
 
 #define RGBA8(r, g, b, a) ((((a)&0xFF)<<24) | (((b)&0xFF)<<16) | (((g)&0xFF)<<8) | (((r)&0xFF)<<0))
@@ -133,7 +132,6 @@ namespace HardwareInterface
 													DSP_FRONT_BYPASS = BIT(4), ///< Front bypass.
 													DSP_3D_SURROUND_PREPROCESSED = BIT(6), ///< (?) Unknown, under research
 	};
-	typedef unsigned int HISize;
 	//System
 	void systemInit();
 	void systemFini();
@@ -215,8 +213,7 @@ namespace HardwareInterface
 	void gspWaitForEvent(HardwareInterface::GSPGPU_Event id, bool nextEvent);
 	void waitForVBlank();
 	//threads
-	void createThread(void* entrypoint, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size);
-
+	void createThread(void* entrypoint, std::reference_wrapper<void(void*)> entrypoint2, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size);
 	//static vars
 }
 namespace HI = HardwareInterface;

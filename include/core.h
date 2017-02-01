@@ -43,10 +43,6 @@ enum direction {
 	BACK,
 };
 
-enum gameState {
-	STATE_MENU,
-	STATE_WORLD,
-};
 struct point3D {
 	point3D(int x, int y, int z) : x(x),y(y),z(z){}
 	point3D(){}

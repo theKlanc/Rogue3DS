@@ -75,7 +75,6 @@ void gameCore::gameLaunch()
 	general >> cacota >> playerPos->x >> playerPos->y >> playerPos->z;
 	general.close();
 	playerPos->z =1 + FLOOR_HEIGHT + 100 * (1+ map->noiseObj.GetNoise(playerPos->x, playerPos->y)/2);
-	puts("LMAOOOO");
 	map->addPlayer(playerPos);
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		map->loadNewChunk();
@@ -86,18 +85,19 @@ void gameCore::gameLaunch()
 	EntityWorld->systems.add<graphicsSystem>(map, playerPos);
 	EntityWorld->systems.add<AISystem>();
 	EntityWorld->systems.configure();
-	entityx::Entity test = EntityWorld->entities.create();
-	test.assign<Position>(*playerPos);
+	entityx::Entity player = EntityWorld->entities.create();
+	player.assign<Position>(*playerPos);
 	point3D caca;
 	caca.x++;
 	caca.y++;
 	caca.z++;
-	test.assign<Velocity>(caca);
-	test.assign<Player>(playerPos);
-	test.assign<FixedSprite>("player.png");
+	player.assign<Velocity>(caca);
+	player.assign<Player>(playerPos);
+	player.assign<FixedSprite>("player.png");
 	point3D dogPos = *playerPos;
 	dogPos.x += 4;
 	dogPos.y += 6;
+	dogPos.z = 1 + FLOOR_HEIGHT + 100 * (1 + map->noiseObj.GetNoise(dogPos.x, dogPos.y) / 2);
 
 	entityx::Entity doggo = EntityWorld->entities.create();
 	doggo.assign<AIFollower>(playerPos,3);

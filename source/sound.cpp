@@ -4,6 +4,7 @@
 #include "../include/sound.h"
 #include "../include/stb_vorbis.h"
 #include "../include/HardwareInterface.h"
+#include <thread>
 
 
 using namespace std;
@@ -69,7 +70,8 @@ void sound::playFromFile(string file)
 
 	HI::dspChnWaveBufAdd(0, &waveBuf[0]);
 	HI::dspChnWaveBufAdd(0, &waveBuf[1]);
-	HI::createThread((void*)audioMainThread, this, 5900, 0x30, 0, true, sizeof(this));
+
+	HI::createThread((void*)audioMainThread,std::ref(audioMainThread), this, 5900, 0x30, 0, true, sizeof(this));
 }
 
 void sound::exit()
@@ -94,7 +96,7 @@ short sound::assignChannel()
 	return -1;
 }
 
-void sound::audioMainThread(unsigned int arg)
+void sound::audioMainThread(void* arg)
 {
 	sound* soundObj = (sound*)arg;
 	soundObj->threadStatus = true;
