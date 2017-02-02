@@ -11,8 +11,7 @@ int main()
 	HI::setBackgroundColor(RGBA8(0x00, 0x00, 0x00, 0xFF));
 	srand(time(nullptr));
 	gameCore gameCore1;
-	gameCore1.gameMenu();
-	gameCore1.exit();
+	gameCore1.gameLoop();
 	HI::systemFini();
 	return 0;
 }

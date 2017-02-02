@@ -122,6 +122,8 @@
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\movementSystem.cpp" />
     <ClCompile Include="source\sound.cpp" />
+    <ClCompile Include="source\states\state_main_menu.cpp" />
+    <ClCompile Include="source\states\state_playing.cpp" />
     <ClCompile Include="source\states\state_base.cpp" />
     <ClCompile Include="source\stb_vorbis.c" />
     <ClCompile Include="source\UI.cpp" />
@@ -146,6 +148,8 @@
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\sound.h" />
     <ClInclude Include="include\states\state_base.h" />
+    <ClInclude Include="include\states\state_main_menu.h" />
+    <ClInclude Include="include\states\state_playing.h" />
     <ClInclude Include="include\stb_vorbis.h" />
     <ClInclude Include="include\UI.h" />
   </ItemGroup>
