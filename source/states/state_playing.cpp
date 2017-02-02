@@ -7,8 +7,7 @@
 #include "../../include/graphicsSystem.h"
 
 namespace State {
-	Playing::Playing(gameCore& application): State_Base(application)
-	{
+	Playing::Playing(gameCore& application) : State_Base(application) {
 		saveName = "default";
 		map = new gameMap(saveName);
 		EntityWorld = new ex::EntityX();
@@ -56,11 +55,10 @@ namespace State {
 		doggo.assign<Position>(dogPos);
 		doggo.assign<FixedSprite>("doggo.png");
 		//soundObj.playFromFile(HI::getDataPath()+"sounds/bgm/wilderness.ogg");
-		map->startChunkLoader();	
+		map->startChunkLoader();
 	}
 
-	Playing::~Playing()
-	{
+	Playing::~Playing() {
 		string generalFile = HI::getSavesPath() + saveName + "/general.txt";
 		std::remove(generalFile.c_str());
 
@@ -71,29 +69,28 @@ namespace State {
 	}
 
 	void Playing::input() {
-
-	}
-
-	void Playing::update(float dt) {
 		HI::updateHID();
 		kDown = kDown | HI::getKeysDown();
 		kHeld = kHeld | HI::getKeysHeld();
 		kUp = kUp | HI::getKeysUp();
 		if (tick % 12 == 0) {
-			EntityWorld->systems.update_all(0);
 			kDown = HI::getKeysDown();
 			kHeld = HI::getKeysHeld();
 			kUp = HI::getKeysUp();
 		}
-		else  HI::waitForVBlank();
-		if (kDown & HI::HI_KEY_START) {
+		if (kHeld & HI::HI_KEY_START) {
 			core->popState();
 		}
+	}
+
+	void Playing::update(float dt) {
+		if (tick % 12 == 0) {
+			EntityWorld->systems.update_all(0);
+		}
+		else  HI::waitForVBlank();
 		tick++;
 	}
 
 	void Playing::draw() {
-
 	}
-
 }

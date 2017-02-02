@@ -5,7 +5,8 @@
 namespace State {
 	MainMenu::MainMenu(gameCore& application)
 		: State_Base(application) {
-		HI::setBackgroundColor(RGBA8(53, 159, 35, 0xFF));
+		
+			HI::setBackgroundColor(RGBA8(53, 159, 35, 0xFF));
 		topImage = HI::loadPngFile(HI::getDataPath() + "sprites/menu_top.png");
 		HI::startFrame(HardwareInterface::SCREEN_TOP);
 		HI::drawTexture(topImage, 0, 0);
@@ -47,9 +48,9 @@ namespace State {
 		kHeld = HI::getKeysHeld();
 		kUp = HI::getKeysUp();
 
-		if (kDown& HI::HI_KEY_START)core->popState();
+		if (kDown & HI::HI_KEY_START)core->popState();
 
-		if (HI::getPlatform() == HI::PLATFORM_PC || HI::getPlatform() == HI::PLATFORM_PSVITA || newGame.state && (kUp & HI::HI_KEY_TOUCH)) {
+		if (newGame.state && (kUp & HI::HI_KEY_TOUCH)) {
 			createSavefile("default");
 			core->pushState(std::make_unique<State::Playing>(*core));
 			return;
@@ -66,15 +67,16 @@ namespace State {
 	}
 
 	void MainMenu::draw() {
+		HI::startFrame(HardwareInterface::SCREEN_TOP);
+		HI::drawTexture(topImage, 0, 0);
+		HI::endFrame();
 		HI::startFrame(HardwareInterface::SCREEN_BOT);
 
 		HI::drawTexture(newGame.getTexture(), newGame.posX, newGame.posY);
 		HI::drawTexture(loadGame.getTexture(), loadGame.posX, loadGame.posY);
 
 		HI::endFrame();
-		HI::startFrame(HardwareInterface::SCREEN_TOP);
-		HI::drawTexture(topImage, 0, 0);
-		HI::endFrame();
+		
 
 		HI::swapBuffers();
 	}

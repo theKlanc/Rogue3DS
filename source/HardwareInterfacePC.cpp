@@ -161,14 +161,21 @@ void HI::createThread(void* entrypoint, std::reference_wrapper<void(void*)> entr
 }
 
 void HI::updateTouch(point2D &touch) {
-	touch.x = sf::Mouse::getPosition().x-window->getPosition().x;
-	touch.y = sf::Mouse::getPosition().y - window->getPosition().y;
+	touch.x = sf::Mouse::getPosition(*window).x;
+	touch.y = sf::Mouse::getPosition(*window).y;
 }
 void HI::updateHID() {
 }
 
 int HI::getKeysUp() {
-	return 0;
+	HI::HI_KEYS keys = HI::HI_KEY_B;
+	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) keys = (HI_KEYS)((int)keys | HI::HI_KEY_DOWN);
+	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Left))keys = (HI_KEYS)((int)keys | HI::HI_KEY_LEFT);
+	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right))keys = (HI_KEYS)((int)keys | HI::HI_KEY_RIGHT);
+	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Up))keys = (HI_KEYS)((int)keys | HI::HI_KEY_UP);
+	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space))keys = (HI_KEYS)((int)keys | HI::HI_KEY_START);
+	if (!sf::Mouse::isButtonPressed(sf::Mouse::Left))keys = (HI_KEYS)((int)keys | HI::HI_KEY_TOUCH);
+	return keys;
 }
 int HI::getKeysHeld() {
 	HI::HI_KEYS keys = HI::HI_KEY_B;
