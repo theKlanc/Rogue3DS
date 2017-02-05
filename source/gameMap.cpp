@@ -4,6 +4,7 @@
 #include "../include/HardwareInterface.h"
 #include <thread>
 #include <functional>
+#include "../include/components.h"
 
 using namespace std;
 
@@ -36,7 +37,7 @@ void gameMap::chunkLoader(void* arg) {
 
 void gameMap::startChunkLoader() {
 	threadStatus = true;
-	HI::createThread((void*)(chunkLoader),std::ref(chunkLoader), this, 5000, 0x3F, 0, true, sizeof(*this));
+	HI::createThread((void*)(chunkLoader), std::ref(chunkLoader), this, 5000, 0x3F, 0, true, sizeof(*this));
 }
 
 point3D gameMap::getChunk(point3D pos) {
@@ -126,6 +127,14 @@ int gameMap::getBlocksChunkID(point3D b) const {
 	return -1;
 }
 
+terrain* gameMap::getTerrainList() {
+	return terrainList;
+}
+
+int gameMap::getTerrainListSize() {
+	return terrainListSize;
+}
+
 terrain gameMap::getTerrain(point3D pos) {
 	point3D chunk = getChunk(pos);
 	if (!isChunkLoaded(chunk)) {
@@ -134,7 +143,7 @@ terrain gameMap::getTerrain(point3D pos) {
 	return terrainList[terrainMap[getChunkID(chunk)][pos.x % CHUNK_SIZE][pos.y % CHUNK_SIZE][pos.z % CHUNK_SIZE]];
 }
 
-void gameMap::addPlayer(point3D* pos) {
+void gameMap::updatePlayerPos(point3D pos) {
 	playerPos = pos;
 }
 
@@ -188,7 +197,7 @@ void gameMap::saveChunk(point3D c) {
 	mapIndex[chunkPos].z = -1;
 }
 void gameMap::freeAChunk() {
-	point3D playerChunk = getChunk(*playerPos);
+	point3D playerChunk = getChunk(getPlayerPos());
 	for (int i = 0; i < CHUNK_NUM; i++) {
 		point3D chunkN = mapIndex[i];
 		if (chunkValue(chunkN, playerChunk) > 3) {
@@ -205,6 +214,10 @@ void gameMap::freeAllChunks() {
 			saveChunk(chunkN);
 		}
 	}
+}
+
+point3D gameMap::getPlayerPos() const {
+	return playerPos;
 }
 
 void gameMap::loadChunk(point3D c) {
@@ -261,7 +274,7 @@ void gameMap::loadTerrainTable() {
 	terrainTable.close();
 }
 void gameMap::loadNewChunk() {
-	point3D playerChunk = getChunk(*playerPos);
+	point3D playerChunk = getChunk(getPlayerPos());
 	for (int i = -1; i < 2; i++) {
 		for (int j = -1; j < 2; j++) {
 			for (int k = -1; k < 2; k++) {
@@ -347,7 +360,7 @@ bool gameMap::getTerrainSolid(point3D p) const {
 	return terrainList[getTerrainListPos(p)].solid;
 }
 
-gameMap::gameMap(string nameString) : terrainListSize(0), saveName(nameString), threadStatus(false), threadCloseRequest(false), playerPos(nullptr) {
+gameMap::gameMap(string nameString) : terrainListSize(0), saveName(nameString), threadStatus(false), threadCloseRequest(false) {
 	noiseObj.SetNoiseType(FastNoise::SimplexFractal);
 	noiseObj.SetFractalOctaves(5);
 	noiseObj.SetSeed(0);

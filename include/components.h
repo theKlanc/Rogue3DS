@@ -57,10 +57,5 @@ struct Position
 struct Collision{};
 struct CanSwim{};
 struct CanFly{};
-struct Player
-{
-	explicit Player(point3D* pos) : pos(pos){}
-	point3D* pos;
-};
-
+struct Player{};
 struct Inventory{};

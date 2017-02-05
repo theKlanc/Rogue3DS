@@ -28,15 +28,17 @@ private:
 	void saveChunk(point3D c);
 	void freeAChunk();
 	void freeAllChunks();
-
+	point3D getPlayerPos() const;
 	void loadChunk(point3D c);
 	int getTerrainListPos(point3D p) const;
 	bool getTerrainVisible(point3D p) const;
 	bool getTerrainSolid(point3D p) const;
-	point3D* playerPos;
+	point3D playerPos;
 public:
+	terrain* getTerrainList();
+	int getTerrainListSize();
 	terrain getTerrain(point3D pos);
-	void addPlayer(point3D* pos);
+	void updatePlayerPos(point3D pos);
 	bool isChunkLoaded(point3D p) const;
 	static point3D getChunk(point3D pos);
 	static point3D getChunk(int x, int y, int z);

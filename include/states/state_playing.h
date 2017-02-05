@@ -10,11 +10,14 @@ namespace State {
 		Playing(gameCore& application);
 		~Playing();
 
-		void input();
-		void update(float dt);
-		void draw();
+		void input() override;
+		void update(float dt) override;
+		void draw() override;
 
 	private:
+		void cameraUpdate();
+		void loadTerrainTextures() const;
+
 		gameMap* map;
 		sound soundObj;
 		long long tick;
@@ -23,5 +26,6 @@ namespace State {
 		entityx::EntityX* EntityWorld;
 		entityx::Entity* playerEntity;
 		string playerName; //treure ho
+		point3D cameraPos;
 	};
 }

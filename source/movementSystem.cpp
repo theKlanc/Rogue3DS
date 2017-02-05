@@ -38,9 +38,5 @@ void movementSystem::update(entityx::EntityManager& es, entityx::EventManager& e
 		}
 		
 	}
-	for(entityx::Entity entity : es.entities_with_components(player,position))
-	{
-		*player->pos = position->currentPosition;
-	}
 	HI::debugPrint("END \n");
 }

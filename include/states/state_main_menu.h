@@ -38,10 +38,10 @@ namespace State {
 	public:
 		MainMenu(gameCore& application);
 		~MainMenu();
-		void input();
-		void update(float dt);
-		void draw();
-		void createSavefile(string name);
+		void input() override;
+		void update(float dt) override;
+		void draw() override;
+		static void createSavefile(string name);
 
 	private:
 		button loadGame;

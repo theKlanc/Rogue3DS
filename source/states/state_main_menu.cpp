@@ -76,12 +76,11 @@ namespace State {
 		HI::drawTexture(loadGame.getTexture(), loadGame.posX, loadGame.posY);
 
 		HI::endFrame();
-		
-
 		HI::swapBuffers();
 	}
 
-	void MainMenu::createSavefile(string name) {
+	void MainMenu::createSavefile(string name)
+	{
 		HI::createDir(HI::getSavesPath() + name + "/");
 		HI::createDir(HI::getSavesPath() + name + "/chunks/");
 		HI::copyFile(HI::getDataPath() + "gameData/defaultSavefile/general.txt", HI::getSavesPath() + name + "/general.txt");
