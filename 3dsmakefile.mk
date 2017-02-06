@@ -28,7 +28,7 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source source/entityx source/entityx/help
+SOURCES		:=	source source/entityx source/entityx/help source/states
 DATA		:=	data
 INCLUDES	:=	include
 

@@ -15,7 +15,7 @@ namespace State {
 		void draw() override;
 
 	private:
-		void cameraUpdate();
+		void cameraUpdate(point3D pos);
 		void loadTerrainTextures() const;
 
 		gameMap* map;

@@ -4,12 +4,12 @@
 
 namespace HI = HardwareInterface;
 
-class graphicsSystem
+class graphics
 {
 
 public:
-	graphicsSystem(){}
-	~graphicsSystem();
+	graphics(){}
+	~graphics();
 	bool isTextureLoaded(string textureFile) const;
 	HI::HITexture loadTexture(string fileName);
 	void freeTexture(string fileName);

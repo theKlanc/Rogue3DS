@@ -74,6 +74,7 @@ struct terrain {
 	string textureFile = "TNULL";
 	bool visible = true;
 	bool solid = true;
+	bool opaque = false;
 	int texturePos = -1;
 };
 

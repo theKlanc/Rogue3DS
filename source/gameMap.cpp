@@ -127,6 +127,24 @@ int gameMap::getBlocksChunkID(point3D b) const {
 	return -1;
 }
 
+int gameMap::getTerrainID(point3D pos) const
+{
+	point3D chunk = getChunk(pos);
+	if (!isChunkLoaded(chunk)) {
+		return -1;
+	}
+	return terrainMap[getChunkID(chunk)][pos.x % CHUNK_SIZE][pos.y % CHUNK_SIZE][pos.z % CHUNK_SIZE];
+}
+
+bool gameMap::isOpaque(point3D pos) const
+{
+	point3D chunk = getChunk(pos);
+	if (!isChunkLoaded(chunk)) {
+		return false;
+	}
+	return terrainList[terrainMap[getChunkID(chunk)][pos.x % CHUNK_SIZE][pos.y % CHUNK_SIZE][pos.z % CHUNK_SIZE]].opaque;
+}
+
 terrain* gameMap::getTerrainList() {
 	return terrainList;
 }
@@ -267,7 +285,7 @@ void gameMap::loadTerrainTable() {
 	}
 	int i = 0;
 	while (!terrainTable.eof()) {
-		terrainTable >> terrainList[i].textureFile >> terrainList[i].visible >> terrainList[i].solid;
+		terrainTable >> terrainList[i].textureFile >> terrainList[i].visible >> terrainList[i].solid >> terrainList[i].opaque;
 		terrainListSize++;
 		i++;
 	}

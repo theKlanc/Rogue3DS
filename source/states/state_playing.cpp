@@ -4,11 +4,12 @@
 #include "../../include/movementSystem.h"
 #include "../../include/AISystem.h"
 #include "../../include/components.h"
-#include "../../include/graphicsSystem.h"
+#include "../../include/graphics.h"
 
 namespace State {
 	Playing::Playing(gameCore& application) : State_Base(application) {
-		core->getGraphicsObj()->loadTexture("arrow.png");
+		core->getGraphicsObj()->loadTexture("upArrow.png");
+		core->getGraphicsObj()->loadTexture("downArrow.png");
 		saveName = "default";
 		map = new gameMap(saveName);
 		EntityWorld = new ex::EntityX();
@@ -92,11 +93,11 @@ namespace State {
 		for (entityx::Entity entity : EntityWorld->entities.entities_with_components(position, player)) {
 			pos = entity.component<Position>()->currentPosition;
 		}
+		cameraUpdate(pos);
 		map->updatePlayerPos(pos);
 	}
 
 	void Playing::draw() {
-		cameraUpdate();
 		struct queueElement {
 			point3D pos;
 			string spriteName;
@@ -105,47 +106,58 @@ namespace State {
 		queueElement entityQueue[32];
 		entityx::ComponentHandle<FixedSprite> fixedSprite;
 		entityx::ComponentHandle<Position> position;
+		HI::HITexture upArrow = core->getGraphicsObj()->getTexture("upArrow.png");
+		HI::HITexture downArrow = core->getGraphicsObj()->getTexture("downArrow.png");
 
 		for (entityx::Entity entity : EntityWorld->entities.entities_with_components(position, fixedSprite)) {
 			entityQueue[queueNumber].pos = position->currentPosition;
 			entityQueue[queueNumber].spriteName = fixedSprite->filename;
 			queueNumber++;
 		}
+		terrain* terrainList = map->getTerrainList();
+		HI::HITexture texList[128];
+		for(int i = 0; i<map->getTerrainListSize();++i)
+		{
+			texList[i] = core->getGraphicsObj()->loadTexture(terrainList[i].textureFile);
+		}
 		HI::startFrame(HI::SCREEN_TOP);
 		point3D p;
 		for (int i = 0; i != HI::getScreenHeight() / 16; i++) {
 			for (int j = 0; j != HI::getScreenWidth() / 16; j++) {
-				for (int y = RENDER_HEIGHT; y >= 0; y--) {
+				bool done = false;
+				std::stack<HI::HITexture> renderStack;
+				for (int y = 0; y <= RENDER_HEIGHT && !done; y++) {
 					p.x = (cameraPos.x + j) - (((HI::getScreenWidth() / 16) / 2) - 1);
 					p.y = (cameraPos.y + i) - (((HI::getScreenHeight() / 16) / 2) - 1);
 					p.z = (cameraPos.z - y);
-					if (p.x >= 0 && p.y >= 0 && p.z >= 0 && map->isVisible(p)) {
-						//HI::debugPrint("	drawing " + mapObj->getTerrainName(p) + "\n");
-						HI::drawTexture(core->getGraphicsObj()->getTexture(map->getTerrain(p).textureFile), j * 16, i * 16);
-						if (y > 1) HI::drawTextureRotate(core->getGraphicsObj()->getTexture("arrow.png"), j * 16 + 8, i * 16 + 8, PI);
-						else if (y == 0) HI::drawTexture(core->getGraphicsObj()->getTexture("arrow.png"), j * 16, i * 16);
-					}
 					for (int k = 0; k < queueNumber; k++) {
 						if (entityQueue[k].pos.x == p.x && entityQueue[k].pos.y == p.y && entityQueue[k].pos.z == p.z) {
-							//HI::debugPrint("	drawing " + texTable[entityQueue[k].spritePos].name + "\n");
-							HI::drawTexture(core->getGraphicsObj()->getTexture(entityQueue[k].spriteName), j * 16, i * 16);
+							renderStack.push(core->getGraphicsObj()->getTexture(entityQueue[k].spriteName));
 						}
 					}
+					if (p.x >= 0 && p.y >= 0 && p.z >= 0 && map->isVisible(p)) {
+						if (y > 1) renderStack.push(downArrow);
+						else if (y == 0) renderStack.push(upArrow);
+						if (map->isOpaque(p))done = true;
+						renderStack.push(texList[map->getTerrainID(p)]);
+					} 					
+				}
+				while (!renderStack.empty()) {
+					HI::drawTexture(renderStack.top(), j * 16, i * 16);
+					renderStack.pop();
 				}
 			}
 		}
-
-
 		HI::endFrame();
 		HI::swapBuffers();
 	}
 
-	void Playing::cameraUpdate() {
-		if (cameraPos.x - ((HI::getScreenWidth() / 16) / 5) < playerPos->x) { cameraPos.x++; }
-		if (cameraPos.x + (((HI::getScreenWidth() / 16) / 5) + 1) > playerPos->x) { cameraPos.x--; }
-		if (cameraPos.y - ((HI::getScreenHeight() / 16) / 5) < playerPos->y) { cameraPos.y++; }
-		if (cameraPos.y + (((HI::getScreenHeight() / 16) / 5) + 1) > playerPos->y) { cameraPos.y--; }
-		cameraPos.z = playerPos->z;
+	void Playing::cameraUpdate(point3D pos) {
+		if (cameraPos.x - ((HI::getScreenWidth() / 16) / 5) < pos.x) { cameraPos.x++; }
+		if (cameraPos.x + (((HI::getScreenWidth() / 16) / 5) + 1) > pos.x) { cameraPos.x--; }
+		if (cameraPos.y - ((HI::getScreenHeight() / 16) / 5) < pos.y) { cameraPos.y++; }
+		if (cameraPos.y + (((HI::getScreenHeight() / 16) / 5) + 1) > pos.y) { cameraPos.y--; }
+		cameraPos.z = pos.z;
 	}
 
 	void Playing::loadTerrainTextures() const {

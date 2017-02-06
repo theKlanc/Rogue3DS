@@ -114,7 +114,7 @@
     <ClCompile Include="source\FastNoise.cpp" />
     <ClCompile Include="source\gameCore.cpp" />
     <ClCompile Include="source\gameMap.cpp" />
-    <ClCompile Include="source\graphicsSystem.cpp" />
+    <ClCompile Include="source\graphics.cpp" />
     <ClCompile Include="source\HardwareInterface3DS.cpp" />
     <ClCompile Include="source\HardwareInterfacePC.cpp" />
     <ClCompile Include="source\HardwareInterfaceVita.cpp" />
@@ -141,7 +141,7 @@
     <ClInclude Include="include\FastNoise.h" />
     <ClInclude Include="include\gameCore.h" />
     <ClInclude Include="include\gameMap.h" />
-    <ClInclude Include="include\graphicsSystem.h" />
+    <ClInclude Include="include\graphics.h" />
     <ClInclude Include="include\HardwareInterface.h" />
     <ClInclude Include="include\inputSystem.h" />
     <ClInclude Include="include\movementSystem.h" />

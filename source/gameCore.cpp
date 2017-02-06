@@ -15,13 +15,13 @@ void gameCore::gameLoop() {
 	}
 }
 
-graphicsSystem* gameCore::getGraphicsObj() {
+graphics* gameCore::getGraphicsObj() {
 	return graphicsObj;
 }
 
 gameCore::gameCore() {
 	pushState(make_unique<State::MainMenu>(*this));
-	graphicsObj = new graphicsSystem;
+	graphicsObj = new graphics;
 }
 
 gameCore::~gameCore() {

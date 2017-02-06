@@ -1,7 +1,7 @@
 #include "entityx/entityx.h"
 #include "states/state_base.h"
 #include <stack>
-#include "graphicsSystem.h"
+#include "graphics.h"
 
 namespace ex = entityx;
 
@@ -14,8 +14,8 @@ public:
 	void popState();
 	void gameLoop();
 
-	graphicsSystem* getGraphicsObj();
+	graphics* getGraphicsObj();
 private:	
 	stack<std::unique_ptr<State::State_Base>> states;
-	graphicsSystem* graphicsObj;
+	graphics* graphicsObj;
 };

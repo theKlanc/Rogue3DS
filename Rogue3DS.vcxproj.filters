@@ -39,9 +39,6 @@
     <ClCompile Include="source\UI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\graphicsSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\inputSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -93,6 +90,9 @@
     <ClCompile Include="source\states\state_main_menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\graphics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\banner.bin">
@@ -119,9 +119,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\gameMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\graphicsSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\inputSystem.h">
@@ -158,6 +155,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\states\state_main_menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

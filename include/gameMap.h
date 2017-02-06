@@ -35,6 +35,8 @@ private:
 	bool getTerrainSolid(point3D p) const;
 	point3D playerPos;
 public:
+	int getTerrainID(point3D pos) const;
+	bool isOpaque(point3D pos) const;
 	terrain* getTerrainList();
 	int getTerrainListSize();
 	terrain getTerrain(point3D pos);

@@ -1,8 +1,8 @@
-TNULL 0 0
-grass.png 1 1
-dirt.png 1 1
-water.png 1 0
-sand.png 1 1
-wall.png 1 1
-flower.png 1 1
-flower2.png 1 1
+TNULL 0 0 0
+grass.png 1 1 1
+dirt.png 1 1 1
+water.png 1 0 1
+sand.png 1 1 1
+wall.png 1 1 0 
+flower.png 1 1 0
+flower2.png 1 1 0
