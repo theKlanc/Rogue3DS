@@ -31,7 +31,7 @@ HI::HITexture graphics::getTexture(string fileName)
 	auto it = texAtlas.find(fileName);
 	if(it==texAtlas.end())
 	{
-		cout << "AAAAAAAAAAAAARG"<<endl;
+		HI::debugPrint("Texture " + fileName + " not loaded \n");
 	}
 	else return it->second;
 	

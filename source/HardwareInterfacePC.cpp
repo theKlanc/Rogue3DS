@@ -9,7 +9,7 @@
 #include <thread>
 #include <functional>
 
-#define DEBUG_PRIORITY 6
+#define DEBUG_PRIORITY 0
 
 sf::RenderWindow* window;
 sf::Event* event;
@@ -49,10 +49,31 @@ short HI::getAComponent(HIColor color) {
 void HI::setBackgroundColor(HIColor color) {
 }
 
+HardwareInterface::HIFont HardwareInterface::loadFont(std::string path) {
+	sf::Font* font = new sf::Font;
+	font->loadFromFile(path);
+	return font;
+}
+
+void HardwareInterface::freeFont(HIFont font) {
+	delete (sf::Font*)font;
+}
+
+void HardwareInterface::drawText(HIFont font, string text, int posX, int posY, int size, HIColor color)
+{
+	if (font != nullptr) {
+		sf::Text sftext;
+		sftext.setString(text.c_str());
+		sftext.setPosition(posX, posY);
+		sftext.setFont(*(sf::Font*)font);
+		sftext.setCharacterSize(size);
+		sftext.setColor(sf::Color::Black);
+		window->draw(sftext);
+	}
+}
+
 HI::HITexture HI::loadPngFile(std::string path) {
-	sf::Texture* texture = new sf::Texture;
-	texture->loadFromFile(path);
-	return texture;
+	loadBmpFile(path);
 }
 HI::HITexture HI::loadBmpFile(std::string path) {
 	sf::Texture* texture = new sf::Texture;
@@ -101,7 +122,7 @@ void HI::drawRectangle(int posX, int posY, int width, int height, HI::HIColor co
 }
 
 void HI::freeTexture(HITexture texture) {
-	//delete (sf::Texture*)texture;
+	texture = &sf::Texture();
 }
 HI::HITexture HI::createTexture(int sizeX, int sizeY) {
 	sf::Texture* texture = new sf::Texture;
@@ -155,7 +176,7 @@ HardwareInterface::HI_PLATFORM HI::getPlatform() {
 	return PLATFORM_PC;
 }
 
-void HI::createThread(void* entrypoint, std::reference_wrapper<void(void*)> entrypoint2,void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size) {
+void HI::createThread(void* entrypoint, std::reference_wrapper<void(void*)> entrypoint2, void* arg, size_t stack_size, int prio, int affinity, bool detached, size_t arg_size) {
 	std::thread newThread(entrypoint2.get(), arg);
 	newThread.detach();
 }
@@ -169,17 +190,19 @@ void HI::updateHID() {
 
 int HI::getKeysUp() {
 	HI::HI_KEYS keys = HI::HI_KEY_B;
-	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) keys = (HI_KEYS)((int)keys | HI::HI_KEY_DOWN);
-	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Left))keys = (HI_KEYS)((int)keys | HI::HI_KEY_LEFT);
-	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right))keys = (HI_KEYS)((int)keys | HI::HI_KEY_RIGHT);
-	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Up))keys = (HI_KEYS)((int)keys | HI::HI_KEY_UP);
-	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space))keys = (HI_KEYS)((int)keys | HI::HI_KEY_START);
-	if (!sf::Mouse::isButtonPressed(sf::Mouse::Left))keys = (HI_KEYS)((int)keys | HI::HI_KEY_TOUCH);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) keys = (HI_KEYS)((int)keys | HI::HI_KEY_DOWN);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) keys = (HI_KEYS)((int)keys | HI::HI_KEY_A);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))keys = (HI_KEYS)((int)keys | HI::HI_KEY_LEFT);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))keys = (HI_KEYS)((int)keys | HI::HI_KEY_RIGHT);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))keys = (HI_KEYS)((int)keys | HI::HI_KEY_UP);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))keys = (HI_KEYS)((int)keys | HI::HI_KEY_START);
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))keys = (HI_KEYS)((int)keys | HI::HI_KEY_TOUCH);
 	return keys;
 }
 int HI::getKeysHeld() {
 	HI::HI_KEYS keys = HI::HI_KEY_B;
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) keys = (HI_KEYS)((int)keys | HI::HI_KEY_DOWN);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) keys = (HI_KEYS)((int)keys | HI::HI_KEY_A);
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))keys = (HI_KEYS)((int)keys | HI::HI_KEY_LEFT);
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))keys = (HI_KEYS)((int)keys | HI::HI_KEY_RIGHT);
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))keys = (HI_KEYS)((int)keys | HI::HI_KEY_UP);
@@ -188,7 +211,15 @@ int HI::getKeysHeld() {
 	return keys;
 }
 int HI::getKeysDown() {
-	return 0;
+	HI::HI_KEYS keys = HI::HI_KEY_B;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) keys = (HI_KEYS)((int)keys | HI::HI_KEY_DOWN);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) keys = (HI_KEYS)((int)keys | HI::HI_KEY_A);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))keys = (HI_KEYS)((int)keys | HI::HI_KEY_LEFT);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))keys = (HI_KEYS)((int)keys | HI::HI_KEY_RIGHT);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))keys = (HI_KEYS)((int)keys | HI::HI_KEY_UP);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))keys = (HI_KEYS)((int)keys | HI::HI_KEY_START);
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))keys = (HI_KEYS)((int)keys | HI::HI_KEY_TOUCH);
+	return keys;
 }
 
 void HI::getCirclePadPos(point2D &circle, HI_CIRCLEPAD circlePadID) { //WIP

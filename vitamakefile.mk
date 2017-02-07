@@ -5,15 +5,15 @@ OBJECTS = $(SOURCES:*.cpp=*.o)
 OBJECTS += $(SOURCES:*.c=*.o)
 
 
-LIBS = -lpthread -lvita2d -lSceKernel_stub -lSceDisplay_stub -lSceGxm_stub \
+LIBS = -lpthread -lvita2d -lSceDisplay_stub -lSceGxm_stub \
 	-lSceSysmodule_stub -lSceCtrl_stub -lScePgf_stub \
 	-lSceCommonDialog_stub -lfreetype -lpng -ljpeg -lz -lm -lc \
 	-lpsp2shell -lSceSysmodule_stub -lSceNet_stub \
-	-lSceNetCtl_stub -lSceKernel_stub -lScePower_stub -lSceAppMgr_stub
+	-lSceNetCtl_stub -lScePower_stub -lSceAppMgr_stub -lSceTouch_stub
 
 PREFIX  = arm-vita-eabi
 CC      = $(PREFIX)-g++
-CFLAGS  = -Wl,-q -std=gnu++11 -D_VITA
+CFLAGS  = -Wl,-q -std=c++14 -D_VITA
 ASFLAGS = $(CFLAGS)
 
 all: $(TARGET).vpk

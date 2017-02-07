@@ -34,19 +34,13 @@ struct button {
 };
 
 namespace State {
-	class MainMenu : public State_Base {
+	class MainMenuOptions : public State_Base {
 	public:
-		MainMenu(gameCore& application);
-		~MainMenu();
+		MainMenuOptions(gameCore& application);
+		~MainMenuOptions();
 		void input() override;
 		void update(float dt) override;
 		void draw() override;
-		static void createSavefile(string name);
-
-	private:
-		button loadGame;
-		button newGame;
-		HI::HITexture topImage;
 	};
 }
 

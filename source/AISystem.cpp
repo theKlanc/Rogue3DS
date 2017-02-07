@@ -5,7 +5,6 @@
 
 
 void AISystem::update(entityx::EntityManager& es, entityx::EventManager& events, entityx::TimeDelta dt) {
-	HI::debugPrint("AI \n");
 	entityx::ComponentHandle<Velocity> velocity;
 	entityx::ComponentHandle<AIFollower> follower;
 	entityx::ComponentHandle<Position> position;
@@ -22,7 +21,6 @@ void AISystem::update(entityx::EntityManager& es, entityx::EventManager& events,
 			else velocity->currentVelocity.y = 0;
 		}
 	}
-	HI::debugPrint("END \n");
 }
 
 AISystem::~AISystem() {

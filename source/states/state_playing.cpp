@@ -5,6 +5,7 @@
 #include "../../include/AISystem.h"
 #include "../../include/components.h"
 #include "../../include/graphics.h"
+#include "../../include/states/state_playing_pause.h"
 
 namespace State {
 	Playing::Playing(gameCore& application) : State_Base(application) {
@@ -20,7 +21,7 @@ namespace State {
 		ifstream general;
 		general.open(HI::getSavesPath() + saveName + "/general.txt");
 		if (!general.is_open()) {
-			cout << "couldn't open file: " << (HI::getSavesPath() + saveName + "/general.txt") << endl;
+			//cout << "couldn't open file: " << (HI::getSavesPath() + saveName + "/general.txt") << endl;
 		}
 		string playerSprite = "player.png", playerName;
 		string cacota;
@@ -28,7 +29,6 @@ namespace State {
 		general.close();
 		playerPos->z = 1 + FLOOR_HEIGHT + 100 * (1 + map->noiseObj.GetNoise(playerPos->x, playerPos->y) / 2);
 		cameraPos = *playerPos;
-		EntityWorld->systems.add<inputSystem>(&kDown, &kUp, &kHeld);
 		EntityWorld->systems.add<movementSystem>(map);
 		EntityWorld->systems.add<AISystem>();
 		EntityWorld->systems.configure();
@@ -61,7 +61,9 @@ namespace State {
 		std::remove(generalFile.c_str());
 
 		ofstream generalO(generalFile);
-		generalO << playerName << endl << playerPos->x << endl << playerPos->y << endl << playerPos->z << endl;	//arreglar, k ara ho trenco
+		core->getGraphicsObj()->freeTexture("downArrow.png");
+		core->getGraphicsObj()->freeTexture("upArrow.png");
+		generalO << playerName << endl << playerPos->x << endl << playerPos->y << endl << playerPos->z << endl;
 		generalO.close();
 		map->exit();
 	}
@@ -76,16 +78,16 @@ namespace State {
 			kHeld = HI::getKeysHeld();
 			kUp = HI::getKeysUp();
 		}
-		if (kHeld & HI::HI_KEY_START) {
-			core->popState();
+		if (HI::getKeysHeld() & HI::HI_KEY_START) {
+			core->pushState(std::make_unique<State::PlayingPause>(*core));
 		}
+		inputSystem::update(EntityWorld, kDown, kUp, kHeld);
 	}
 
 	void Playing::update(float dt) {
 		if (tick % 12 == 0) {
 			EntityWorld->systems.update_all(0);
 		}
-		else  HI::waitForVBlank();
 		tick++;
 		entityx::ComponentHandle<Position> position;
 		entityx::ComponentHandle<Player> player;
@@ -98,58 +100,60 @@ namespace State {
 	}
 
 	void Playing::draw() {
-		struct queueElement {
-			point3D pos;
-			string spriteName;
-		};
-		int queueNumber = 0;
-		queueElement entityQueue[32];
-		entityx::ComponentHandle<FixedSprite> fixedSprite;
-		entityx::ComponentHandle<Position> position;
-		HI::HITexture upArrow = core->getGraphicsObj()->getTexture("upArrow.png");
-		HI::HITexture downArrow = core->getGraphicsObj()->getTexture("downArrow.png");
+		if (tick % 12 == 0) {
+			struct queueElement {
+				point3D pos;
+				string spriteName;
+			};
+			int queueNumber = 0;
+			queueElement entityQueue[32];
+			entityx::ComponentHandle<FixedSprite> fixedSprite;
+			entityx::ComponentHandle<Position> position;
+			HI::HITexture upArrow = core->getGraphicsObj()->getTexture("upArrow.png");
+			HI::HITexture downArrow = core->getGraphicsObj()->getTexture("downArrow.png");
 
-		for (entityx::Entity entity : EntityWorld->entities.entities_with_components(position, fixedSprite)) {
-			entityQueue[queueNumber].pos = position->currentPosition;
-			entityQueue[queueNumber].spriteName = fixedSprite->filename;
-			queueNumber++;
-		}
-		terrain* terrainList = map->getTerrainList();
-		HI::HITexture texList[128];
-		for(int i = 0; i<map->getTerrainListSize();++i)
-		{
-			texList[i] = core->getGraphicsObj()->loadTexture(terrainList[i].textureFile);
-		}
-		HI::startFrame(HI::SCREEN_TOP);
-		point3D p;
-		for (int i = 0; i != HI::getScreenHeight() / 16; i++) {
-			for (int j = 0; j != HI::getScreenWidth() / 16; j++) {
-				bool done = false;
-				std::stack<HI::HITexture> renderStack;
-				for (int y = 0; y <= RENDER_HEIGHT && !done; y++) {
-					p.x = (cameraPos.x + j) - (((HI::getScreenWidth() / 16) / 2) - 1);
-					p.y = (cameraPos.y + i) - (((HI::getScreenHeight() / 16) / 2) - 1);
-					p.z = (cameraPos.z - y);
-					for (int k = 0; k < queueNumber; k++) {
-						if (entityQueue[k].pos.x == p.x && entityQueue[k].pos.y == p.y && entityQueue[k].pos.z == p.z) {
-							renderStack.push(core->getGraphicsObj()->getTexture(entityQueue[k].spriteName));
+			for (entityx::Entity entity : EntityWorld->entities.entities_with_components(position, fixedSprite)) {
+				entityQueue[queueNumber].pos = position->currentPosition;
+				entityQueue[queueNumber].spriteName = fixedSprite->filename;
+				queueNumber++;
+			}
+			terrain* terrainList = map->getTerrainList();
+			HI::HITexture texList[128];
+			for (int i = 1; i < map->getTerrainListSize(); ++i) {
+				texList[i] = core->getGraphicsObj()->loadTexture(terrainList[i].textureFile);
+			}
+			HI::startFrame(HI::SCREEN_TOP);
+			point3D p;
+			for (int i = 0; i != HI::getScreenHeight() / 16; i++) {
+				for (int j = 0; j != HI::getScreenWidth() / 16; j++) {
+					bool done = false;
+					std::stack<HI::HITexture> renderStack;
+					for (int y = 0; y <= RENDER_HEIGHT && !done; y++) {
+						p.x = (cameraPos.x + j) - (((HI::getScreenWidth() / 16) / 2) - 1);
+						p.y = (cameraPos.y + i) - (((HI::getScreenHeight() / 16) / 2) - 1);
+						p.z = (cameraPos.z - y);
+						for (int k = 0; k < queueNumber; k++) {
+							if (entityQueue[k].pos.x == p.x && entityQueue[k].pos.y == p.y && entityQueue[k].pos.z == p.z) {
+								renderStack.push(core->getGraphicsObj()->getTexture(entityQueue[k].spriteName));
+							}
+						}
+						if (p.x >= 0 && p.y >= 0 && p.z >= 0 && map->isVisible(p)) {
+							if (y > 1) renderStack.push(downArrow);
+							else if (y == 0) renderStack.push(upArrow);
+							if (map->isOpaque(p))done = true;
+							renderStack.push(texList[map->getTerrainID(p)]);
 						}
 					}
-					if (p.x >= 0 && p.y >= 0 && p.z >= 0 && map->isVisible(p)) {
-						if (y > 1) renderStack.push(downArrow);
-						else if (y == 0) renderStack.push(upArrow);
-						if (map->isOpaque(p))done = true;
-						renderStack.push(texList[map->getTerrainID(p)]);
-					} 					
-				}
-				while (!renderStack.empty()) {
-					HI::drawTexture(renderStack.top(), j * 16, i * 16);
-					renderStack.pop();
+					while (!renderStack.empty()) {
+						HI::drawTexture(renderStack.top(), j * 16, i * 16);
+						renderStack.pop();
+					}
 				}
 			}
+			HI::endFrame();
+			HI::swapBuffers();
 		}
-		HI::endFrame();
-		HI::swapBuffers();
+		else HI::waitForVBlank();
 	}
 
 	void Playing::cameraUpdate(point3D pos) {

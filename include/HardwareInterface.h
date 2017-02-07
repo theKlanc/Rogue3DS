@@ -7,6 +7,7 @@
 namespace HardwareInterface
 {
 	typedef void* HITexture;
+	typedef void* HIFont;
 	typedef int HIColor;
 	enum HI_PLATFORM {
 		PLATFORM_PSVITA,
@@ -157,6 +158,9 @@ namespace HardwareInterface
 
 	void startFrame(HI_SCREEN screen);
 	void setBackgroundColor(HIColor color);
+	HIFont loadFont(std::string path);
+	void freeFont(HIFont font);
+	void drawText(HIFont font, string text, int posX, int posY, int size, HIColor color);
 	HITexture loadPngFile(std::string path);
 	HITexture loadBmpFile(std::string path);
 	void drawTexture(HITexture texture, int posX, int posY);
@@ -195,7 +199,9 @@ namespace HardwareInterface
 
 	//DEBUGGING
 	void debugPrint(string s);
+	void debugPrint(int n);
 	void debugPrint(string s, int priority);
+	void debugNewLine();
 
 	//GSP
 	enum  GSPGPU_Event

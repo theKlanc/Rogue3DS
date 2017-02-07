@@ -9,7 +9,7 @@
 #include <dirent.h>
 #include <functional>
 
-#define DEBUG_PRIORITY 3
+#define DEBUG_PRIORITY 0
 
 void HI::systemInit() {
 	srvInit();
@@ -31,7 +31,7 @@ void HI::systemFini() {
 }
 
 void HI::consoleInit() {
-	::consoleInit(GFX_BOTTOM, nullptr);
+	//::consoleInit(GFX_BOTTOM, nullptr);
 }
 
 void HI::consoleFini() {};
@@ -58,6 +58,21 @@ short HI::getAComponent(HIColor color) {
 
 void HI::setBackgroundColor(HIColor color) {
 	sf2d_set_clear_color(color);
+}
+
+HardwareInterface::HIFont HardwareInterface::loadFont(std::string path)
+{
+	return sftd_load_font_file(path.c_str());
+}
+
+void HardwareInterface::freeFont(HIFont font)
+{
+	sftd_free_font((sftd_font*)font);
+}
+
+void HardwareInterface::drawText(HIFont font, string text, int posX, int posY, int size, HIColor color)
+{
+	if (((sftd_font*)font) != nullptr) sftd_draw_text((sftd_font*)font, posX, posY, color, size, text.c_str());
 }
 
 HI::HITexture HI::loadPngFile(std::string path) {

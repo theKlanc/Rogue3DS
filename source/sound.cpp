@@ -41,7 +41,7 @@ void sound::playFromFile(string file)
 	int error;
 	vorbisFile = stb_vorbis_open_filename(file.c_str(), &error, nullptr);
 	if (vorbisFile == nullptr) {
-		cout << "Failed to open sound file" << endl;
+		//cout << "Failed to open sound file" << endl;
 		return;
 	}
 	info = stb_vorbis_get_info(vorbisFile);
@@ -71,7 +71,7 @@ void sound::playFromFile(string file)
 	HI::dspChnWaveBufAdd(0, &waveBuf[0]);
 	HI::dspChnWaveBufAdd(0, &waveBuf[1]);
 
-	HI::createThread((void*)audioMainThread,std::ref(audioMainThread), this, 5900, 0x30, 0, true, sizeof(this));
+	//HI::createThread((void*)audioMainThread,std::ref(audioMainThread), this, 5900, 0x30, 0, true, sizeof(this));
 }
 
 void sound::exit()

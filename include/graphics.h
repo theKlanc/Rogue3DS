@@ -17,6 +17,5 @@ public:
 private:
 	
 	void freeAllTextures();
-
 	std::unordered_map<string, HI::HITexture> texAtlas;
 };

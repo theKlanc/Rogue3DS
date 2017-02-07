@@ -5,8 +5,8 @@
 namespace State {
 	MainMenu::MainMenu(gameCore& application)
 		: State_Base(application) {
-		
-			HI::setBackgroundColor(RGBA8(53, 159, 35, 0xFF));
+
+		HI::setBackgroundColor(RGBA8(53, 159, 35, 0xFF));
 		topImage = HI::loadPngFile(HI::getDataPath() + "sprites/menu_top.png");
 		HI::startFrame(HardwareInterface::SCREEN_TOP);
 		HI::drawTexture(topImage, 0, 0);
@@ -48,17 +48,18 @@ namespace State {
 		kHeld = HI::getKeysHeld();
 		kUp = HI::getKeysUp();
 
-		if (kDown & HI::HI_KEY_START)core->popState();
+
 
 		if (newGame.state && (kUp & HI::HI_KEY_TOUCH)) {
 			createSavefile("default");
 			core->pushState(std::make_unique<State::Playing>(*core));
 			return;
 		}
-		if (loadGame.state && (kUp & HI::HI_KEY_TOUCH)) {
+		else if (loadGame.state && (kUp & HI::HI_KEY_TOUCH)) {
 			core->pushState(std::make_unique<State::Playing>(*core));
 			return;
 		}
+		else if (kDown & HI::HI_KEY_START)core->quit();
 	}
 
 	void MainMenu::update(float dt) {
@@ -79,8 +80,7 @@ namespace State {
 		HI::swapBuffers();
 	}
 
-	void MainMenu::createSavefile(string name)
-	{
+	void MainMenu::createSavefile(string name) {
 		HI::createDir(HI::getSavesPath() + name + "/");
 		HI::createDir(HI::getSavesPath() + name + "/chunks/");
 		HI::copyFile(HI::getDataPath() + "gameData/defaultSavefile/general.txt", HI::getSavesPath() + name + "/general.txt");

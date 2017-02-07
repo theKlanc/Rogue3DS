@@ -138,7 +138,7 @@ int gameMap::getTerrainID(point3D pos) const
 
 bool gameMap::isOpaque(point3D pos) const
 {
-	point3D chunk = getChunk(pos);
+	point3D chunk = getChunk(pos);//isChunkLoaded(chunk)
 	if (!isChunkLoaded(chunk)) {
 		return false;
 	}

@@ -8,7 +8,6 @@ movementSystem::~movementSystem()
 
 void movementSystem::update(entityx::EntityManager& es, entityx::EventManager& events, entityx::TimeDelta dt)
 {
-	HI::debugPrint("Movement \n");
 	entityx::ComponentHandle<Position> position;
 	entityx::ComponentHandle<Velocity> velocity;
 	entityx::ComponentHandle<Player> player;
@@ -38,5 +37,4 @@ void movementSystem::update(entityx::EntityManager& es, entityx::EventManager& e
 		}
 		
 	}
-	HI::debugPrint("END \n");
 }

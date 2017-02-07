@@ -8,13 +8,17 @@
 #include <psp2shell.h>
 #include <pthread.h>
 #include <functional>
+#include <psp2/touch.h>
+#include <psp2/kernel/threadmgr.h>
 
 #define SCALE 2
-#define DEBUG_PRIORITY 4
+#define DEBUG_PRIORITY 0
 
 void HI::systemInit() {
 	vita2d_init();
 	psp2shell_init(3333, 0);
+	sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, 1);
+	sceTouchEnableTouchForce(SCE_TOUCH_PORT_FRONT);
 }
 
 void HI::systemFini() {
@@ -68,7 +72,7 @@ void HI::drawTextureRotate(HI::HITexture texture, int posX, int posY, float angl
 }
 
 void HI::drawTexturePart(HI::HITexture texture, int startX, int startY, int posX, int posY, int sizeX, int sizeY) {
-	vita2d_draw_texture_part_scale((vita2d_texture*)texture, posX*SCALE, posY*SCALE, startX, startX, sizeX, sizeY,SCALE,SCALE);
+	vita2d_draw_texture_part_scale((vita2d_texture*)texture, posX*SCALE, posY*SCALE, startX, startX, sizeX, sizeY, SCALE, SCALE);
 }
 
 void HI::mergeTextures(HITexture origin, HITexture destination, short posX, short posY) {			  //BORKEN
@@ -157,31 +161,36 @@ void HI::createThread(void* entrypoint, std::reference_wrapper<void(void*)>entry
 	pthread_t thread0;
 	pthread_create(&thread0, NULL, (void*(*)(void*))entrypoint, arg);
 	pthread_detach(thread0);
+	//SceUID thread = sceKernelCreateThread("test", (SceKernelThreadEntry)entrypoint, 0x40, stack_size, 0, 0, NULL);
+	//-sceKernelStartThread(thread, arg_size, arg);
 }
 
 void HI::updateTouch(point2D &touch) {			  //BORKEN
-	SceCtrlData pad;
-	memset(&pad, 0, sizeof(pad));
-	sceCtrlPeekBufferPositive(0, &pad, 1);
-	//
+	SceTouchData touch2;
+	sceTouchPeek(SCE_TOUCH_PORT_FRONT, &touch2, 1);
+	touch.x = ((HI::getScreenWidth() * touch2.report[0].x) / 1920);
+	touch.y = ((HI::getScreenHeight() * touch2.report[0].y) / 1080);
 }
 void HI::updateHID() {
 }
 
 int HI::getKeysUp() {  		  //BORKEN
-	return 0;
+	return HI::getKeysHeld();
 }
 int HI::getKeysHeld() {
 	SceCtrlData pad;
 	memset(&pad, 0, sizeof(pad));
 	sceCtrlPeekBufferPositive(0, &pad, 1);
+	SceTouchData touch2;
+	sceTouchPeek(SCE_TOUCH_PORT_FRONT, &touch2, 1);
 	HI::HI_KEYS keys = HI_KEY_B;
 	if (pad.buttons & SCE_CTRL_DOWN) keys = (HI_KEYS)((int)keys | HI::HI_KEY_DOWN);
 	if (pad.buttons & SCE_CTRL_LEFT)keys = (HI_KEYS)((int)keys | HI::HI_KEY_LEFT);
 	if (pad.buttons & SCE_CTRL_RIGHT)keys = (HI_KEYS)((int)keys | HI::HI_KEY_RIGHT);
 	if (pad.buttons & SCE_CTRL_UP)keys = (HI_KEYS)((int)keys | HI::HI_KEY_UP);
 	if (pad.buttons & SCE_CTRL_START)keys = (HI_KEYS)((int)keys | HI::HI_KEY_START);
-
+	if (pad.buttons & SCE_CTRL_CROSS)keys = (HI_KEYS)((int)keys | HI::HI_KEY_A);
+	if (touch2.reportNum==1)keys = (HI_KEYS)((int)keys | HI::HI_KEY_TOUCH);
 	return keys;
 }
 int HI::getKeysDown() {				//SEMIBORKEN
@@ -192,7 +201,7 @@ void HI::getCirclePadPos(point2D &circle, HI_CIRCLEPAD circlePadID) { 		  //BORK
 }
 
 void HI::sleepThread(unsigned long ns) {		  //BORKEN
-	sceKernelDelayThread(ns*1000);
+	sceKernelDelayThread(ns * 1000);
 }
 
 
@@ -219,12 +228,27 @@ void HI::DSP_FlushDataCache(const void* address, unsigned int size) {			  //BORK
 }
 
 void HardwareInterface::debugPrint(string s) {
-	HI::debugPrint(s, 1);
-}
-void HardwareInterface::debugPrint(string s, int p) {
-	if (p>=DEBUG_PRIORITY)psp2shell_print(s.c_str());
+	HI::debugPrint(s+"\n", 1);
+	HI::debugNewLine();
 }
 
+void HardwareInterface::debugPrint(int n) {
+	stringstream ss;
+	ss << n;
+	string s;
+	s = ss.str();
+	s += "\n";
+	psp2shell_print(s.c_str());
+}
+
+void HardwareInterface::debugPrint(string s, int p) {
+	string s2 = s + "\n";
+	if (p >= DEBUG_PRIORITY)psp2shell_print(s2.c_str());
+}
+
+void HardwareInterface::debugNewLine() {
+	psp2shell_print("\n");
+}
 
 void HI::gspWaitForEvent(HardwareInterface::GSPGPU_Event id, bool nextEvent) {	  		  //BORKEN
 }
