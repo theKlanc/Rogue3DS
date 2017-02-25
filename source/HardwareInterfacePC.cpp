@@ -73,7 +73,7 @@ void HardwareInterface::drawText(HIFont font, string text, int posX, int posY, i
 }
 
 HI::HITexture HI::loadPngFile(std::string path) {
-	loadBmpFile(path);
+	return loadBmpFile(path);
 }
 HI::HITexture HI::loadBmpFile(std::string path) {
 	sf::Texture* texture = new sf::Texture;

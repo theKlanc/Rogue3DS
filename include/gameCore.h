@@ -18,6 +18,8 @@ public:
 	graphics* getGraphicsObj() const;
 	UI* getUIObj() const;
 private:	
+	void clean();
+	int pop;
 	stack<std::unique_ptr<State::State_Base>> states;
 	graphics* graphicsObj;
 	UI* uiObj;

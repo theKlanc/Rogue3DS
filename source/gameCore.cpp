@@ -12,6 +12,7 @@ void gameCore::gameLoop() {
 		states.top()->input();
 		states.top()->update(0);
 		states.top()->draw();
+		clean();
 	}
 }
 
@@ -30,11 +31,21 @@ UI* gameCore::getUIObj() const
 	return uiObj;
 }
 
+void gameCore::clean()
+{
+	while(pop>0)
+	{
+		states.pop();
+		pop--;
+	}
+}
+
 gameCore::gameCore() {
 	pushState(make_unique<State::MainMenu>(*this));
 	graphicsObj = new graphics;
 	exit = false;
 	uiObj = new UI(graphicsObj);
+	pop = 0;
 }
 
 gameCore::~gameCore() {
@@ -46,5 +57,5 @@ void gameCore::pushState(std::unique_ptr<State::State_Base> state) {
 }
 
 void gameCore::popState(int n) {
-	for(int i = 0;i<n;i++)states.pop();
+	pop += n;
 }

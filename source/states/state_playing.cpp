@@ -9,8 +9,9 @@
 
 namespace State {
 	Playing::Playing(gameCore& application) : State_Base(application) {
-		core->getGraphicsObj()->loadTexture("upArrow.png");
-		core->getGraphicsObj()->loadTexture("downArrow.png");
+		core->getGraphicsObj()->loadTexture("darkMask.png");
+		core->getGraphicsObj()->loadTexture("lightMask.png");
+
 		saveName = "default";
 		map = new gameMap(saveName);
 		EntityWorld = new ex::EntityX();
@@ -109,8 +110,8 @@ namespace State {
 			queueElement entityQueue[32];
 			entityx::ComponentHandle<FixedSprite> fixedSprite;
 			entityx::ComponentHandle<Position> position;
-			HI::HITexture upArrow = core->getGraphicsObj()->getTexture("upArrow.png");
-			HI::HITexture downArrow = core->getGraphicsObj()->getTexture("downArrow.png");
+			HI::HITexture darkMask = core->getGraphicsObj()->getTexture("darkMask.png");
+			HI::HITexture lightMask = core->getGraphicsObj()->getTexture("lightMask.png");
 
 			for (entityx::Entity entity : EntityWorld->entities.entities_with_components(position, fixedSprite)) {
 				entityQueue[queueNumber].pos = position->currentPosition;
@@ -138,8 +139,8 @@ namespace State {
 							}
 						}
 						if (p.x >= 0 && p.y >= 0 && p.z >= 0 && map->isVisible(p)) {
-							if (y > 1) renderStack.push(downArrow);
-							else if (y == 0) renderStack.push(upArrow);
+							if (y > 1) renderStack.push(darkMask);
+							else if (y == 0) renderStack.push(lightMask);
 							if (map->isOpaque(p))done = true;
 							renderStack.push(texList[map->getTerrainID(p)]);
 						}

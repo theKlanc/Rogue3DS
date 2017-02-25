@@ -56,6 +56,19 @@ void HI::setBackgroundColor(HIColor color) {
 	vita2d_set_clear_color(color);
 }
 
+HardwareInterface::HIFont HardwareInterface::loadFont(std::string path)
+{
+	return nullptr;
+}
+
+void HardwareInterface::freeFont(HIFont font)
+{
+}
+
+void HardwareInterface::drawText(HIFont font, string text, int posX, int posY, int size, HIColor color)
+{
+}
+
 HI::HITexture HI::loadPngFile(std::string path) {
 	return (HI::HITexture)vita2d_load_PNG_file(path.c_str());
 }
