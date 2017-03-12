@@ -75,7 +75,7 @@ struct terrain {
 	bool visible = true;
 	bool solid = true;
 	bool opaque = false;
-	int texturePos = -1;
+	bool canFloatInIt = false;
 };
 
 bool fsIsDirectory(const std::string path);

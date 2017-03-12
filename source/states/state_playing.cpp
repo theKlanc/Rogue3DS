@@ -37,6 +37,8 @@ namespace State {
 		playerEntity = &player;
 
 
+
+
 		entityx::ComponentHandle<Position> position = playerEntity->component<Position>();
 		map->updatePlayerPos(*playerPos);
 		player.assign<Position>(*playerPos);
@@ -53,6 +55,25 @@ namespace State {
 		player.assign<Player>();
 		core->getGraphicsObj()->loadTexture("player.png");
 		player.assign<FixedSprite>("player.png");
+		player.assign<Jump>();
+		player.assign<canFloat>();
+
+		entityx::Entity doggo = EntityWorld->entities.create();
+		core->getGraphicsObj()->loadTexture("doggo.png");
+		doggo.assign<FixedSprite>("doggo.png");
+		doggo.assign<AIFollower>(player.component<Position>().get(), 4);
+		doggo.assign<Position>(player.component<Position>()->currentPosition);
+		doggo.assign<Velocity>(caca);
+		doggo.assign<autoFloat>();
+
+		entityx::Entity hobbo = EntityWorld->entities.create();
+		core->getGraphicsObj()->loadTexture("hobbo.png");
+		hobbo.assign<FixedSprite>("hobbo.png");
+		hobbo.assign<AIDrunk>();
+		hobbo.assign<Position>(player.component<Position>()->currentPosition);
+		hobbo.assign<Velocity>(caca);
+		hobbo.assign<autoFloat>();
+
 		//soundObj.playFromFile(HI::getDataPath()+"sounds/bgm/wilderness.ogg");
 		map->startChunkLoader();
 	}
@@ -120,8 +141,10 @@ namespace State {
 			}
 			terrain* terrainList = map->getTerrainList();
 			HI::HITexture texList[128];
-			for (int i = 1; i < map->getTerrainListSize(); ++i) {
-				texList[i] = core->getGraphicsObj()->loadTexture(terrainList[i].textureFile);
+			for (int i = 0; i < map->getTerrainListSize(); ++i) {
+				if (terrainList[i].textureFile != "TNULL") {
+					texList[i] = core->getGraphicsObj()->loadTexture(terrainList[i].textureFile);
+				}
 			}
 			HI::startFrame(HI::SCREEN_TOP);
 			point3D p;

@@ -253,11 +253,11 @@ void HI::DSP_FlushDataCache(const void* address, unsigned int size) {
 }
 
 void HardwareInterface::debugPrint(string s) {
-	//HardwareInterface::debugPrint(s, 1);
+	HardwareInterface::debugPrint(s, 1);
 }
 
 void HardwareInterface::debugPrint(string s, int priority) {
-	//if (priority >= DEBUG_PRIORITY) cout << s;
+	if (priority >= DEBUG_PRIORITY) cout << s;
 }
 
 void HI::gspWaitForEvent(HardwareInterface::GSPGPU_Event id, bool nextEvent) {

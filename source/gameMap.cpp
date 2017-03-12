@@ -71,7 +71,7 @@ void gameMap::createMapAndLoad(unsigned char*** map, point3D c, FastNoise noiseO
 	//cout<< "intento crear un chunk a " << chunkX << chunkY << chunkZ << endl;
 	for (int i = 0; i < CHUNK_SIZE; i++) {
 		for (int j = 0; j < CHUNK_SIZE; j++) {
-			int terrainHeight = FLOOR_HEIGHT + 100 * (1 + noiseObj.GetNoise(c.x * CHUNK_SIZE + j, c.y * CHUNK_SIZE + i) / 2);
+			int terrainHeight = FLOOR_HEIGHT + 50 * (1 + noiseObj.GetNoise(c.x * CHUNK_SIZE + j, c.y * CHUNK_SIZE + i) / 2);
 			for (int h = 0; h < CHUNK_SIZE; h++) {
 				if (h + c.z*CHUNK_SIZE > terrainHeight) {	//si esta per sobre la terra
 					if (h + c.z * CHUNK_SIZE <= SEA_LEVEL) map[j][i][h] = 3;
@@ -127,8 +127,7 @@ int gameMap::getBlocksChunkID(point3D b) const {
 	return -1;
 }
 
-int gameMap::getTerrainID(point3D pos) const
-{
+int gameMap::getTerrainID(point3D pos) const {
 	point3D chunk = getChunk(pos);
 	if (!isChunkLoaded(chunk)) {
 		return -1;
@@ -136,8 +135,7 @@ int gameMap::getTerrainID(point3D pos) const
 	return terrainMap[getChunkID(chunk)][pos.x % CHUNK_SIZE][pos.y % CHUNK_SIZE][pos.z % CHUNK_SIZE];
 }
 
-bool gameMap::isOpaque(point3D pos) const
-{
+bool gameMap::isOpaque(point3D pos) const {
 	point3D chunk = getChunk(pos);//isChunkLoaded(chunk)
 	if (!isChunkLoaded(chunk)) {
 		return false;
@@ -279,17 +277,22 @@ void gameMap::loadTerrainTable() {
 	ifstream terrainTable;
 	string terrainName = (HI::getSavesPath() + saveName + "/terrainTable.txt");
 	terrainTable.open(terrainName);
-	if (!terrainTable.is_open()) {
-		HI::debugPrint("error opening terrainTable \n");
-		return;
-	}
+	string line;
+
 	int i = 0;
 	while (!terrainTable.eof()) {
-		terrainTable >> terrainList[i].textureFile >> terrainList[i].visible >> terrainList[i].solid >> terrainList[i].opaque;
-		terrainListSize++;
-		i++;
+		getline(terrainTable, line);
+
+		if (line.length() == 0 || line[0] == '#') {
+			cout << "IGNORE LINE\n";
+		}
+		else {
+			stringstream ss(line);
+			ss >> terrainList[i].textureFile >> terrainList[i].visible >> terrainList[i].solid >> terrainList[i].opaque >> terrainList[i].canFloatInIt;
+			terrainListSize++;
+			i++;
+		}
 	}
-	terrainTable.close();
 }
 void gameMap::loadNewChunk() {
 	point3D playerChunk = getChunk(getPlayerPos());
@@ -325,9 +328,24 @@ bool gameMap::simpleCollision(int posX, int posY, int posZ) const {
 	b.z = posZ;
 	return simpleCollision(b);
 }
+
+bool gameMap::canFloat(point3D p) const
+{
+	if (p.x <= 0 || p.y <= 0 || p.z <= 0) return true;
+	if (isChunkLoaded(getChunk(p))) {
+		return (isChunkLoaded(getChunk(p)) && terrainList[*getBlock(p)].canFloatInIt);
+	}
+	return false;
+}
+
+bool gameMap::canFloat(int posX, int posY, int posZ) const
+{
+	return canFloat(point3D(posX, posY, posZ));
+}
+
 bool gameMap::simpleCollision(point3D p) const {
 	if (p.x <= 0 || p.y <= 0 || p.z <= 0) return true;
-	if (isChunkLoaded(getChunk(p)) && terrainList[*getBlock(p)].solid) {
+	if (isChunkLoaded(getChunk(p))) {
 		return (isChunkLoaded(getChunk(p)) && terrainList[*getBlock(p)].solid);
 	}
 	return false;

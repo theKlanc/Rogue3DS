@@ -167,6 +167,49 @@
     <ClInclude Include="include\stb_vorbis.h" />
     <ClInclude Include="include\UI.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="data\gameData\defaultSavefile\general.txt" />
+    <Text Include="data\gameData\defaultSavefile\terrainTable.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="data\sprites\darkMask.png" />
+    <Image Include="data\sprites\default_background.png" />
+    <Image Include="data\sprites\default_BLcorner.png" />
+    <Image Include="data\sprites\default_BottomBorder.png" />
+    <Image Include="data\sprites\default_BRcorner.png" />
+    <Image Include="data\sprites\default_LeftBorder.png" />
+    <Image Include="data\sprites\default_RightBorder.png" />
+    <Image Include="data\sprites\default_TLcorner.png" />
+    <Image Include="data\sprites\default_TopBorder.png" />
+    <Image Include="data\sprites\default_TRcorner.png" />
+    <Image Include="data\sprites\dirt.png" />
+    <Image Include="data\sprites\doggo.png" />
+    <Image Include="data\sprites\downArrow.png" />
+    <Image Include="data\sprites\flower.png" />
+    <Image Include="data\sprites\flower2.png" />
+    <Image Include="data\sprites\grass.png" />
+    <Image Include="data\sprites\hobbo.png" />
+    <Image Include="data\sprites\leftArrow.png" />
+    <Image Include="data\sprites\lightMask.png" />
+    <Image Include="data\sprites\menu_top.png" />
+    <Image Include="data\sprites\normal_background.png" />
+    <Image Include="data\sprites\normal_BLcorner.png" />
+    <Image Include="data\sprites\normal_BottomBorder.png" />
+    <Image Include="data\sprites\normal_BRcorner.png" />
+    <Image Include="data\sprites\normal_LeftBorder.png" />
+    <Image Include="data\sprites\normal_RightBorder.png" />
+    <Image Include="data\sprites\normal_TLcorner.png" />
+    <Image Include="data\sprites\normal_TopBorder.png" />
+    <Image Include="data\sprites\normal_TRcorner.png" />
+    <Image Include="data\sprites\player.png" />
+    <Image Include="data\sprites\pressed_button.png" />
+    <Image Include="data\sprites\rightArrow.png" />
+    <Image Include="data\sprites\sand.png" />
+    <Image Include="data\sprites\unpressed_button.png" />
+    <Image Include="data\sprites\upArrow.png" />
+    <Image Include="data\sprites\wall.png" />
+    <Image Include="data\sprites\water.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

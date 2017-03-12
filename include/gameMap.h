@@ -56,6 +56,9 @@ public:
 	void loadNewChunk();
 	bool simpleCollision(point3D p) const;
 	bool simpleCollision(int posX, int posY, int posZ) const;
+	bool canFloat(point3D p) const;
+	bool canFloat(int posX, int posY, int posZ) const;
+
 	gameMap(string nameString);
 
 	FastNoise noiseObj;

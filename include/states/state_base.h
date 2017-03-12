@@ -6,7 +6,7 @@ class gameCore;
 namespace State {
 	class State_Base {
 	public:
-		State_Base(gameCore& core) : kDown(0),kUp(0),kHeld(0), core(&core){}
+		State_Base(gameCore& core) : core(&core),kDown(0),kUp(0), kHeld(0){}
 		virtual ~State_Base() {}
 
 		virtual void input() = 0;
