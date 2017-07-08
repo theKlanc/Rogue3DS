@@ -25,10 +25,9 @@ namespace State {
 			//cout << "couldn't open file: " << (HI::getSavesPath() + saveName + "/general.txt") << endl;
 		}
 		string playerSprite = "player.png", playerName;
-		string cacota;
-		general >> cacota >> playerPos->x >> playerPos->y >> playerPos->z;
+		general >> playerName >> playerPos->x >> playerPos->y >> playerPos->z;
 		general.close();
-		playerPos->z = 1 + FLOOR_HEIGHT + 100 * (1 + map->noiseObj.GetNoise(playerPos->x, playerPos->y) / 2);
+		//playerPos->z = 1 + FLOOR_HEIGHT + 100 * (1 + map->noiseObj.GetNoise(playerPos->x, playerPos->y) / 2);
 		cameraPos = *playerPos;
 		EntityWorld->systems.add<movementSystem>(map);
 		EntityWorld->systems.add<AISystem>();
@@ -52,10 +51,12 @@ namespace State {
 		caca.y++;
 		caca.z++;
 		player.assign<Velocity>(caca);
+
 		player.assign<Player>();
 		core->getGraphicsObj()->loadTexture("player.png");
 		player.assign<FixedSprite>("player.png");
 		player.assign<Jump>();
+		player.assign<Name>(playerName);
 		player.assign<canFloat>();
 
 		entityx::Entity doggo = EntityWorld->entities.create();
@@ -85,7 +86,18 @@ namespace State {
 		ofstream generalO(generalFile);
 		core->getGraphicsObj()->freeTexture("downArrow.png");
 		core->getGraphicsObj()->freeTexture("upArrow.png");
-		generalO << playerName << endl << playerPos->x << endl << playerPos->y << endl << playerPos->z << endl;
+		entityx::ComponentHandle<Position> position;
+		entityx::ComponentHandle<Player> player;
+		entityx::ComponentHandle<Name> name;
+		point3D pos;
+		string nameString;
+		for (entityx::Entity entity : EntityWorld->entities.entities_with_components(position, player)) {
+			pos = entity.component<Position>()->currentPosition;
+		}
+		for (entityx::Entity entity : EntityWorld->entities.entities_with_components(name, player)) {
+			nameString = name->name;
+		}
+		generalO << nameString << endl << pos.x << endl << pos.y << endl << pos.z << endl;
 		generalO.close();
 		map->exit();
 	}
@@ -107,7 +119,7 @@ namespace State {
 	}
 
 	void Playing::update(float dt) {
-		if (tick % 12 == 0) {
+		if (tick % 8 == 0) {
 			EntityWorld->systems.update_all(0);
 		}
 		tick++;
@@ -162,9 +174,12 @@ namespace State {
 							}
 						}
 						if (p.x >= 0 && p.y >= 0 && p.z >= 0 && map->isVisible(p)) {
-							if (y > 1) renderStack.push(darkMask);
-							else if (y == 0) renderStack.push(lightMask);
-							if (map->isOpaque(p))done = true;
+							if (map->isOpaque(p)) {
+								done = true;
+								if (y > 1) renderStack.push(darkMask);
+								else if (y == 0) renderStack.push(lightMask);;
+							}
+							int test = map->getTerrainID(p);
 							renderStack.push(texList[map->getTerrainID(p)]);
 						}
 					}

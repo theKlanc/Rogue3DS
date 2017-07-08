@@ -5,24 +5,22 @@
 #include <psp2/kernel/processmgr.h>
 #include <psp2/ctrl.h>
 #include <psp2/display.h>
-#include <psp2shell.h>
 #include <pthread.h>
 #include <functional>
 #include <psp2/touch.h>
 #include <psp2/kernel/threadmgr.h>
+#include <psp2/kernel/clib.h> 
 
 #define SCALE 2
 #define DEBUG_PRIORITY 0
 
 void HI::systemInit() {
 	vita2d_init();
-	psp2shell_init(3333, 0);
-	sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, 1);
+	sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
 	sceTouchEnableTouchForce(SCE_TOUCH_PORT_FRONT);
 }
 
 void HI::systemFini() {
-	psp2shell_exit();
 	vita2d_fini();
 	sceKernelExitProcess(0);
 }
@@ -56,17 +54,16 @@ void HI::setBackgroundColor(HIColor color) {
 	vita2d_set_clear_color(color);
 }
 
-HardwareInterface::HIFont HardwareInterface::loadFont(std::string path)
-{
-	return nullptr;
+HardwareInterface::HIFont HardwareInterface::loadFont(std::string path){
+	return vita2d_load_font_file(path.c_str());
 }
 
-void HardwareInterface::freeFont(HIFont font)
-{
+void HardwareInterface::freeFont(HIFont font) {
+	vita2d_free_font((vita2d_font*)font);
 }
 
-void HardwareInterface::drawText(HIFont font, string text, int posX, int posY, int size, HIColor color)
-{
+void HardwareInterface::drawText(HIFont font, string text, int posX, int posY, int size, HIColor color){
+	vita2d_font_draw_text((vita2d_font*)font, posX*SCALE, posY*SCALE, color, size*SCALE, text.c_str());
 }
 
 HI::HITexture HI::loadPngFile(std::string path) {
@@ -203,7 +200,7 @@ int HI::getKeysHeld() {
 	if (pad.buttons & SCE_CTRL_UP)keys = (HI_KEYS)((int)keys | HI::HI_KEY_UP);
 	if (pad.buttons & SCE_CTRL_START)keys = (HI_KEYS)((int)keys | HI::HI_KEY_START);
 	if (pad.buttons & SCE_CTRL_CROSS)keys = (HI_KEYS)((int)keys | HI::HI_KEY_A);
-	if (touch2.reportNum==1)keys = (HI_KEYS)((int)keys | HI::HI_KEY_TOUCH);
+	if (touch2.reportNum == 1)keys = (HI_KEYS)((int)keys | HI::HI_KEY_TOUCH);
 	return keys;
 }
 int HI::getKeysDown() {				//SEMIBORKEN
@@ -241,7 +238,7 @@ void HI::DSP_FlushDataCache(const void* address, unsigned int size) {			  //BORK
 }
 
 void HardwareInterface::debugPrint(string s) {
-	HI::debugPrint(s+"\n", 1);
+	HI::debugPrint(s + "\n", 1);
 	HI::debugNewLine();
 }
 
@@ -251,16 +248,16 @@ void HardwareInterface::debugPrint(int n) {
 	string s;
 	s = ss.str();
 	s += "\n";
-	psp2shell_print(s.c_str());
+	sceClibPrintf(s.c_str());
 }
 
 void HardwareInterface::debugPrint(string s, int p) {
 	string s2 = s + "\n";
-	if (p >= DEBUG_PRIORITY)psp2shell_print(s2.c_str());
+	if (p >= DEBUG_PRIORITY)sceClibPrintf(s2.c_str());
 }
 
 void HardwareInterface::debugNewLine() {
-	psp2shell_print("\n");
+	sceClibPrintf("\n");
 }
 
 void HI::gspWaitForEvent(HardwareInterface::GSPGPU_Event id, bool nextEvent) {	  		  //BORKEN

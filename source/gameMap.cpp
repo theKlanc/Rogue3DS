@@ -74,12 +74,12 @@ void gameMap::createMapAndLoad(unsigned char*** map, point3D c, FastNoise noiseO
 			int terrainHeight = FLOOR_HEIGHT + 50 * (1 + noiseObj.GetNoise(c.x * CHUNK_SIZE + j, c.y * CHUNK_SIZE + i) / 2);
 			for (int h = 0; h < CHUNK_SIZE; h++) {
 				if (h + c.z*CHUNK_SIZE > terrainHeight) {	//si esta per sobre la terra
-					if (h + c.z * CHUNK_SIZE <= SEA_LEVEL) map[j][i][h] = 3;
+					if (h + c.z * CHUNK_SIZE <= SEA_LEVEL) map[j][i][h] = 8;
 					else map[j][i][h] = 0;
 				}
 				else if (h + c.z*CHUNK_SIZE == terrainHeight) {	 //si es la capa superficial
-					if (terrainHeight <= SEA_LEVEL) map[j][i][h] = 4;
-					else map[j][i][h] = (rand() % 15 == 0 ? rand() % 14 == 0 ? 7 : 6 : 1);
+					if (terrainHeight <= SEA_LEVEL) map[j][i][h] = 12;
+					else map[j][i][h] = (rand() % 15 == 0 ? rand() % 14 == 0 ? 18 : 6 : 2);
 				}
 				else map[j][i][h] = 2;
 			}
@@ -191,14 +191,14 @@ void gameMap::saveChunk(point3D c) {
 	for (int i = 0; i < CHUNK_SIZE; i++) {
 		for (int j = 0; j < CHUNK_SIZE; j++) {
 			for (int k = 0; k < CHUNK_SIZE; k++) {
-				if ((int)terrainMap[chunkPos][k][j][i] != current) {
+				if ((int)terrainMap[chunkPos][k][j][i] != current || (i == CHUNK_SIZE - 1 && j == CHUNK_SIZE - 1 && k == CHUNK_SIZE - 1)) {
 					sstream << (int)current << ' ' << num << ' ';
 					current = (int)terrainMap[chunkPos][k][j][i];
 					num = 1;
 				}
 				else {
 					num++;
-					terrainMap[chunkPos][k][j][i] = 1;
+					terrainMap[chunkPos][k][j][i] = 1;	 //VOT DA FAC
 				}
 			}
 		}
@@ -288,7 +288,8 @@ void gameMap::loadTerrainTable() {
 		}
 		else {
 			stringstream ss(line);
-			ss >> terrainList[i].textureFile >> terrainList[i].visible >> terrainList[i].solid >> terrainList[i].opaque >> terrainList[i].canFloatInIt;
+			string temp;
+			ss >> temp >> temp >> terrainList[i].textureFile >> terrainList[i].visible >> terrainList[i].solid >> terrainList[i].opaque >> terrainList[i].canFloatInIt;
 			terrainListSize++;
 			i++;
 		}

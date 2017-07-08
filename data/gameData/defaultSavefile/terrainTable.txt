@@ -1,10 +1,43 @@
 # <- this is a comment, TNULL texture file designates an invisible block
-#TextureName      isVisible     isSolid      hasTransparency    canFloatInIt(IEwater)
-TNULL 	          0				0			 0					0
-grass.png         1				1			 1					0
-dirt.png          1				1			 1					0
-water.png         1				0			 1					1
-sand.png          1				1			 1					0
-wall.png          1				1			 0					0
-flower.png        1				1			 0					0
-flower2.png       1				1			 0					0
+#id               Name            	TextureName      isVisible     isSolid      hasTransparency    canFloatInIt(IEwater)
+0				  Air				TNULL 	          0				0			 0					0
+1				  Stone				stone.png		  1				1			 0					0
+2				  Grass				grass.png         1				1			 1					0
+3				  Dirt				dirt.png          1				1			 1					0
+4				  Cobblestone       cobble.png        1             1			 0					0
+5				  Wood				woodplank.png	  1				1			 0					0
+6				  Flower			flower.png        1				1			 0					0
+7				  Bedrock			bedrock.png		  1				1			 0					0
+8				  Water				water.png         1				0			 1					1
+9				  Water				water2.png        1				0			 1					1
+10				  Lava				lava.png		  1				0			 0					1
+11				  Lava				lava2.png		  1				0			 0					1
+12				  Sand				sand.png          1				1			 0					0
+13				  Gravel			gravel.png        1				1			 0					0
+14				  Gold				gold.png          1				1			 0					0
+15				  Iron				iron.png          1				1			 0					0
+16				  Coal				coal.png          1				1			 0					0
+17				  Wood				wood.png          1				1			 0					0
+18				  Leaf				leaves.png        1				1			 1					0
+19				  Sponge  			sponge.png        1				1			 0					0
+20				  Glass				glass.png         1				1			 1					0
+21				  LapisOre			lapisore.png	  1				1			 0					0
+22				  LapisBlock		lapisblock.png	  1				1			 0					0
+23				  Dispenser			dispenser.png	  1				1			 0					0
+24				  DarudeSandstone	sandstone.png	  1				1			 0					0
+25				  NoteBlock			noteblock.png	  1				1			 0					0
+26				  Bed				bed.png			  1				1			 0					0
+27				  PoweredRail		poweredrail.png	  1				0			 1					0
+28				  DetectorRail		detectorrail.png  1				0			 1					0
+29				  StickyPiston		stickypiston.png  1				1			 0					0
+30				  Cobweb			cobweb.png		  1				0			 1					0
+31				  TallGrass			flower.png		  1				0			 0					0
+32				  DeadBush			deadbush.png	  1				0			 1					0
+33				  Piston			piston.png		  1				1			 0					0
+34				  Pistonhead		piston.png		  1				1			 0					0
+35				  Wool				wool.png		  1				1			 0					0
+36				  Empty				TNULL			  0				0			 0					0
+37				  Dandelion			flower.png		  1				0			 1					0
+38				  Poppy				flower2.png		  1				0			 1					0
+39				  RedMushroom		brownmushroom.png 1				0			 1					0
+40				  RedMushroom		redmushroom.png	  1				0			 1					0

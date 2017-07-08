@@ -72,14 +72,13 @@ string get_string(int number);
 
 struct terrain {
 	string textureFile = "TNULL";
-	bool visible = true;
-	bool solid = true;
+	bool visible = false;
+	bool solid = false;
 	bool opaque = false;
 	bool canFloatInIt = false;
 };
 
 bool fsIsDirectory(const std::string path);
 bool fsExists(const std::string path);
-
-
 bool fsCreateDir(const std::string path);
+bool testing();

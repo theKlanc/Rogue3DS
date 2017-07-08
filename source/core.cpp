@@ -5,7 +5,10 @@
 
 using namespace std;
 
-string get_string(int number) {
+bool testing() { return true; }
+
+string get_string(int number)
+{
 	stringstream ss;
 	ss << number;
 	return ss.str();

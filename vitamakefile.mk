@@ -8,7 +8,7 @@ OBJECTS += $(SOURCES:*.c=*.o)
 LIBS = -lpthread -lvita2d -lSceDisplay_stub -lSceGxm_stub \
 	-lSceSysmodule_stub -lSceCtrl_stub -lScePgf_stub \
 	-lSceCommonDialog_stub -lfreetype -lpng -ljpeg -lz -lm -lc \
-	-lpsp2shell -lSceSysmodule_stub -lSceNet_stub \
+	-lSceSysmodule_stub -lSceNet_stub \
 	-lSceNetCtl_stub -lScePower_stub -lSceAppMgr_stub -lSceTouch_stub
 
 PREFIX  = arm-vita-eabi

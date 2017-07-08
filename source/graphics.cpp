@@ -11,9 +11,16 @@ bool graphics::isTextureLoaded(string textureFile) const { // tells if a texture
 	return texAtlas.find(textureFile) != texAtlas.end();
 }
 
+inline bool exists_test(const std::string& name) {
+	ifstream f(name.c_str());
+	return f.good();
+}
+
 HI::HITexture graphics::loadTexture(string fileName) { //load a texture from a file into the first free space inside texTable[]
 	if (texAtlas.find(fileName) == texAtlas.end()) {
-		texAtlas.insert(make_pair(fileName, HI::loadPngFile(HI::getDataPath() + "sprites/" + fileName.c_str())));
+		if(exists_test(HI::getDataPath() + "sprites/" + fileName.c_str()))
+			texAtlas.insert(make_pair(fileName, HI::loadPngFile(HI::getDataPath() + "sprites/" + fileName.c_str())));
+		else return nullptr;
 	}
 	return texAtlas.find(fileName)->second;
 }

@@ -59,6 +59,11 @@ struct canFloat {
 	explicit canFloat() : floating(false) {}
 	bool floating;
 };
+struct Name {
+	explicit Name(string name) : name(name) {}
+	string name;
+};
+
 
 struct autoFloat {};
 struct AIDrunk {};

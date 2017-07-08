@@ -72,13 +72,20 @@ void HardwareInterface::drawText(HIFont font, string text, int posX, int posY, i
 	}
 }
 
+inline bool exists_test(const std::string& name) {
+	ifstream f(name.c_str());
+	return f.good();
+}
 HI::HITexture HI::loadPngFile(std::string path) {
 	return loadBmpFile(path);
 }
 HI::HITexture HI::loadBmpFile(std::string path) {
-	sf::Texture* texture = new sf::Texture;
-	texture->loadFromFile(path);
-	return texture;
+	if (exists_test(path)) {
+		sf::Texture* texture = new sf::Texture;
+		texture->loadFromFile(path);
+		return texture;
+	}
+	else return nullptr;
 }
 
 void HI::drawTexture(HI::HITexture texture, int posX, int posY) {
