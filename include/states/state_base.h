@@ -15,7 +15,7 @@ namespace State {
 
 	protected: //aqui puc posar variables que els estats hagin de compartir
 
-		gameCore* core;
+		gameCore* core = nullptr;
 
 		int kDown;
 		int kUp;

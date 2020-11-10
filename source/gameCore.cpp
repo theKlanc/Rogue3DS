@@ -41,11 +41,12 @@ void gameCore::clean()
 }
 
 gameCore::gameCore() {
-	pushState(make_unique<State::MainMenu>(*this));
+
 	graphicsObj = new graphics;
 	exit = false;
 	uiObj = new UI(graphicsObj);
 	pop = 0;
+	pushState(make_unique<State::MainMenu>(*this));
 }
 
 gameCore::~gameCore() {

@@ -1,0 +1,8 @@
+include
+include/entityx
+include/entityx/3rdparty
+include/entityx/deps
+include/entityx/help
+include/entityx/tags
+include/states
+.

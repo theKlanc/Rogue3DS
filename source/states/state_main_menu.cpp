@@ -75,6 +75,9 @@ namespace State {
 
 		HI::drawTexture(newGame.getTexture(), newGame.posX, newGame.posY);
 		HI::drawTexture(loadGame.getTexture(), loadGame.posX, loadGame.posY);
+		core->getUIObj()->drawText("NewGame", newGame.posX + 30, newGame.posY + 10, 10, RGBA8(255,255,255,255));
+		core->getUIObj()->drawText("LoadGame", loadGame.posX + 30,  loadGame.posY + 10, 10, RGBA8(255, 255, 255, 255));
+
 
 		HI::endFrame();
 		HI::swapBuffers();

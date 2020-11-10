@@ -1,5 +1,5 @@
 #include <future>
-#ifdef WIN32
+#if defined __LINUX__ || defined WIN32 || defined WIN64
 #include <iostream>
 #include "../include/core.h"
 #include "../include/HardwareInterface.h"	
@@ -7,6 +7,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 #include <thread>
+#include <queue>
 #include <functional>
 
 #define DEBUG_PRIORITY 0
@@ -17,6 +18,8 @@ sf::Event* event;
 void HI::systemInit() {
 	event = new sf::Event;
 	window = new sf::RenderWindow(sf::VideoMode(1000, 1000), "Rogue3DS");
+	//window->setVerticalSyncEnabled(true);
+	window->setFramerateLimit(20);
 	//HI::consoleInit();
 }
 
@@ -59,16 +62,19 @@ void HardwareInterface::freeFont(HIFont font) {
 	delete (sf::Font*)font;
 }
 
+std::queue<sf::Text*> textQueue;
+
 void HardwareInterface::drawText(HIFont font, string text, int posX, int posY, int size, HIColor color)
 {
 	if (font != nullptr) {
-		sf::Text sftext;
-		sftext.setString(text.c_str());
-		sftext.setPosition(posX, posY);
-		sftext.setFont(*(sf::Font*)font);
-		sftext.setCharacterSize(size);
-		sftext.setColor(sf::Color::Black);
-		window->draw(sftext);
+		sf::Text* sftext = new sf::Text();
+		sftext->setFont(*(sf::Font*)font);
+		sftext->setString(text);
+		sftext->setPosition(posX, posY);
+		sftext->setCharacterSize(size);
+		sftext->setColor(sf::Color::Black);
+		window->draw(*sftext);
+		textQueue.push(sftext);
 	}
 }
 
@@ -129,7 +135,7 @@ void HI::drawRectangle(int posX, int posY, int width, int height, HI::HIColor co
 }
 
 void HI::freeTexture(HITexture texture) {
-	texture = &sf::Texture();
+	texture = nullptr;
 }
 HI::HITexture HI::createTexture(int sizeX, int sizeY) {
 	sf::Texture* texture = new sf::Texture;
@@ -142,6 +148,10 @@ void HI::endFrame() {
 
 void HI::swapBuffers() {
 	window->display();
+	while(!textQueue.empty()){
+		delete textQueue.front();
+		textQueue.pop();
+	}
 }
 
 std::string HI::getDataPath() {
