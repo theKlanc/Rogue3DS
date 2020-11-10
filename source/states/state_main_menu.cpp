@@ -51,12 +51,12 @@ namespace State {
 
 
 		if (newGame.state && (kUp & HI::HI_KEY_TOUCH)) {
-			createSavefile("default");
-			core->pushState(std::make_unique<State::Playing>(*core));
+			createSavefile("new");
+			core->pushState(std::make_unique<State::Playing>(*core,"new"));
 			return;
 		}
 		else if (loadGame.state && (kUp & HI::HI_KEY_TOUCH)) {
-			core->pushState(std::make_unique<State::Playing>(*core));
+			core->pushState(std::make_unique<State::Playing>(*core,"default"));
 			return;
 		}
 		else if (kDown & HI::HI_KEY_START)core->quit();

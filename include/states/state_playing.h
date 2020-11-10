@@ -7,7 +7,7 @@
 namespace State {
 	class Playing : public State_Base {
 	public:
-		Playing(gameCore& application);
+		Playing(gameCore& application, string save);
 		~Playing();
 
 		void input() override;

@@ -9,6 +9,7 @@
 #include <thread>
 #include <queue>
 #include <functional>
+#include <filesystem>
 
 #define DEBUG_PRIORITY 0
 
@@ -163,14 +164,14 @@ std::string HI::getSavesPath() {
 }
 
 bool HardwareInterface::createDir(std::string path) { //WIP
-	return true;
+	return std::filesystem::create_directory(path);
 }
 
 bool HardwareInterface::fsExists(std::string path) {  //WIP
-	return true;
+	return std::filesystem::exists(path);
 }
 bool HI::fsIsDirectory(const std::string path) {   //WIP
-	return true;
+	return std::filesystem::is_directory(path);
 }
 
 bool HardwareInterface::copyFile(std::string origin, std::string destination) {

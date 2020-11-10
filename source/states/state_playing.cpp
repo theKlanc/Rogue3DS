@@ -8,11 +8,11 @@
 #include "../../include/states/state_playing_pause.h"
 
 namespace State {
-	Playing::Playing(gameCore& application) : State_Base(application) {
+	Playing::Playing(gameCore& application, string save = "default") : State_Base(application) {
 		core->getGraphicsObj()->loadTexture("darkMask.png");
 		core->getGraphicsObj()->loadTexture("lightMask.png");
 
-		saveName = "default";
+		saveName = save;
 		map = new gameMap(saveName);
 		EntityWorld = new ex::EntityX();
 		playerPos = new point3D;
